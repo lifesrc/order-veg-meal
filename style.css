@@ -1,0 +1,35 @@
+.container {
+    display: flex;
+  }
+  
+  /* .jielong {
+      width: 300px;
+      height: 900px;
+      margin: 0 10px;
+      font-size: 14px;
+  } */
+  
+  .jielong-input > textarea {
+    width: 320px;
+    height: 900px;
+  }
+  
+  .jielong-area {
+    width: 300px;
+    margin: 0 10px;
+    font-size: 14px;
+  }
+  
+  .jielong-delivery {
+    margin-top: 30px;
+  }
+  
+  .actions {
+    margin: 20px;
+    text-align: center;
+  }
+  
+  .actions > button {
+    width: 100px;
+    height: 40px;
+  }
