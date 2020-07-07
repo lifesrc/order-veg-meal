@@ -141,7 +141,7 @@ function groupAreaAll(jielongList, findKeys) {
     return totalGroup
 }
 
-const MEAL_COUNT = /((\d+)|([零一二两三四五六七八九十百千万亿]+))份/
+const MEAL_COUNT = /[^A-Ma-m]((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]/
 const MEAL_PAID = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?已支?付/
 const MORE_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?多(米?饭|主食|(?=\d|\s|$))/g
 const LESS_RICE_MORE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?少饭多菜/g
@@ -159,6 +159,7 @@ const ADD_DISHES = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百�
 const ADD_PEPPER = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?辣椒?酱/g
 const ADD_SOUR_RADISH = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?(萝|酸萝?)卜/g
 const ADD_BAOZI = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?(包子|馒头)/g
+const ADD_SALAD = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?[沙色]拉/g
 const ADD_CONGEE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?粥/g
 const ADD_FREE_SAUCE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕)酱/g
 const NO_PEPPER = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(免|不要?)辣/g
@@ -251,6 +252,11 @@ const MARK_REGEXPS = [
         type: 'addBaozi',
         search: ADD_BAOZI,
         output: '加包子',
+    },
+    {
+        type: 'addSalad',
+        search: ADD_SALAD,
+        output: '加沙拉',
     },
     {
         type: 'addCongee',
@@ -484,9 +490,9 @@ function countByArea(jielongByArea) {
         }
         if (type === 'changeVeg') {
             const countList = countByChangeVegMark(jielongList, search)
+            const listSize = countList.length
             let markCount = 0
             let markOutput = ''
-            const listSize = countList.length
             if (listSize > 0) {
                 markOutput += `${output}(`
             }
@@ -681,7 +687,7 @@ const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Za-z ]+|\d+)[🌈🦋🍉�
 // 匹配格式如：H区小妍Fanni🌟
 const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)[ \-—_~～]*([\u4e00-\u9fa5A-Za-z ]+|\d+)[🌈🦋🍉🌻💤🌟🎈]*)/
 
-const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|邮储银行_郑婷婷🎈18826672976|🌱Carina)/
+const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|邮储银行_郑婷婷🎈18826672976|🌱Carina|🌻Xue、)/
 const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
 
 const USER_REGEXPS = [USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_AREA_ECMIX, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
