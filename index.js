@@ -20,9 +20,9 @@ const AREAS = [
         put: true,
         regex: /[Jj][区南\d]/,
         word: 'J',
-        // takers: ['张斌-J区', '佳忠J区 多饭'],
+        takers: ['张斌-J区', '佳忠J区 多饭'],
         // takers: ['佳忠J区 多饭'],
-        takers: ['张斌-J区'],
+        // takers: ['张斌-J区'],
         // takers: ['木水'],
         // takers: [],
     },
@@ -71,8 +71,8 @@ const OTHER = {
     word: '其它',
     takers: [],
 }
-const strFinder = (jielong, area) => jielong.toUpperCase().indexOf(area) > -1
-const regFinder = (jielong, area) => area.test(jielong)
+const strFinder = ({ jielong }, areaStr) => jielong.toUpperCase().indexOf(areaStr) > -1
+const regFinder = ({ jielong }, areaReg) => areaReg.test(jielong)
 const FINDERS = {
     name: strFinder,
     regex: regFinder,
@@ -80,36 +80,22 @@ const FINDERS = {
     default: strFinder,
 }
 
-function sortByPaid(jielongList) {
-    const paid = []
-    const noPaid = []
-    jielongList.forEach(jielong => {
-        if (MEAL_PAID.test(jielong)) {
-            paid.push(jielong)
-        } else {
-            noPaid.push(jielong)
-        }
-    })
-
-    return paid.concat(noPaid)
-}
-
 function groupByFinder(jielongList, findKey) {
     const finder = FINDERS[findKey] || FINDERS.default
     const areaGroup = {}
     let jielongLeft = jielongList
-    AREAS.forEach(area => {
+    AREAS.forEach(AREA => {
         const areaList = []
         const areaLeft = []
-        jielongLeft.forEach(jielong => {
-            if (finder(jielong, area[findKey])) {
-                areaList.push(jielong)
+        jielongLeft.forEach(jielongObj => {
+            if (finder(jielongObj, AREA[findKey])) {
+                areaList.push(jielongObj)
             } else {
-                areaLeft.push(jielong)
+                areaLeft.push(jielongObj)
             }
         })
 
-        areaGroup[area.name] = areaList
+        areaGroup[AREA.name] = areaList
         jielongLeft = areaLeft
     })
   
@@ -127,20 +113,21 @@ function groupAreaAll(jielongList, findKeys) {
             if (index < findKeys.length - 1 && area === OTHER.name) {
                 continue
             }
-            let jielongByArea
+            let jielongAreaList
             if (totalGroup[area]) {
-                jielongByArea = totalGroup[area].concat(areaGroup[area])
+                jielongAreaList = totalGroup[area].concat(areaGroup[area])
             } else {
-                jielongByArea = areaGroup[area]
+                jielongAreaList = areaGroup[area]
             }
 
-            totalGroup[area] = sortByPaid(jielongByArea)
+            totalGroup[area] = jielongAreaList
         }
     })
 
     return totalGroup
 }
 
+const ID_REGEX = /^(\d+)\.\s+/
 const MEAL_COUNT = /[^A-Ma-m]((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]/
 const MEAL_PAID = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?已支?付/
 const MORE_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?多(米?饭|主食|(?=\d|\s|$))/g
@@ -167,12 +154,12 @@ const SELF_BOX = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千�
 // const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?[换換]菜/g
 const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(([\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不要|飞)[\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
+const COUNT_REGEXP = {
+    type: 'mealCount',
+    search: MEAL_COUNT,
+    output: '份',
+}
 const MARK_REGEXPS = [
-    {
-        type: 'mealCount',
-        search: MEAL_COUNT,
-        output: '份',
-    },
     {
         type: 'moreRice',
         search: MORE_RICE,
@@ -285,99 +272,30 @@ const MARK_REGEXPS = [
     },
 ]
 
-// const chnNumChar = {
-//     零: 0, 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9,
-//     两: 2, 壹: 1, 贰: 2, 叁: 3, 肆: 4, 伍: 5, 陆: 6, 柒: 7, 捌: 8, 玖: 9,
-// }
-
-// const chnNameValue = {
-//     十: { value: 10, secUnit: false },
-//     百: { value: 100, secUnit: false },
-//     千: { value: 1000, secUnit: false },
-//     拾: { value: 10, secUnit: false },
-//     佰: { value: 100, secUnit: false },
-//     仟: { value: 1000, secUnit: false },
-//     万: { value: 1000, secUnit: true },
-//     亿: { value: 1000000, secUnit: true },
-// }
-
-// function ChineseToNumber(chnStr) {
-//     let rtn = 0
-//     let section = 0
-//     let number = 0
-//     const chnList = chnStr.split('')
-//     if (chnList[0] === '十' || chnList[0] === '拾') {
-//         chnList.unshift('一')
-//     }
-
-//     for (let i = 0; i < chnList.length; i++) {
-//         const num = chnNumChar[chnList[i]]
-//         if (typeof num !== 'undefined') {
-//             number = num
-//             if (i === chnList.length - 1) {
-//                 section += number
-//             }
-//         } else {
-//             const unit = chnNameValue[chnList[i]].value
-//             const secUnit = chnNameValue[chnList[i]].secUnit
-//             if (secUnit) {
-//                 section = (section + number) * unit
-//                 rtn += section
-//                 section = 0
-//             } else {
-//                 section += number * unit
-//             }
-//             number = 0
-//         }
-//     }
-//     return rtn + section
-// }
-
-function countBy(jielongByArea) {
-    let count = 0
-    jielongByArea.forEach(jielong => {
-        const result = MEAL_COUNT.exec(jielong)
-        // if (result && !isNaN(Number(result[1]))) {
-        //     count += Number(result[1])
-        // } else {
-        //     count++
-        // }
-        if (result) {
-            if (result[2]) {
-                count += Number(result[2])
-            } else if (result[3]) {
-                count += ChineseToNumber(result[3])
-            } else {
-                count++
-            }
-        } else {
-            count++
-        }
-    })
-    return count
+function countByTotal(jielongAreaList) {
+    const { type, output } = COUNT_REGEXP
+    const count = jielongAreaList.reduce((total, { count }) => total + count, 0)
+    return {
+        type,
+        count,
+        output,
+    }
 }
 
-function countByMark(jielongByArea, searchRegex) {
-    let markCount = 0
-    let more = 0
-    let less = 0
+function countByMark(jielongList, MARK_REGEXP, jielongMap) {
+    const { type, search: searchRegex, output } = MARK_REGEXP
     const replaceByArea = []
-    jielongByArea.forEach(originJielong => {
-        let jielong = originJielong
-        // const result = searchRegex.exec(jielong)
-        // if (result) {
-        //     if (!isNaN(Number(result[2]))) {
-        //         markCount += Number(result[2])
-        //     } else {
-        //         markCount++
-        //     }
-        //     jielongByArea.push(jielong.replace(result[0], ''))
-        // } else {
-        //     replaceByArea.push(jielong)
-        // }
-        let result, matched
+    let markCount = 0
+    let moreCount = 0
+    let lessCount = 0
+    jielongList.forEach(({ id, jielong }) => {
+        let result
+        let matches = ''
+        let count = 0
+        let more = 0
+        let less = 0
         while ((result = searchRegex.exec(jielong))) {
-            matched = result[0]
+            const matched = result[0]
             if (searchRegex === MORE_RICE || searchRegex === LESS_RICE) {
               if (result[2] === undefined && result[5] === '') {
                  if (/[杂饭河粉面条瓜薯]/.test(matched[matched.length - 2])) {
@@ -385,50 +303,60 @@ function countByMark(jielongByArea, searchRegex) {
                  }
               }
             }
-            // if (!isNaN(Number(result[2]))) {
-            //     markCount += Number(result[2])
-            // } else {
-            //     markCount++
-            // }
-            let add
+            let aCount
             if (result[3]) {
-                add = Number(result[3])
+                aCount = Number(result[3])
             } else if (result[4]) {
-                add = ChineseToNumber(result[4])
+                aCount = ChineseToNumber(result[4])
             } else {
-                add = 1
+                aCount = 1
             }
-            markCount += add
+            count += aCount
+            markCount += aCount
             const suffix = result[result.length - 1]
             if (suffix === '多') {
-              more += add
+                more += aCount
+                moreCount += aCount
             } else if (suffix === '少') {
-              less += add
+                less += aCount
+                lessCount += aCount
             }
-            jielong = jielong.replace(matched.slice(1), '')
+            // 匹配到的词语
+            matches += matched.slice(1)
         }
-        replaceByArea.push(jielong)
+
+        if (count > 0) {
+            jielongMap[id].conditions.push({ type, count, more, less, output })
+        }
+
+        if (matches.length) {
+            jielong = jielong.replace(matches, '')
+        }
+        replaceByArea.push({ id, jielong })
     })
+
     return {
-        markCount,
-        more,
-        less,
+        type,
+        count: markCount,
+        more: moreCount,
+        less: lessCount,
+        output,
         replaceByArea
     }
 }
 
-function countByChangeVegMark(jielongByArea, searchRegex) {
+function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
+    const { type, search: searchRegex, output } = MARK_REGEXP
     const countList = []
-    jielongByArea.forEach(jielong => {
+    const replaceByArea = []
+    jielongList.forEach(({ id, jielong }) => {
+        const sCountList = []
         let result
+        let matches = ''
         while ((result = searchRegex.exec(jielong))) {
+            const matched = result[0]
             const text = result[5]
             let count
-            // if (!isNaN(Number(result[2]))) {
-            //     count = Number(result[2])
-            // } else {
-            //     count = 1
-            // }
             if (result[3]) {
                 count = Number(result[3])
             } else if (result[4]) {
@@ -436,13 +364,54 @@ function countByChangeVegMark(jielongByArea, searchRegex) {
             } else {
                 count = 1
             }
-            countList.push({
+            const countObj = {
                 text,
                 count,
-            })
+            }
+            sCountList.push(countObj)
+            countList.push(countObj)
+            // 匹配到的词语
+            matches += matched.slice(1)
+        }
+
+        if (sCountList.length) {
+            jielongMap[id].conditions.push(countChangeVeg(sCountList, type, output))
+        }
+        
+        if (matches.length) {
+            jielong = jielong.replace(matches, '')
+        }
+        replaceByArea.push({ id, jielong })
+    })
+
+    const countObj = countChangeVeg(countList, type, output)
+    return { ...countObj, replaceByArea }
+}
+
+function countChangeVeg(countList, type, output) {
+    const combineList = combineByVegName(countList)
+    const listSize = combineList.length
+    let markCount = 0
+    let markOutput = ''
+    if (listSize > 0) {
+        markOutput += `${output}(`
+    }
+    combineList.forEach(({ text, count }, index) => {
+        markCount += count
+        markOutput += `${count}${text}`
+        if (index < listSize - 1) {
+            markOutput += '、'
         }
     })
-    return combineByVegName(countList)
+    if (listSize > 0) {
+        markOutput += ')'
+    }
+
+    return {
+        type,
+        count: markCount,
+        output: markOutput,
+    }
 }
 
 /**
@@ -450,7 +419,7 @@ function countByChangeVegMark(jielongByArea, searchRegex) {
  * @param {换菜列表}} countList 
  */
 function combineByVegName(countList) {
-    const countObj = countList.reduce((mapObj, {count, text}) => {
+    const countObj = countList.reduce((mapObj, { text, count }) => {
         if (mapObj[text]) {
             mapObj[text] += count
         } else {
@@ -465,63 +434,35 @@ function combineByVegName(countList) {
             count: countObj[text],
         })
     }
+
     return resultList
 }
 
-function countAreaAll(areaGroup) {
+function countAreaAll(areaGroup, jielongMap) {
     const countGroup = {}
     for (const area in areaGroup) {
-        countGroup[area] = countByArea(areaGroup[area])
+        countGroup[area] = countByArea(areaGroup[area], jielongMap)
     }
     countGroup['合计'] = countAreaTotal(countGroup)
+    console.log('countAreaAll', areaGroup, jielongMap, countGroup)
     return countGroup
 }
 
-function countByArea(jielongByArea) {
-    let jielongList = jielongByArea
-    return MARK_REGEXPS.map(({ type, search, output }) => {
-        if (type === 'mealCount') {
-            const count = countBy(jielongList)
-            return {
-                type,
-                count,
-                output,
-            }
+function countByArea(jielongAreaList, jielongMap) {
+    const countMeal = countByTotal(jielongAreaList, COUNT_REGEXP)
+    let jielongList = jielongAreaList
+    const countMarks = MARK_REGEXPS.map(MARK_REGEXP => {
+        let countObj
+        if (MARK_REGEXP.type === 'changeVeg') {
+            countObj = countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap)
+        } else {
+            countObj = countByMark(jielongList, MARK_REGEXP, jielongMap)
         }
-        if (type === 'changeVeg') {
-            const countList = countByChangeVegMark(jielongList, search)
-            const listSize = countList.length
-            let markCount = 0
-            let markOutput = ''
-            if (listSize > 0) {
-                markOutput += `${output}(`
-            }
-            countList.forEach(({ text, count }, index) => {
-                markCount += count
-                markOutput += `${count}${text}`
-                if (index < listSize - 1) {
-                    markOutput += '、'
-                }
-            })
-            if (listSize > 0) {
-                markOutput += ')'
-            }
-            return {
-                type,
-                count: markCount,
-                output: markOutput,
-            }
-        }
-        const { markCount, more, less, replaceByArea } = countByMark(jielongList, search)
-        jielongList = replaceByArea
-        return {
-            type,
-            count: markCount,
-            more,
-            less,
-            output,
-        }
-    }).filter(({ count }) => count > 0)
+        jielongList = countObj.replaceByArea
+        delete countObj.replaceByArea
+        return countObj
+    })
+    return [countMeal, ...countMarks].filter(({ count }) => count > 0)
 }
 
 function countAreaTotal(countGroup) {
@@ -614,6 +555,96 @@ function countAreaTotal(countGroup) {
     ].filter(({ count }) => count > 0)
 }
 
+// 匹配格式如：小妍 H区，Fanni🌟 H3
+const USER_NAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+|[A-Za-z]+)[🌈🦋🍉🌻💤🌟🎈]*[ \-—_~～]([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)([，, -—_]?([多少]饭|不要米饭))?)/
+// 匹配格式如：小妍 Fanni🌟H区
+const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Za-z]*)[🌈🦋🍉🌻💤🌟🎈]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)([，, -—_]?([多少]饭|不要米饭))?)/
+// 匹配格式如：Fanni 小妍🌟H区
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z]+\))? *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻💤🌟🎈]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)([，, -—_]?([多少]饭|不要米饭))?)/
+// 匹配格式如：Fanni 小FF妍🌟H区
+const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Za-z ]+|\d+)[🌈🦋🍉🌻💤🌟🎈]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?))/
+// 匹配格式如：H区小妍Fanni🌟
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)[ \-—_~～]*([\u4e00-\u9fa5A-Za-z ]+|\d+)[🌈🦋🍉🌻💤🌟🎈]*)/
+// 匹配其它格式：无园区，列举特别的姓名
+const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|邮储银行_郑婷婷🎈18826672976|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭 H3)/
+const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
+
+const USER_REGEXPS = [USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_AREA_ECMIX, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
+const OTHER_REGEXPS = [USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
+function deliveryAreaAll(areaGroup) {
+    const deliveryGroup = {}
+    const countGroup = {}
+    let totalCount = 0
+    for (const area in areaGroup) {
+        let regexps
+        if (area === OTHER.name) {
+            regexps = OTHER_REGEXPS
+        } else {
+            regexps = USER_REGEXPS
+        }
+        let jielongList = areaGroup[area]
+        deliveryGroup[area] = []
+        countGroup[area] = 0
+        // default takers
+        const AREA = AREAS.find(AREA => AREA.name === area)
+        if (AREA && AREA.takers && AREA.takers.length) {
+            AREA.takers.forEach(taker => {
+                deliveryGroup[area].push(`@${taker}`)
+            })
+        }
+        regexps.forEach((regexp, regIndex) => {
+            const jielongLeft = []
+            for (const index in jielongList) {
+                const jielongObj = jielongList[index]
+                const result = regexp.exec(jielongObj.jielong)
+                if (result && result[1]) {
+                    deliveryGroup[area].push(`@${result[1]}`)
+                    // console.log(regIndex, regexp, result[1])
+                    countGroup[area]++
+                    totalCount++
+                } else {
+                    jielongLeft.push(jielongObj)
+                }
+            }
+            jielongList = jielongLeft
+        })
+    }
+    // console.log('countGroup', JSON.stringify(countGroup))
+    console.log('totalCount', totalCount)
+    return deliveryGroup
+}
+
+function parseJielong(jielongArray) {
+    const list = []
+    const map = {}
+    jielongArray.forEach(jielong => {
+        const matched = ID_REGEX.exec(jielong)
+        const id = matched[1]
+
+        const result = MEAL_COUNT.exec(jielong)
+        let count = 0
+        if (result) {
+            if (result[2]) {
+                count += Number(result[2])
+            } else if (result[3]) {
+                count += ChineseToNumber(result[3])
+            } else {
+                count++
+            }
+        } else {
+            count++
+        }
+
+        const isPaid = MEAL_PAID.test(jielong)
+
+        const jielongObj = { id, jielong, count, isPaid, conditions: [] }
+        list.push(jielongObj)
+        map[id] = jielongObj
+    })
+
+    return { list, map }
+}
+
 function printCountList(area, countList) {
     const countDisplay = countList
         .map(({ count, output, more, less }) => {
@@ -624,7 +655,7 @@ function printCountList(area, countList) {
               if (less && less > 0) {
                   moreOrLess += `${less}少`
               }
-              moreOrLess = moreOrLess.length > 0 ? `(${moreOrLess})` : ''
+              moreOrLess = moreOrLess.length ? `(${moreOrLess})` : ''
               return `${count}${output}${moreOrLess}`
         })
         .join(' ')
@@ -632,19 +663,51 @@ function printCountList(area, countList) {
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
+function sortByPaid(jielongList) {
+    const paid = []
+    const noPaid = []
+    jielongList.forEach(jielongObj => {
+        if (jielongObj.isPaid) {
+            paid.push(jielongObj)
+        } else {
+            noPaid.push(jielongObj)
+        }
+    })
+
+    return [...paid, ...noPaid]
+}
+
+function sortByOneMeal(jielongList) {
+    const multiple = []
+    const noMultiple = []
+    jielongList.forEach(jielongObj => {
+        const { count, conditions } = jielongObj
+        if (count === 1 && conditions.length > 1) {
+            multiple.push(jielongObj)
+        } else {
+            noMultiple.push(jielongObj)
+        }
+    })
+
+    return [...multiple, ...noMultiple]
+}
+
 function printAreaGroup(areaGroup) {
     let result = '<div>## 接龙分区<br/><br/>'
     for (const area in areaGroup) {
-        result += `<span>${area}</span>：<br/>
-                  ${areaGroup[area]
-                      .map(jielong => {
-                          if (MEAL_PAID.test(jielong)) {
-                              return `<strong style="color: green">${jielong}</strong>`
-                          }
-                          return jielong
-                      })
-                      .join('<br/>')}`
-        result += '<br/><br/>'
+        const jielongAreaList = sortByOneMeal(sortByPaid(areaGroup[area]))
+        const jielongDisplay = jielongAreaList.length
+            ? jielongAreaList.map(({ jielong, count, isPaid, conditions }) => {
+                if (count === 1 && conditions.length > 1) {
+                    return `<strong style="color: orange">${jielong}</strong>`
+                }
+                if (isPaid) {
+                    return `<strong style="color: green">${jielong}</strong>`
+                }
+                return jielong
+            }).join('<br/>')
+            : ''
+        result += `<span>${area}</span>：<br/><div>${jielongDisplay}</div><br/>`
     }
     result += '</div>'
     document.querySelector('.jielong-area').innerHTML = result
@@ -666,7 +729,7 @@ function printCountGroup(countGroup) {
                 if (less && less > 0) {
                   moreOrLess += `${less}少`
                 }
-                moreOrLess = moreOrLess.length > 0 ? `(${moreOrLess})` : ''
+                moreOrLess = moreOrLess.length ? `(${moreOrLess})` : ''
                 return `${count}${output}${moreOrLess}`
             })
             .join(' ')
@@ -674,65 +737,6 @@ function printCountGroup(countGroup) {
     }
     result += '</div>'
     document.querySelector('.jielong-statistics').innerHTML = result
-}
-
-// 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+|[A-Za-z]+)[🌈🦋🍉🌻💤🌟🎈]*[ \-—_~～]([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)([，, -—_]?([多少]饭|不要米饭))?)/
-// 匹配格式如：小妍 Fanni🌟H区
-const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Za-z]*)[🌈🦋🍉🌻💤🌟🎈]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)([，, -—_]?([多少]饭|不要米饭))?)/
-// 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+ *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻💤🌟🎈]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)([，, -—_]?([多少]饭|不要米饭))?)/
-// 匹配格式如：Fanni 小FF妍🌟H区
-const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Za-z ]+|\d+)[🌈🦋🍉🌻💤🌟🎈]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?))/
-// 匹配格式如：H区小妍Fanni🌟
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)[ \-—_~～]*([\u4e00-\u9fa5A-Za-z ]+|\d+)[🌈🦋🍉🌻💤🌟🎈]*)/
-
-const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|邮储银行_郑婷婷🎈18826672976|🌱Carina|🌻Xue、)/
-const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
-
-const USER_REGEXPS = [USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_AREA_ECMIX, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
-const OTHER_REGEXPS = [USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
-function deliveryAreaAll(areaGroup) {
-    const deliveryGroup = {}
-    const countGroup = {}
-    let totalCount = 0
-    for (const area in areaGroup) {
-        let regexps
-        if (area === OTHER.name) {
-            regexps = OTHER_REGEXPS
-        } else {
-            regexps = USER_REGEXPS
-        }
-        let jielongList = areaGroup[area]
-        deliveryGroup[area] = []
-        countGroup[area] = 0
-        // default takers
-        const AREA = AREAS.find(AREA => AREA.name === area)
-        if (AREA && AREA.takers && AREA.takers.length > 0) {
-            AREA.takers.forEach(taker => {
-                deliveryGroup[area].push(`@${taker}`)
-            })
-        }
-        regexps.forEach((regexp, regIndex) => {
-            const jielongLeft = []
-            for (const index in jielongList) {
-                const jielong = jielongList[index]
-                const result = regexp.exec(jielong)
-                if (result && result[1]) {
-                    deliveryGroup[area].push(`@${result[1]}`)
-                    console.log(regIndex, regexp, result[1])
-                    countGroup[area]++
-                    totalCount++
-                } else {
-                    jielongLeft.push(jielong)
-                }
-            }
-            jielongList = jielongLeft
-        })
-    }
-    console.log('countGroup', JSON.stringify(countGroup))
-    console.log('totalCount', totalCount)
-    return deliveryGroup
 }
 
 function printDeliveryGroup(deliveryGroup) {
@@ -750,17 +754,17 @@ function printDeliveryGroup(deliveryGroup) {
 document.getElementById('button0').onclick = function() {
     const inputJielong = document.querySelector('.jielong-input > textarea').value
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
-    const jielongList = jielongContent.split('\n')
-    const countList = countByArea(jielongList)
+    const { list, map } = parseJielong(jielongContent.split('\n'))
+    const countList = countByArea(list, map)
     printCountList('J区', countList)
 }
 
 document.getElementById('button').onclick = function() {
     const inputJielong = document.querySelector('.jielong-input > textarea').value
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
-    const jielongList = jielongContent.split('\n')
-    const areaGroup = groupAreaAll(jielongList, ['name', 'regex'])
-    const countGroup = countAreaAll(areaGroup)
+    const { list, map } = parseJielong(jielongContent.split('\n'))
+    const areaGroup = groupAreaAll(list, ['name', 'regex'])
+    const countGroup = countAreaAll(areaGroup, map)
     const deliveryGroup = deliveryAreaAll(areaGroup)
     printAreaGroup(areaGroup)
     printCountGroup(countGroup)
