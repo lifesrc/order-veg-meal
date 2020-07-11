@@ -470,6 +470,7 @@ function countAreaTotal(countGroup) {
     let moreRiceTotal = 0
     let lessRiceMoreVegTotal = 0
     let lessRiceTotal = 0
+    let noRiceTotal = 0
     let friedRiceTotal = 0
     let changePumpkinTotal = 0
     let changePotatoTotal = 0
@@ -486,6 +487,8 @@ function countAreaTotal(countGroup) {
                 lessRiceMoreVegTotal += count
             } else if (type === 'lessRice') {
                 lessRiceTotal += count
+            } else if (type === 'noRice') {
+                noRiceTotal += count
             } else if (type === 'friedRice') {
                 friedRiceTotal += count
             } else if (type === 'changePumpkin') {
@@ -521,6 +524,11 @@ function countAreaTotal(countGroup) {
             type: 'lessRice',
             count: lessRiceTotal,
             output: '少饭',
+        },
+        {
+            type: 'noRice',
+            count: noRiceTotal,
+            output: '无饭',
         },
         {
             type: 'friedRice',
