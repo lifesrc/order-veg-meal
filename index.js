@@ -71,6 +71,7 @@ const OTHER = {
     word: '其它',
     takers: [],
 }
+
 const strFinder = ({ jielong }, areaStr) => jielong.toUpperCase().indexOf(areaStr) > -1
 const regFinder = ({ jielong }, areaReg) => areaReg.test(jielong)
 const FINDERS = {
@@ -272,14 +273,10 @@ const MARK_REGEXPS = [
     },
 ]
 
-function countByTotal(jielongAreaList) {
-    const { type, output } = COUNT_REGEXP
-    const count = jielongAreaList.reduce((total, { count }) => total + count, 0)
-    return {
-        type,
-        count,
-        output,
-    }
+function countByTotal(jielongList, MARK_REGEXP) {
+    const count = jielongList.reduce((total, { count }) => total + count, 0)
+    const { type, output } = MARK_REGEXP
+    return { type, count, output }
 }
 
 function countByMark(jielongList, MARK_REGEXP, jielongMap) {
@@ -303,23 +300,23 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
                  }
               }
             }
-            let aCount
+            let jcount  // 当前接龙每次匹配条件份数
             if (result[3]) {
-                aCount = Number(result[3])
+                jcount = Number(result[3])
             } else if (result[4]) {
-                aCount = ChineseToNumber(result[4])
+                jcount = ChineseToNumber(result[4])
             } else {
-                aCount = 1
+                jcount = 1
             }
-            count += aCount
-            markCount += aCount
+            count += jcount
+            markCount += jcount
             const suffix = result[result.length - 1]
             if (suffix === '多') {
-                more += aCount
-                moreCount += aCount
+                more += jcount
+                moreCount += jcount
             } else if (suffix === '少') {
-                less += aCount
-                lessCount += aCount
+                less += jcount
+                lessCount += jcount
             }
             // 匹配到的词语
             matches += matched.slice(1)
@@ -350,32 +347,32 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
     const countList = []
     const replaceByArea = []
     jielongList.forEach(({ id, jielong }) => {
-        const sCountList = []
+        const jcountList = []
         let result
         let matches = ''
         while ((result = searchRegex.exec(jielong))) {
             const matched = result[0]
             const text = result[5]
-            let count
+            let jcount // 当前接龙每次匹配条件份数
             if (result[3]) {
-                count = Number(result[3])
+                jcount = Number(result[3])
             } else if (result[4]) {
-                count = ChineseToNumber(result[4])
+                jcount = ChineseToNumber(result[4])
             } else {
-                count = 1
+                jcount = 1
             }
             const countObj = {
                 text,
-                count,
+                count: jcount,
             }
-            sCountList.push(countObj)
+            jcountList.push(countObj)
             countList.push(countObj)
             // 匹配到的词语
             matches += matched.slice(1)
         }
 
-        if (sCountList.length) {
-            jielongMap[id].conditions.push(countChangeVeg(sCountList, type, output))
+        if (jcountList.length) {
+            jielongMap[id].conditions.push(countChangeVeg(jcountList, type, output))
         }
         
         if (matches.length) {
@@ -449,8 +446,8 @@ function countAreaAll(areaGroup, jielongMap) {
 }
 
 function countByArea(jielongAreaList, jielongMap) {
-    const countMeal = countByTotal(jielongAreaList, COUNT_REGEXP)
     let jielongList = jielongAreaList
+    const countMeal = countByTotal(jielongList, COUNT_REGEXP)
     const countMarks = MARK_REGEXPS.map(MARK_REGEXP => {
         let countObj
         if (MARK_REGEXP.type === 'changeVeg') {
@@ -573,7 +570,7 @@ const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z]+\))? *[\u4e00-\u9fa5]
 const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Za-z ]+|\d+)[🌈🦋🍉🌻💤🌟🎈]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?))/
 // 匹配格式如：H区小妍Fanni🌟
 const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)[ \-—_~～]*([\u4e00-\u9fa5A-Za-z ]+|\d+)[🌈🦋🍉🌻💤🌟🎈]*)/
-// 匹配其它格式：无园区，列举特别的姓名
+// 匹配其它格式：无园区，列举特别格式的姓名
 const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|邮储银行_郑婷婷🎈18826672976|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭 H3)/
 const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
 
@@ -618,57 +615,43 @@ function deliveryAreaAll(areaGroup) {
         })
     }
     // console.log('countGroup', JSON.stringify(countGroup))
-    console.log('totalCount', totalCount)
+    console.log('deliveryAreaAll poeple totalCount', totalCount)
     return deliveryGroup
 }
 
+/**
+ * 解析原始接龙，生成接龙对象
+ * @param {Array} jielongArray 
+ */
 function parseJielong(jielongArray) {
     const list = []
     const map = {}
     jielongArray.forEach(jielong => {
-        const matched = ID_REGEX.exec(jielong)
-        const id = matched[1]
-
-        const result = MEAL_COUNT.exec(jielong)
+        if (!jielong) {
+            return
+        }
+        const idMatched = ID_REGEX.exec(jielong)
+        const cMatched = MEAL_COUNT.exec(jielong)
+        const isPaid = MEAL_PAID.test(jielong)
+        const id = idMatched[1]
         let count = 0
-        if (result) {
-            if (result[2]) {
-                count += Number(result[2])
-            } else if (result[3]) {
-                count += ChineseToNumber(result[3])
+        if (cMatched) {
+            if (cMatched[2]) {
+                count = Number(cMatched[2])
+            } else if (cMatched[3]) {
+                count = ChineseToNumber(cMatched[3])
             } else {
-                count++
+                count = 1
             }
         } else {
-            count++
+            count = 1
         }
-
-        const isPaid = MEAL_PAID.test(jielong)
-
         const jielongObj = { id, jielong, count, isPaid, conditions: [] }
         list.push(jielongObj)
         map[id] = jielongObj
     })
 
     return { list, map }
-}
-
-function printCountList(area, countList) {
-    const countDisplay = countList
-        .map(({ count, output, more, less }) => {
-              let moreOrLess = ''
-              if (more && more > 0) {
-                  moreOrLess += `${more}多`
-              }
-              if (less && less > 0) {
-                  moreOrLess += `${less}少`
-              }
-              moreOrLess = moreOrLess.length ? `(${moreOrLess})` : ''
-              return `${count}${output}${moreOrLess}`
-        })
-        .join(' ')
-    const result = `<div>## ${area}统计<br/><br/>${countDisplay}</div>`
-    document.querySelector('.jielong-statistics').innerHTML = result
 }
 
 function sortByPaid(jielongList) {
@@ -700,12 +683,30 @@ function sortByOneMeal(jielongList) {
     return [...multiple, ...noMultiple]
 }
 
+function printCountList(area, countList) {
+    const countDisplay = countList
+        .map(({ count, output, more, less }) => {
+              let moreOrLess = ''
+              if (more && more > 0) {
+                  moreOrLess += `${more}多`
+              }
+              if (less && less > 0) {
+                  moreOrLess += `${less}少`
+              }
+              moreOrLess = moreOrLess.length ? `(${moreOrLess})` : ''
+              return `${count}${output}${moreOrLess}`
+        })
+        .join(' ')
+    const result = `<div>## ${area}统计<br/><br/>${countDisplay}</div>`
+    document.querySelector('.jielong-statistics').innerHTML = result
+}
+
 function printAreaGroup(areaGroup) {
     let result = '<div>## 接龙分区<br/><br/>'
     for (const area in areaGroup) {
-        const jielongAreaList = sortByOneMeal(sortByPaid(areaGroup[area]))
-        const jielongDisplay = jielongAreaList.length
-            ? jielongAreaList.map(({ jielong, count, isPaid, conditions }) => {
+        const sortedAreaList = sortByOneMeal(sortByPaid(areaGroup[area]))
+        const jielongDisplay = sortedAreaList.length
+            ? sortedAreaList.map(({ jielong, count, isPaid, conditions }) => {
                 if (count === 1 && conditions.length > 1) {
                     return `<strong style="color: orange">${jielong}</strong>`
                 }
