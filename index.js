@@ -20,11 +20,11 @@ const AREAS = [
         put: true,
         regex: /[Jj][区南\d]/,
         word: 'J',
-        takers: ['张斌-J区', '佳忠J区 多饭'],
+        // takers: ['张斌-J区', '佳忠J区 多饭'],
         // takers: ['佳忠J区 多饭'],
         // takers: ['张斌-J区'],
         // takers: ['木水'],
-        // takers: [],
+        takers: [],
     },
     {
         name: 'F区',
@@ -134,26 +134,26 @@ const MEAL_PAID = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千
 const MORE_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?多(米?饭|主食|(?=\d|\s|$))/g
 const LESS_RICE_MORE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?少饭多菜/g
 const LESS_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?少(米?饭|主食|(?=\d|\s|$))/g
-const NO_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(无|不需?要)(米?饭|主食)/g
-const WHITE_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(杂粮饭|主食)?[换換]?(白|白米)饭/g
-const FRIED_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(白?米饭|杂粮饭|主食)?[换換]?(炒饭|炒杂|杂粮炒?饭)([多少]?)/g
-const RIVER_FLOUR = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(白?米饭|杂粮饭|主食)?[换換]?炒?河粉?([多少]?)/g
-const RICE_FLOUR = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(白?米饭|杂粮饭|主食)?[换換]?(米粉|炒米?粉)([多少]?)/g
-const NOODLES = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(白?米饭|杂粮饭|主食)?[换換]?(面条|炒面条?)([多少]?)/g
-const CHANGE_PUMPKIN = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(白?米饭|杂粮饭|主食)?[换換]南瓜([多少]?)/g
-const CHANGE_POTATO = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(白?米饭|杂粮饭|主食)?[换換][红番]薯([多少]?)/g
-const CHANGE_STAPLE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(白?米饭|杂粮饭|主食)[换換][\u4e0-\u6361\u6363-\u9fa5]+/g
-const ADD_DISHES = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?小菜/g
-const ADD_PEPPER = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?辣椒?酱/g
-const ADD_SOUR_RADISH = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?(萝|酸萝?)卜/g
-const ADD_BAOZI = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?(包子|馒头)/g
-const ADD_SALAD = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?[沙色]拉/g
-const ADD_CONGEE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕\s*)?粥/g
-const ADD_FREE_SAUCE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(\+|加|➕)酱/g
-const NO_PEPPER = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(免|不要?)辣/g
-const SELF_BOX = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(自备)?饭?盒/g
-// const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?[换換]菜/g
-const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))份?)?(([\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不要|飞)[\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
+const NO_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(无|不需?要)(白米?饭|杂粮饭|主食)/g
+const WHITE_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(杂粮饭|主食)?[换換]?(白米?)饭/g
+const FRIED_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?(炒饭|炒杂|杂粮炒?饭)([多少]?)/g
+const RIVER_FLOUR = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?炒?河粉?([多少]?)/g
+const RICE_FLOUR = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?(米粉|炒米?粉)([多少]?)/g
+const NOODLES = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?(面条|炒面条?)([多少]?)/g
+const CHANGE_PUMPKIN = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]南瓜([多少]?)/g
+const CHANGE_POTATO = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換][红番]薯([多少]?)/g
+const CHANGE_STAPLE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)[换換][\u4e0-\u6361\u6363-\u9fa5]+/g
+const ADD_DISHES = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?小菜/g
+const ADD_PEPPER = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?辣椒?酱/g
+const ADD_SOUR_RADISH = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?(萝|酸萝?)卜/g
+const ADD_BAOZI = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?(包子|馒头)/g
+const ADD_SALAD = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?[沙色]拉/g
+const ADD_CONGEE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?粥/g
+const ADD_FREE_SAUCE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕)酱/g
+const NO_PEPPER = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(免|不要?)辣/g
+const SELF_BOX = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(自备)?饭?盒/g
+// const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?[换換]菜/g
+const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(([\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不要|飞)[\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
 const COUNT_REGEXP = {
     type: 'mealCount',
@@ -287,12 +287,15 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
     let lessCount = 0
     jielongList.forEach(({ id, jielong }) => {
         let result
-        let matches = ''
         let count = 0
         let more = 0
         let less = 0
         while ((result = searchRegex.exec(jielong))) {
             const matched = result[0]
+            // 检查匹配目标词后一个位置有没有换字，有则放弃此次匹配，等待下一次匹配
+            if (matched && /[换換]/.test(jielong[result.index + matched.length])) {
+                continue
+            }
             if (searchRegex === MORE_RICE || searchRegex === LESS_RICE) {
               if (result[2] === undefined && result[5] === '') {
                  if (/[杂饭河粉面条瓜薯]/.test(matched[matched.length - 2])) {
@@ -319,16 +322,13 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
                 lessCount += jcount
             }
             // 匹配到的词语
-            matches += matched.slice(1)
+            jielong = jielong.replace(matched.slice(1), '')
         }
 
         if (count > 0) {
             jielongMap[id].conditions.push({ type, count, more, less, output })
         }
 
-        if (matches.length) {
-            jielong = jielong.replace(matches, '')
-        }
         replaceByArea.push({ id, jielong })
     })
 
@@ -349,7 +349,6 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
     jielongList.forEach(({ id, jielong }) => {
         const jcountList = []
         let result
-        let matches = ''
         while ((result = searchRegex.exec(jielong))) {
             const matched = result[0]
             const text = result[5]
@@ -368,16 +367,13 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
             jcountList.push(countObj)
             countList.push(countObj)
             // 匹配到的词语
-            matches += matched.slice(1)
+            jielong = jielong.replace(matched.slice(1), '')
         }
 
         if (jcountList.length) {
             jielongMap[id].conditions.push(countChangeVeg(jcountList, type, output))
         }
-        
-        if (matches.length) {
-            jielong = jielong.replace(matches, '')
-        }
+
         replaceByArea.push({ id, jielong })
     })
 
