@@ -134,7 +134,7 @@ const MEAL_PAID = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千
 const MORE_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?多(米?饭|主食|(?=\d|\s|$))/g
 const LESS_RICE_MORE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?少饭多菜/g
 const LESS_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?少(米?饭|主食|(?=\d|\s|$))/g
-const NO_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(无|不需?要)(白米?饭|杂粮饭|主食)/g
+const NO_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(不(需?要|用)|[免无飞])(白?米?饭|杂粮饭|主食)/g
 const WHITE_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(杂粮饭|主食)?[换換]?(白米?)饭/g
 const FRIED_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?(炒饭|炒杂|杂粮炒?饭)([多少]?)/g
 const RIVER_FLOUR = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?炒?河粉?([多少]?)/g
@@ -150,10 +150,10 @@ const ADD_BAOZI = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千
 const ADD_SALAD = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?[沙色]拉/g
 const ADD_CONGEE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?粥/g
 const ADD_FREE_SAUCE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕)酱/g
-const NO_PEPPER = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(免|不要?)辣/g
+const NO_PEPPER = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(不(需?要?|用?)|[免无飞])辣/g
 const SELF_BOX = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(自备)?饭?盒/g
 // const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?[换換]菜/g
-const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(([\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不要|飞)[\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
+const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(([\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不(需?要|用)|[免无飞])[\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
 const COUNT_REGEXP = {
     type: 'mealCount',
@@ -293,11 +293,8 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
         let less = 0
         while ((result = searchRegex.exec(jielong))) {
             const matched = result[0]
-            if (!matched) {
-                continue
-            }
-            // 检查匹配目标词后一个位置是否有换字，有则放弃此次匹配，等待下一次匹配
-            if (/[换換]/.test(jielong[result.index + matched.length])) {
+            // 检查接龙目标词后一位置是否有换字，有则放弃此次匹配
+            if (!matched || /[换換]/.test(jielong[result.index + matched.length])) {
                 continue
             }
             if (searchRegex === MORE_RICE || searchRegex === LESS_RICE) {
@@ -326,11 +323,7 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
                 lessCount += jcount
             }
             // 需要被替换的内容
-            if (/\s/.test(matched[0])) {
-                replaces.push(matched)
-            } else {
-                replaces.push(matched.slice(1))
-            }
+            replaces.push(matched.slice(1))
         }
 
         if (count > 0) {
@@ -380,11 +373,7 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
             jcountList.push(countObj)
             countList.push(countObj)
             // 需要被替换的内容
-            if (/\s/.test(matched[0])) {
-                replaces.push(matched)
-            } else {
-                replaces.push(matched.slice(1))
-            }
+            replaces.push(matched.slice(1))
         }
 
         if (jcountList.length) {
@@ -585,7 +574,7 @@ const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉�
 // 匹配格式如：H区小妍Fanni🌟
 const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)[ \-—_~～]*([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻💤🌟🌱🌻🍭🎈]*)/
 // 匹配其它格式：无园区，列举特别格式的姓名
-const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|邮储银行_郑婷婷🎈18826672976|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭 H3)/
+const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|邮储银行_郑婷婷🎈18826672976|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭)/
 const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
 
 const USER_REGEXPS = [USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_AREA_ECMIX, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
