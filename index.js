@@ -286,14 +286,18 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
     let moreCount = 0
     let lessCount = 0
     jielongList.forEach(({ id, jielong }) => {
+        const replaces = [] // 在 while 匹配过程中不能直接 replace，因为 searchRegex lastIndex 有状态
         let result
         let count = 0
         let more = 0
         let less = 0
         while ((result = searchRegex.exec(jielong))) {
             const matched = result[0]
-            // 检查匹配目标词后一个位置有没有换字，有则放弃此次匹配，等待下一次匹配
-            if (matched && /[换換]/.test(jielong[result.index + matched.length])) {
+            if (!matched) {
+                continue
+            }
+            // 检查匹配目标词后一个位置是否有换字，有则放弃此次匹配，等待下一次匹配
+            if (/[换換]/.test(jielong[result.index + matched.length])) {
                 continue
             }
             if (searchRegex === MORE_RICE || searchRegex === LESS_RICE) {
@@ -321,15 +325,20 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
                 less += jcount
                 lessCount += jcount
             }
-            // 匹配到的词语
-            jielong = jielong.replace(matched.slice(1), '')
+            // 需要被替换的内容
+            if (/\s/.test(matched[0])) {
+                replaces.push(matched)
+            } else {
+                replaces.push(matched.slice(1))
+            }
         }
 
         if (count > 0) {
             jielongMap[id].conditions.push({ type, count, more, less, output })
         }
 
-        replaceByArea.push({ id, jielong })
+        const replaced = replaces.reduce((replaced, replace) => replaced.replace(replace, ''), jielong)
+        replaceByArea.push({ id, jielong: replaced })
     })
 
     return {
@@ -348,9 +357,13 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
     const replaceByArea = []
     jielongList.forEach(({ id, jielong }) => {
         const jcountList = []
+        const replaces = [] // 在 while 匹配过程中不能直接 replace，因为 searchRegex lastIndex 有状态
         let result
         while ((result = searchRegex.exec(jielong))) {
             const matched = result[0]
+            if (!matched) {
+                continue
+            }
             const text = result[5]
             let jcount // 当前接龙每次匹配条件份数
             if (result[3]) {
@@ -366,15 +379,20 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
             }
             jcountList.push(countObj)
             countList.push(countObj)
-            // 匹配到的词语
-            jielong = jielong.replace(matched.slice(1), '')
+            // 需要被替换的内容
+            if (/\s/.test(matched[0])) {
+                replaces.push(matched)
+            } else {
+                replaces.push(matched.slice(1))
+            }
         }
 
         if (jcountList.length) {
             jielongMap[id].conditions.push(countChangeVeg(jcountList, type, output))
         }
 
-        replaceByArea.push({ id, jielong })
+        const replaced = replaces.reduce((replaced, replace) => replaced.replace(replace, ''), jielong)
+        replaceByArea.push({ id, jielong: replaced })
     })
 
     const countObj = countChangeVeg(countList, type, output)
