@@ -3,7 +3,7 @@ const AREAS = [
         name: '云谷',
         gate: '云谷',
         put: true,
-        regex: /云谷\d?[A-Da-d]?座?/,
+        regex: /云谷(\d?[A-Da-d])?座?/,
         word: '云',
         takers: [],
     },
@@ -59,7 +59,7 @@ const AREAS = [
     {
         name: '微谷',
         gate: '微谷北',
-        regex: /微谷\d?[A-Da-d]?座?/,
+        regex: /微谷(\d?[A-Da-d])?座?/,
         word: '微',
         takers: [],
     },
@@ -148,12 +148,13 @@ const ADD_PEPPER = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百�
 const ADD_SOUR_RADISH = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?(萝|酸萝?)卜/g
 const ADD_BAOZI = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?(包子|馒头)/g
 const ADD_SALAD = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?[沙色]拉/g
+const ADD_WATERMELON = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?(西瓜🍉+|西瓜|🍉+)/g
 const ADD_CONGEE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕\s*)?粥/g
 const ADD_FREE_SAUCE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(\+|加|➕)酱/g
 const NO_PEPPER = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(不(需?要?|用?)|[免无飞])辣/g
 const SELF_BOX = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(自备)?饭?盒/g
 // const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?[换換]菜/g
-const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(([\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不(需?要|用)|[免无飞])[\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
+const CHANGE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(([\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不(需?要|用)|[免无飞多])[\u4e00-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
 const COUNT_REGEXP = {
     type: 'mealCount',
@@ -247,6 +248,11 @@ const MARK_REGEXPS = [
         output: '加沙拉',
     },
     {
+        type: 'addWatermelon',
+        search: ADD_WATERMELON,
+        output: '加西瓜🍉',
+    },
+    {
         type: 'addCongee',
         search: ADD_CONGEE,
         output: '加粥',
@@ -273,6 +279,16 @@ const MARK_REGEXPS = [
     },
 ]
 
+function getMatches(matchWords, jielong) {
+    let fromIndex = 0
+    return matchWords.map(word => {
+        const start = jielong.indexOf(word, fromIndex)
+        const end = start + word.length
+        fromIndex += end
+        return { word, start, end }
+    })
+}
+
 function countByTotal(jielongList, MARK_REGEXP) {
     const count = jielongList.reduce((total, { count }) => total + count, 0)
     const { type, output } = MARK_REGEXP
@@ -286,7 +302,8 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
     let moreCount = 0
     let lessCount = 0
     jielongList.forEach(({ id, jielong }) => {
-        const replaces = [] // 在 while 匹配过程中不能直接 replace，因为 searchRegex lastIndex 有状态
+        // 在 while 匹配过程中不能直接 replace，因为 searchRegex lastIndex 有状态
+        const matchWords = []
         let result
         let count = 0
         let more = 0
@@ -323,14 +340,16 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
                 lessCount += jcount
             }
             // 需要被替换的内容
-            replaces.push(matched.slice(1))
+            matchWords.push(matched.slice(1))
         }
 
         if (count > 0) {
-            jielongMap[id].conditions.push({ type, count, more, less, output })
+            const { jielong, conditions } = jielongMap[id]
+            const matches = getMatches(matchWords, jielong)
+            conditions.push({ type, count, more, less, output, matches })
         }
 
-        const replaced = replaces.reduce((replaced, replace) => replaced.replace(replace, ''), jielong)
+        const replaced = matchWords.reduce((replaced, word) => replaced.replace(word, ''), jielong)
         replaceByArea.push({ id, jielong: replaced })
     })
 
@@ -350,7 +369,8 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
     const replaceByArea = []
     jielongList.forEach(({ id, jielong }) => {
         const jcountList = []
-        const replaces = [] // 在 while 匹配过程中不能直接 replace，因为 searchRegex lastIndex 有状态
+        // 在 while 匹配过程中不能直接 replace，因为 searchRegex lastIndex 有状态
+        const matchWords = []
         let result
         while ((result = searchRegex.exec(jielong))) {
             const matched = result[0]
@@ -373,14 +393,17 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
             jcountList.push(countObj)
             countList.push(countObj)
             // 需要被替换的内容
-            replaces.push(matched.slice(1))
+            matchWords.push(matched.slice(1))
         }
 
         if (jcountList.length) {
-            jielongMap[id].conditions.push(countChangeVeg(jcountList, type, output))
+            const countObj = countChangeVeg(jcountList, type, output)
+            const { jielong, conditions } = jielongMap[id]
+            const matches = getMatches(matchWords, jielong)
+            conditions.push({ ...countObj, matches })
         }
 
-        const replaced = replaces.reduce((replaced, replace) => replaced.replace(replace, ''), jielong)
+        const replaced = matchWords.reduce((replaced, word) => replaced.replace(word, ''), jielong)
         replaceByArea.push({ id, jielong: replaced })
     })
 
@@ -462,6 +485,7 @@ function countByArea(jielongAreaList, jielongMap) {
         delete countObj.replaceByArea
         return countObj
     })
+
     return [countMeal, ...countMarks].filter(({ count }) => count > 0)
 }
 
@@ -564,17 +588,17 @@ function countAreaTotal(countGroup) {
 }
 
 // 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+|[A-Z a-z]+)[🌈🦋🍉🌻💤🌟🌱🌻🍭🎈]*[ \-—_~～]([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)([，, -—_]?([多少]饭|不要米饭))?)/
+const USER_NAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+|[A-Z a-z]+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈 ོ་]*[ \-—_~～]([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?)([，, -—_]?([多少]饭|不要米饭))?)/
 // 匹配格式如：小妍 Fanni🌟H区
-const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌈🦋🍉🌻💤🌟🌱🌻🍭🎈]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)([，, -—_]?([多少]饭|不要米饭))?)/
+const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈 ོ་]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?)([，, -—_]?([多少]饭|不要米饭))?)/
 // 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z]+\))? *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻💤🌟🌱🌻🍭🎈]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)([，, -—_]?([多少]饭|不要米饭))?)/
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z]+\))? *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈 ོ་]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?)([，, -—_]?([多少]饭|不要米饭))?)/
 // 匹配格式如：Fanni 小FF妍🌟H区
-const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻💤🌟🌱🌻🍭🎈]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?))/
+const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈 ོ་]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：H区小妍Fanni🌟
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?|[云微]谷\d?[A-Da-d]?座?)[ \-—_~～]*([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻💤🌟🌱🌻🍭🎈]*)/
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～]*([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈 ོ་]*)/
 // 匹配其它格式：无园区，列举特别格式的姓名
-const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|邮储银行_郑婷婷🎈18826672976|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭)/
+const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|鲤鱼🐟|One卷卷🍃|sᴛᴀʀʀʏ.)/
 const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
 
 const USER_REGEXPS = [USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_AREA_ECMIX, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
@@ -672,12 +696,29 @@ function sortByPaid(jielongList) {
     return [...paid, ...noPaid]
 }
 
-function sortByOneMeal(jielongList) {
+const IS_SEPARATE = /[\s;；,，、]/
+function isComplexed(jielong, conditions) {
+    const indexes = conditions.reduce(
+        (all, { matches }) => all.concat(matches.map(({ start }) => start)
+    ), []).sort()
+    let isComplex = false
+    for (let i = 0; i < indexes.length - 1; i++) {
+        // 检查两两条件之间是否有空格等分割字符，若没有则判定该接龙存在复合条件
+        const betweenCond = jielong.slice(indexes[i], indexes[i + 1])
+        if (!IS_SEPARATE.test(betweenCond)) {
+            isComplex = true
+            break
+        }
+    }
+    return isComplex
+}
+
+function sortByComplex(jielongList) {
     const multiple = []
     const noMultiple = []
     jielongList.forEach(jielongObj => {
-        const { count, conditions } = jielongObj
-        if (count === 1 && conditions.length > 1) {
+        const { jielong, count, conditions } = jielongObj
+        if (count === 1 && conditions.length > 1 || isComplexed(jielong, conditions)) {
             multiple.push(jielongObj)
         } else {
             noMultiple.push(jielongObj)
@@ -708,10 +749,10 @@ function printCountList(area, countList) {
 function printAreaGroup(areaGroup) {
     let result = '<div>## 接龙分区<br/><br/>'
     for (const area in areaGroup) {
-        const sortedAreaList = sortByOneMeal(sortByPaid(areaGroup[area]))
+        const sortedAreaList = sortByComplex(sortByPaid(areaGroup[area]))
         const jielongDisplay = sortedAreaList.length
             ? sortedAreaList.map(({ jielong, count, isPaid, conditions }) => {
-                if (count === 1 && conditions.length > 1) {
+                if (count === 1 && conditions.length > 1 || isComplexed(jielong, conditions)) {
                     return `<strong style="color: orange">${jielong}</strong>`
                 }
                 if (isPaid) {
@@ -760,7 +801,7 @@ function printDeliveryGroup(deliveryGroup) {
         const AREA = [...AREAS, OTHER].find(AREA => AREA.name === area)
         result += `${AREA.gate}：${deliveryGroup[area].join(' ')}<br/>`
     }
-    result += `<br/>路线：${pathDisplay}（${putDisplay}可以放餐）</div>`
+    result += `<br/>路线：${pathDisplay}（${putDisplay}可以放餐哦）</div>`
     document.querySelector('.jielong-delivery').innerHTML = result
 }
 
