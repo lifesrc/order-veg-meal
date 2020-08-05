@@ -377,12 +377,17 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
             if (!matched) {
                 continue
             }
-            const text = result[5]
+            let text = result[5]
             let jcount // 当前接龙每次匹配条件份数
             if (result[3]) {
                 jcount = Number(result[3])
             } else if (result[4]) {
-                jcount = ChineseToNumber(result[4])
+                if (result[4] === '四' && text.startsWith('季豆')) {
+                    jcount = 1
+                    text = `${result[4]}${text}`
+                } else {
+                    jcount = ChineseToNumber(result[4])
+                }
             } else {
                 jcount = 1
             }
@@ -632,7 +637,7 @@ function deliveryAreaAll(areaGroup) {
                 const result = regexp.exec(jielongObj.jielong)
                 if (result && result[1]) {
                     deliveryGroup[area].push(`@${result[1]}`)
-                    // console.log(regIndex, regexp, result[1])
+                    console.log(regIndex, regexp, result[1])
                     countGroup[area]++
                     totalCount++
                 } else {
@@ -700,10 +705,10 @@ const IS_SEPARATE = /[\s;；,，、]/
 function isComplexed(jielong, conditions) {
     const indexes = conditions.reduce(
         (all, { matches }) => all.concat(matches.map(({ start }) => start)
-    ), []).sort()
+    ), []).sort((a, b) => a - b)
     let isComplex = false
     for (let i = 0; i < indexes.length - 1; i++) {
-        // 检查两两条件之间是否有空格等分割字符，若没有则判定该接龙存在复合条件
+        // 检查各条件两两之间是否有空格等分割字符，若没有则判定该接龙存在复合条件
         const betweenCond = jielong.slice(indexes[i], indexes[i + 1])
         if (!IS_SEPARATE.test(betweenCond)) {
             isComplex = true
