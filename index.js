@@ -129,11 +129,13 @@ function groupAreaAll(jielongList, findKeys) {
 }
 
 const ID_REGEX = /^(\d+)\.\s+/
+const SEPARATE_REGEX = /[\s;；,，、]/
+const CANCEL_REGEX = /[\s;；,，、](取消|cancel|\-)(\d+|[零一二两三四五六七八九十百千万亿]+)/
 const MEAL_COUNT = /[^A-Ma-m]((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]/
 const MEAL_PAID = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?已支?付/
-const MORE_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?多(米?饭|主食|(?=\d|\s|$))/g
+const MORE_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(且多|多(米?饭|主食|(?=\d|\s|$)))/g
 const LESS_RICE_MORE_VEG = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?少饭多菜/g
-const LESS_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?少(米?饭|主食|(?=\d|\s|$))/g
+const LESS_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(且少|少(米?饭|主食|(?=\d|\s|$)))/g
 const NO_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(不(需?要|用)|[免无飞])(白?米?饭|杂粮饭|主食)/g
 const WHITE_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(杂粮饭|主食)?[换換]?(白米?)饭/g
 const FRIED_RICE = /[^A-Ma-m](((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?(炒饭|炒杂|杂粮炒?饭)([多少]?)/g
@@ -290,7 +292,22 @@ function getMatches(matchWords, jielong) {
 }
 
 function countByTotal(jielongList, MARK_REGEXP) {
-    const count = jielongList.reduce((total, { count }) => total + count, 0)
+    const count = jielongList.reduce((total, jielongObj) => {
+        let userTotal = 0 // 用户接龙总份数
+        let userJielong = jielongObj
+        while (userJielong) {
+            const { count, parent } = userJielong
+            userTotal += count
+            userJielong = parent
+        }
+        // 当前用户总份数不小于0时，当前份数计入总份数
+        if (userTotal >= 0) {
+            total += jielongObj.count
+        } else {
+            jielongObj.illegal = true
+        }
+        return total
+    }, 0)
     const { type, output } = MARK_REGEXP
     return { type, count, output }
 }
@@ -301,7 +318,10 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
     let markCount = 0
     let moreCount = 0
     let lessCount = 0
-    jielongList.forEach(({ id, jielong }) => {
+    jielongList.forEach(({ id, jielong, factor, illegal }) => {
+        if (illegal) {
+            return
+        }
         // 在 while 匹配过程中不能直接 replace，因为 searchRegex lastIndex 有状态
         const matchWords = []
         let result
@@ -329,6 +349,7 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
             } else {
                 jcount = 1
             }
+            jcount *= factor
             count += jcount
             markCount += jcount
             const suffix = result[result.length - 1]
@@ -343,14 +364,14 @@ function countByMark(jielongList, MARK_REGEXP, jielongMap) {
             matchWords.push(matched.slice(1))
         }
 
-        if (count > 0) {
+        if (count) {
             const { jielong, conditions } = jielongMap[id]
             const matches = getMatches(matchWords, jielong)
             conditions.push({ type, count, more, less, output, matches })
         }
 
         const replaced = matchWords.reduce((replaced, word) => replaced.replace(word, ''), jielong)
-        replaceByArea.push({ id, jielong: replaced })
+        replaceByArea.push({ id, jielong: replaced, factor })
     })
 
     return {
@@ -367,7 +388,10 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
     const { type, search: searchRegex, output } = MARK_REGEXP
     const countList = []
     const replaceByArea = []
-    jielongList.forEach(({ id, jielong }) => {
+    jielongList.forEach(({ id, jielong, factor, illegal }) => {
+        if (illegal) {
+            return
+        }
         const jcountList = []
         // 在 while 匹配过程中不能直接 replace，因为 searchRegex lastIndex 有状态
         const matchWords = []
@@ -391,6 +415,7 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
             } else {
                 jcount = 1
             }
+            jcount *= factor
             const countObj = {
                 text,
                 count: jcount,
@@ -409,7 +434,7 @@ function countByChangeVegMark(jielongList, MARK_REGEXP, jielongMap) {
         }
 
         const replaced = matchWords.reduce((replaced, word) => replaced.replace(word, ''), jielong)
-        replaceByArea.push({ id, jielong: replaced })
+        replaceByArea.push({ id, jielong: replaced, factor })
     })
 
     const countObj = countChangeVeg(countList, type, output)
@@ -491,7 +516,7 @@ function countByArea(jielongAreaList, jielongMap) {
         return countObj
     })
 
-    return [countMeal, ...countMarks].filter(({ count }) => count > 0)
+    return [countMeal, ...countMarks]
 }
 
 function countAreaTotal(countGroup) {
@@ -589,7 +614,7 @@ function countAreaTotal(countGroup) {
             count: selfBoxTotal,
             output: '饭盒',
         },
-    ].filter(({ count }) => count > 0)
+    ]
 }
 
 // 匹配格式如：小妍 H区，Fanni🌟 H3
@@ -612,6 +637,7 @@ const OTHER_REGEXPS = [USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
 function deliveryAreaAll(areaGroup) {
     const deliveryGroup = {}
     const countGroup = {}
+    const userNameMap = {}
     let totalCount = 0
     for (const area in areaGroup) {
         let regexps
@@ -636,8 +662,14 @@ function deliveryAreaAll(areaGroup) {
                 const jielongObj = jielongList[index]
                 const result = regexp.exec(jielongObj.jielong)
                 if (result && result[1]) {
-                    deliveryGroup[area].push(`@${result[1]}`)
-                    console.log(regIndex, regexp, result[1])
+                    const name = result[1]
+                    deliveryGroup[area].push(`@${name}`)
+                    console.log(regIndex, regexp, name)
+                    jielongObj.name = name
+                    if (userNameMap[name]) {
+                        jielongObj.parent = userNameMap[name]
+                    }
+                    userNameMap[name] = jielongObj
                     countGroup[area]++
                     totalCount++
                 } else {
@@ -660,14 +692,21 @@ function parseJielong(jielongArray) {
     const list = []
     const map = {}
     jielongArray.forEach(jielong => {
-        if (!jielong||!ID_REGEX.test(jielong)) {
+        if (!jielong || !ID_REGEX.test(jielong)) {
             return
         }
         const idMatched = ID_REGEX.exec(jielong)
+        const cancelMatched = CANCEL_REGEX.exec(jielong) // 匹配是否有取消操作(负操作)
         const cMatched = MEAL_COUNT.exec(jielong)
         const isPaid = MEAL_PAID.test(jielong)
         const id = idMatched[1]
-        let count = 0
+        let factor // 正负操作因子，对应接龙份数正负操作
+        if (cancelMatched && cancelMatched[1]) {
+            factor = -1
+        } else {
+            factor = 1
+        }
+        let count
         if (cMatched) {
             if (cMatched[2]) {
                 count = Number(cMatched[2])
@@ -676,10 +715,16 @@ function parseJielong(jielongArray) {
             } else {
                 count = 1
             }
+            count *= factor
         } else {
-            count = 1
+            // 当未匹配到接龙份数且操作因子为负时，接龙份数记为0
+            if (factor === -1) {
+                count = 0
+            } else {
+                count = 1
+            }
         }
-        const jielongObj = { id, jielong, count, isPaid, conditions: [] }
+        const jielongObj = { id, jielong, count, isPaid, conditions: [], factor }
         list.push(jielongObj)
         map[id] = jielongObj
     })
@@ -701,7 +746,6 @@ function sortByPaid(jielongList) {
     return [...paid, ...noPaid]
 }
 
-const IS_SEPARATE = /[\s;；,，、]/
 function isComplexed(jielong, conditions) {
     const indexes = conditions.reduce(
         (all, { matches }) => all.concat(matches.map(({ start }) => start)
@@ -710,7 +754,7 @@ function isComplexed(jielong, conditions) {
     for (let i = 0; i < indexes.length - 1; i++) {
         // 检查各条件两两之间是否有空格等分割字符，若没有则判定该接龙存在复合条件
         const betweenCond = jielong.slice(indexes[i], indexes[i + 1])
-        if (!IS_SEPARATE.test(betweenCond)) {
+        if (!SEPARATE_REGEX.test(betweenCond)) {
             isComplex = true
             break
         }
@@ -733,30 +777,28 @@ function sortByComplex(jielongList) {
     return [...multiple, ...noMultiple]
 }
 
-function printCountList(area, countList) {
-    const countDisplay = countList
-        .map(({ count, output, more, less }) => {
-              let moreOrLess = ''
-              if (more && more > 0) {
-                  moreOrLess += `${more}多`
-              }
-              if (less && less > 0) {
-                  moreOrLess += `${less}少`
-              }
-              moreOrLess = moreOrLess.length ? `(${moreOrLess})` : ''
-              return `${count}${output}${moreOrLess}`
-        })
-        .join(' ')
-    const result = `<div>## ${area}统计<br/><br/>${countDisplay}</div>`
-    document.querySelector('.jielong-statistics').innerHTML = result
-}
-
+/**
+ * 打印接龙分区数据
+ * @param {*} areaGroup 
+ */
 function printAreaGroup(areaGroup) {
     let result = '<div>## 接龙分区<br/><br/>'
     for (const area in areaGroup) {
         const sortedAreaList = sortByComplex(sortByPaid(areaGroup[area]))
         const jielongDisplay = sortedAreaList.length
-            ? sortedAreaList.map(({ jielong, count, isPaid, conditions }) => {
+            ? sortedAreaList.map(({ jielong, count, isPaid, conditions, factor, illegal, parent }) => {
+                if (factor === -1) {
+                    if (count === 0) {
+                        jielong += '（忽略不计，取消请标明：取消n份、-n份、-n份[条件]、-n[条件]）'
+                    } else if (illegal) {
+                        if (parent) {
+                            jielong += '（忽略不计，超过取消份数）'
+                        } else {
+                            jielong += '（忽略不计，不可取消他人）'
+                        }
+                    }
+                    return `<strong style="color: red">${jielong}</strong>`
+                }
                 if (count === 1 && conditions.length > 1 || isComplexed(jielong, conditions)) {
                     return `<strong style="color: orange">${jielong}</strong>`
                 }
@@ -772,25 +814,48 @@ function printAreaGroup(areaGroup) {
     document.querySelector('.jielong-area').innerHTML = result
 }
 
+function printCountObj(countObj) {
+    const { type, count, output, more, less } = countObj
+    // 统计为0或负数都不打印
+    if (count > 0) {
+        if (type === 'mealCount') {
+            return `<strong style="color: #1f78d1">${count}${output}</strong>`
+        }
+        let moreOrLess = ''
+        if (more && more > 0) {
+          moreOrLess += `${more}多`
+        }
+        if (less && less > 0) {
+          moreOrLess += `${less}少`
+        }
+        moreOrLess = moreOrLess.length ? `(${moreOrLess})` : ''
+        return `${count}${output}${moreOrLess}`
+    }
+    return ''
+}
+
+/**
+ * 显示某区统计
+ * @param {*} area 
+ * @param {*} countList 
+ */
+function printCountList(area, countList) {
+    const countDisplay = countList
+        .map(printCountObj)
+        .join(' ')
+    const result = `<div>## ${area}统计<br/><br/>${countDisplay}</div>`
+    document.querySelector('.jielong-statistics').innerHTML = result
+}
+
+/**
+ * 显示各区统计
+ * @param {*} countGroup 
+ */
 function printCountGroup(countGroup) {
     let result = '<div>## 各区统计<br/><br/>'
     for (const area in countGroup) {
         const countDisplay = countGroup[area]
-            .map(({ type, count, output, more, less }) => {
-                if (type === 'mealCount') {
-                    return `<strong style="color: #1f78d1">${count}${output}</strong>`
-                }
-              
-                let moreOrLess = ''
-                if (more && more > 0) {
-                  moreOrLess += `${more}多`
-                }
-                if (less && less > 0) {
-                  moreOrLess += `${less}少`
-                }
-                moreOrLess = moreOrLess.length ? `(${moreOrLess})` : ''
-                return `${count}${output}${moreOrLess}`
-            })
+            .map(printCountObj)
             .join(' ')
         result += `${area}: ${countDisplay}<br/>`
     }
@@ -823,9 +888,9 @@ document.getElementById('button').onclick = function() {
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list, map } = parseJielong(jielongContent.split('\n'))
     const areaGroup = groupAreaAll(list, ['name', 'regex'])
-    const countGroup = countAreaAll(areaGroup, map)
     const deliveryGroup = deliveryAreaAll(areaGroup)
+    const countGroup = countAreaAll(areaGroup, map)
     printAreaGroup(areaGroup)
-    printCountGroup(countGroup)
     printDeliveryGroup(deliveryGroup)
+    printCountGroup(countGroup)
 }
