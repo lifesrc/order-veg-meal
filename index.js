@@ -104,9 +104,8 @@ function groupByFinder(jielongList, findKey) {
     return areaGroup
 }
 
-function groupAreaAll(jielongList, findKeys) {
+function groupAreaAll(jielongLeft, findKeys) {
     const totalGroup = {}
-    let jielongLeft = jielongList
     findKeys.forEach((findKey, index) => {
         const areaGroup = groupByFinder(jielongLeft, findKey)
         jielongLeft = areaGroup[OTHER.name]
@@ -114,14 +113,14 @@ function groupAreaAll(jielongList, findKeys) {
             if (index < findKeys.length - 1 && area === OTHER.name) {
                 continue
             }
-            let jielongAreaList
+            let jielongList
             if (totalGroup[area]) {
-                jielongAreaList = totalGroup[area].concat(areaGroup[area])
+                jielongList = totalGroup[area].concat(areaGroup[area])
             } else {
-                jielongAreaList = areaGroup[area]
+                jielongList = areaGroup[area]
             }
 
-            totalGroup[area] = jielongAreaList
+            totalGroup[area] = jielongList
         }
     })
 
@@ -143,7 +142,7 @@ const NO_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百�
 const WHITE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(杂粮饭|主食)?[换換]?(白米?)饭且?([多少]?)/g
 const FRIED_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(炒饭|炒杂|杂粮炒?饭)且?([多少]?)/g
 const RIVER_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?成?炒?河粉?且?([多少]?)/g
-const RICE_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(米粉|炒米?粉)且?([多少]?)/g
+const RICE_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(炒?米[粉线]|炒粉)且?([多少]?)/g
 const NOODLES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(面条|炒面条?)且?([多少]?)/g
 const CHANGE_PUMPKIN = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換]南瓜且?([多少]?)/g
 const CHANGE_POTATO = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分]?)?(白?米饭|杂粮饭|主食)?[换換][红番]薯且?([多少]?)/g
@@ -171,6 +170,7 @@ const COND_REGEXPS = [
         type: 'moreRice',
         search: MORE_RICE,
         output: '多饭',
+        noReplace: true,
     },
     // {
     //     type: 'lessRiceMoreVeg',
@@ -350,7 +350,9 @@ function countByConditions(jielongList) {
                     complexConds.push(nextCond)
                     nextCond = nextCond.next
                 }
-                complexCount += startCond.count
+                if (startCond.next) {
+                    complexCount += startCond.next.count || 0
+                }
                 return complexConds
                     .sort((a, b) => b.count - a.count)
                     .map(({ type, count, text, output }) => {
@@ -567,16 +569,16 @@ function countAreaTotal(countGroup) {
 }
 
 // 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+|[A-Z a-z]+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀 ོ་]*[ \-—_~～]([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_NAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+|[A-Z a-z]+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀🌵 ོ་]*[ \-—_~～]([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：小妍 Fanni🌟H区
-const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀 ོ་]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀🌵 ོ་]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z]+\))? *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀 ོ་]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z]+\))? *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀🌵 ོ་]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 
 // 匹配格式如：Fanni 小FF妍🌟H区
-const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀 ོ་]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀🌵 ོ་]*[ \-—_~～]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：H区小妍Fanni🌟
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～]*([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀 ོ་]*)/
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～]*([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀🌵 ོ་]*)/
 // 匹配其它格式：无园区，列举特别格式的姓名
 const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|鲤鱼🐟|One卷卷🍃|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
 const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
@@ -785,7 +787,7 @@ function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
 
 function getPlainConds(COND_REGEXP, rjielong, jielongObj) {
     const { jielong, factor, conditions } = jielongObj
-    const { type, search: searchRegex, output } = COND_REGEXP
+    const { type, search: searchRegex, output, noReplace } = COND_REGEXP
     let result
     const matchWords = []
     let fromIndex = 0
@@ -832,6 +834,9 @@ function getPlainConds(COND_REGEXP, rjielong, jielongObj) {
         matchWords.push(word) // 需要被替换的匹配词
     }
 
+    if (noReplace) {
+        return rjielong
+    }
     // 在 while 匹配过程中不能直接 replace，因为 searchRegex lastIndex 有状态
     return matchWords.reduce((replaced, word) => replaced.replace(word, ''), rjielong)
 }
@@ -958,7 +963,8 @@ function printCountObj(countObj) {
             }
         }
         if (complexOutputs.length) {
-            return `<span style="color: orange"><br/>${complexTotal}复合{${complexOutputs.join(' ')}}</span>`
+            // return `<span style="color: orange"><br/>${complexTotal}复合{${complexOutputs.join(' ')}}</span>`
+            return `<span style="color: orange">${complexTotal}复合{${complexOutputs.join(' ')}}</span>`
         }
         return ''
     }
@@ -978,7 +984,7 @@ function printCountObj(countObj) {
         moreOrLess = moreOrLess.length ? `(${moreOrLess})` : ''
         let display = `${count}${output}${moreOrLess}`
         if (complex) {
-            return `${display}<span style="color: orange">{${complex}}</span>`
+            display = `${display}<span style="color: orange">{${complex}}</span>`
         }
         return display
     }
