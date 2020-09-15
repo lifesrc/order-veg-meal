@@ -585,15 +585,15 @@ function countAreaTotal(countGroup) {
 }
 
 // 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+|[A-Z a-z]+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
+const USER_NAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+|[A-Z a-z]+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
-const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：Fanni 小FF妍🌟H区
-const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：H区小妍Fanni🌟
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?(门岗)?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟🌱🍭🎈🎀💋🌵● ོ་]*)/
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?(门岗)?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*)/
 // 匹配其它格式：无园区，列举特别格式的姓名
 const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|鲤鱼🐟|One卷卷🍃|sᴛᴀʀʀʏ.|D区门岗-赵金亮|Nancy(●––●) F区)/
 const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
@@ -991,7 +991,7 @@ function printCountObj(countObj) {
         }
         if (complexOutputs.length) {
             // return `<span style="color: orange"><br/>${complexTotal}复合{${complexOutputs.join(' ')}}</span>`
-            return `<span style="color: orange">${complexTotal}复合{${complexOutputs.join(' ')}}</span>`
+            return `<span style="color: orange">${complexTotal}复合{${complexOutputs.join(' ')}}</span>` //【】
         }
         return ''
     }
@@ -1041,7 +1041,7 @@ function printCountGroup(countGroup) {
         const countDisplay = countGroup[area]
             .map(printCountObj)
             .join(' ')
-        result += `${area}: ${countDisplay}<br/>`
+        result += `✨${area}: ${countDisplay}<br/>`
     }
     result += '</div>'
     document.querySelector('.jielong-statistics').innerHTML = result
