@@ -148,7 +148,7 @@ const CHANGE_PUMPKIN = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九
 const CHANGE_POTATO = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換][红番]薯且?([多少]?)/g
 const ADD_DISHES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?小菜/g
 const ADD_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?辣椒?酱/g
-const ADD_SOUR_RADISH = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(萝|酸萝?)卜/g
+const ADD_SOUR_RADISH = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?((开胃)?萝|酸萝?)卜/g
 const ADD_BAOZI = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(包子|馒头)/g
 const ADD_SALAD = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?((水果)?[沙色]拉|水果)/g
 const ADD_WATERMELON = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(西瓜🍉+|西瓜|🍉+)/g
@@ -159,7 +159,7 @@ const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十�
 const SELF_BOX = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(自备)?饭?盒/g
 const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+且?([多少]?)/g
 // const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?[换換]菜/g
-const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((多菜)|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不(需?要|用)|[免无飞走])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
+const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(([多少]菜)|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不(需?要|用)|[换換免无飞走])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
 const COUNT_REGEXP = {
     type: 'mealCount',
@@ -236,7 +236,7 @@ const COND_REGEXPS = [
     {
         type: 'addSourRadish',
         search: ADD_SOUR_RADISH,
-        output: '加酸萝卜',
+        output: '开胃萝卜',
     },
     {
         type: 'addBaozi',
@@ -340,7 +340,7 @@ function countByConditions(jielongList) {
                     }
                     return output
                 })
-                .join('&')
+                .join('•')
                 complexObj[id] = {
                     count: complexCount,
                     outputs: [`${count}${complexOutput}`],
@@ -368,7 +368,7 @@ function countByConditions(jielongList) {
                         }
                         return startCount === 1 ? output : `${count}${output}`
                     })
-                    .join('&')
+                    .join('•')
                 return startCount === 1 ? `${startCount}${complexOutput}` : complexOutput
             })
             complexObj[id] = {
@@ -585,11 +585,11 @@ function countAreaTotal(countGroup) {
 }
 
 // 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+|[A-Z a-z]+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
+const USER_NAME_AREA = /^\d+\.\s+(Cindy。|L~i~n|([\u4e00-\u9fa5]+|[A-Z a-z~]+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
 const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z~]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：Fanni 小FF妍🌟H区
 const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：H区小妍Fanni🌟
@@ -1041,7 +1041,11 @@ function printCountGroup(countGroup) {
         const countDisplay = countGroup[area]
             .map(printCountObj)
             .join(' ')
-        result += `✨${area}: ${countDisplay}<br/>`
+        if (area === '合计') {
+          result += `💫${area}: ${countDisplay}<br/>`
+        } else {
+          result += `✨${area}: ${countDisplay}<br/>`
+        }
     }
     result += '</div>'
     document.querySelector('.jielong-statistics').innerHTML = result
@@ -1053,9 +1057,9 @@ function printDeliveryGroup(deliveryGroup) {
     let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>灰色本田～粤B89G18<br/><br/>`
     for (const area in deliveryGroup) {
         const AREA = [...AREAS, OTHER].find(AREA => AREA.name === area)
-        result += `${AREA.gate}：${deliveryGroup[area].join(' ')}<br/>`
+        result += `✨${AREA.gate}：${deliveryGroup[area].join(' ')}<br/>`
     }
-    result += `<br/>路线：${pathDisplay}（${putDisplay}可以放餐哦）</div>`
+    result += `<br/>💫路线：${pathDisplay}（${putDisplay}可以放餐哦）</div>`
     document.querySelector('.jielong-delivery').innerHTML = result
 }
 
