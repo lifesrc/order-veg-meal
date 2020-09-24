@@ -144,17 +144,18 @@ const FRIED_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十�
 const RIVER_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?炒?河粉?且?([多少]?)/g
 const RICE_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(炒?米[粉线]|炒粉)且?([多少]?)/g
 const NOODLES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(面条|炒面条?)且?([多少]?)/g
-const CHANGE_PUMPKIN = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]南瓜且?([多少]?)/g
-const CHANGE_POTATO = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換][红番]薯且?([多少]?)/g
-const ADD_DISHES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?小菜/g
-const ADD_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?辣椒?酱/g
-const ADD_SOUR_RADISH = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?((开胃)?萝|酸萝?)卜/g
+const CHANGE_PUMPKIN = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]蒸?南[瓜关]且?([多少]?)/g
+const CHANGE_POTATO = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]蒸?[红番]薯且?([多少]?)/g
 const ADD_BAOZI = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(包子|馒头)/g
+const ADD_DISHES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?小菜/g
+const ADD_APPETITE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(自制)?下饭菜/g
+const ADD_SOUR_RADISH = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?((开胃)?萝|酸萝?)卜/g
 const ADD_SALAD = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?((水果)?[沙色]拉|水果)/g
 const ADD_WATERMELON = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(西瓜🍉+|西瓜|🍉+)/g
-const ADD_CONGEE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?粥/g
-const ADD_BEAN_JELLY = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?黑?凉粉/g
+const ADD_CONGEE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?白?粥/g
+const ADD_BEAN_JELLY = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(黑?凉粉|黑凉)/g
 const ADD_FREE_SAUCE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)酱/g
+const ADD_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?辣椒?酱/g
 const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(不(需?要?|用?)|[免无飞走])辣/g
 const SELF_BOX = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(自备)?饭?盒/g
 const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+且?([多少]?)/g
@@ -224,24 +225,24 @@ const COND_REGEXPS = [
         output: '换红薯',
     },
     {
+        type: 'addBaozi',
+        search: ADD_BAOZI,
+        output: '加包子',
+    },
+    {
         type: 'addDishes',
         search: ADD_DISHES,
         output: '加小菜',
     },
     {
-        type: 'addPepper',
-        search: ADD_PEPPER,
-        output: '加辣酱',
+        type: 'addAppetite',
+        search: ADD_APPETITE,
+        output: '下饭菜',
     },
     {
         type: 'addSourRadish',
         search: ADD_SOUR_RADISH,
         output: '开胃萝卜',
-    },
-    {
-        type: 'addBaozi',
-        search: ADD_BAOZI,
-        output: '加包子',
     },
     {
         type: 'addSalad',
@@ -261,12 +262,17 @@ const COND_REGEXPS = [
     {
         type: 'addCongee',
         search: ADD_CONGEE,
-        output: '加粥',
+        output: '白粥',
     },
     {
         type: 'addFreeSauce',
         search: ADD_FREE_SAUCE,
         output: '加酱',
+    },
+    {
+        type: 'addPepper',
+        search: ADD_PEPPER,
+        output: '加辣酱',
     },
     {
         type: 'noPepper',
@@ -424,6 +430,12 @@ function countByConditions(jielongList) {
     return countConds
 }
 
+/**
+ * 旧版换菜统计
+ * @param {*} conditions 
+ * @param {*} type 
+ * @param {*} output 
+ */
 function countChangeVeg0(conditions, type, output) {
     const combineList = combineByVegName(conditions)
     const listSize = combineList.length
@@ -452,6 +464,12 @@ function countChangeVeg0(conditions, type, output) {
     }
 }
 
+/**
+ * 新版换菜统计（简化）
+ * @param {*} conditions 
+ * @param {*} type 
+ * @param {*} output 
+ */
 function countChangeVeg(conditions, type, output) {
     const combineList = combineByVegName(conditions)
     const listSize = combineList.length
@@ -472,6 +490,7 @@ function countChangeVeg(conditions, type, output) {
         output: condOutput,
     }
 }
+
 /**
  * 按菜名合并每个菜几份
  * @param {换菜列表}} conditions 
@@ -512,41 +531,41 @@ function countAreaAll(areaGroup) {
 
 function countAreaTotal(countGroup) {
     let total = 0
-    let moreRiceTotal = 0
+    // let moreRiceTotal = 0
     // let lessRiceMoreVegTotal = 0
-    let lessRiceTotal = 0
-    let noRiceTotal = 0
-    let friedRiceTotal = 0
-    let riverFlourTotal = 0
-    let changePumpkinTotal = 0
-    let changePotatoTotal = 0
-    let changeStapleTotal = 0
-    let changeVegTotal = 0
+    // let lessRiceTotal = 0
+    // let noRiceTotal = 0
+    // let friedRiceTotal = 0
+    // let riverFlourTotal = 0
+    // let changePumpkinTotal = 0
+    // let changePotatoTotal = 0
+    // let changeStapleTotal = 0
+    // let changeVegTotal = 0
     let selfBoxTotal = 0
     for (const area in countGroup) {
         countGroup[area].forEach(({ type, count }) => {
             if (type === 'mealCount') {
                 total += count
-            } else if (type === 'moreRice') {
-                moreRiceTotal += count
+            // } else if (type === 'moreRice') {
+            //     moreRiceTotal += count
             // } else if (type === 'lessRiceMoreVeg') {
             //     lessRiceMoreVegTotal += count
-            } else if (type === 'lessRice') {
-                lessRiceTotal += count
-            } else if (type === 'noRice') {
-                noRiceTotal += count
-            } else if (type === 'friedRice') {
-                friedRiceTotal += count
-            } else if (type === 'riverFlour') {
-                riverFlourTotal += count
-            } else if (type === 'changePumpkin') {
-                changePumpkinTotal += count
-            } else if (type === 'changePotato') {
-                changePotatoTotal += count
-            } else if (type === 'changeStaple') {
-                changeStapleTotal += count
-            } else if (type === 'changeVeg') {
-                changeVegTotal += count
+            // } else if (type === 'lessRice') {
+            //     lessRiceTotal += count
+            // } else if (type === 'noRice') {
+            //     noRiceTotal += count
+            // } else if (type === 'friedRice') {
+            //     friedRiceTotal += count
+            // } else if (type === 'riverFlour') {
+            //     riverFlourTotal += count
+            // } else if (type === 'changePumpkin') {
+            //     changePumpkinTotal += count
+            // } else if (type === 'changePotato') {
+            //     changePotatoTotal += count
+            // } else if (type === 'changeStaple') {
+            //     changeStapleTotal += count
+            // } else if (type === 'changeVeg') {
+            //     changeVegTotal += count
             } else if (type === 'selfBox') {
                 selfBoxTotal += count
             }
@@ -617,7 +636,7 @@ function countAreaTotal(countGroup) {
 }
 
 // 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+(L~i~n|(Cindy。|Nancy。|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
+const USER_NAME_AREA = /^\d+\.\s+(Nancy。|L~i~n|(Going. down. this. road|Cindy。|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
 const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：Fanni 小妍🌟H区
@@ -627,7 +646,7 @@ const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉�
 // 匹配格式如：H区小妍Fanni🌟
 const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?(门岗)?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*)/
 // 匹配其它格式：无园区，列举特别格式的姓名
-const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|鲤鱼🐟|One卷卷🍃|sᴛᴀʀʀʏ.|D区门岗-赵金亮|Nancy(●––●) F区)/
+const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|鲤鱼🐟|One卷卷🍃|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
 const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
 
 const USER_REGEXPS = [USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_AREA_ECMIX, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
@@ -962,18 +981,18 @@ function sortByPaid(jielongList) {
 }
 
 function sortByComplex(jielongList) {
-    const multiple = []
-    const noMultiple = []
+    const complexList = []
+    const noComplexList = []
     jielongList.forEach(jielongObj => {
         const { count, conditions } = jielongObj
         if (count === 1 && conditions.length > 1 || hasComplex(conditions)) {
-            multiple.push(jielongObj)
+            complexList.push(jielongObj)
         } else {
-            noMultiple.push(jielongObj)
+            noComplexList.push(jielongObj)
         }
     })
 
-    return [...multiple, ...noMultiple]
+    return [...complexList, ...noComplexList]
 }
 
 /**
@@ -1006,9 +1025,9 @@ function printAreaGroup(areaGroup) {
                     if (maxCount(conditions) > 1) {
                         return `<strong style="color: purple">${jielong}（份数与条件不一致）</strong>`
                     }
-                    if (hasComplex(conditions)) {
-                        return `<strong style="color: orange">${jielong}</strong>`
-                    }
+                }
+                if (hasComplex(conditions)) {
+                    return `<strong style="color: orange">${jielong}</strong>`
                 }
                 if (isPaid) {
                     return `<strong style="color: green">${jielong}</strong>`
@@ -1087,25 +1106,22 @@ function printCountGroup(countGroup) {
     let result = '<div>## 各区统计<br/><br/>'
     const complexList = []
     for (const area in countGroup) {
-        const countDisplay = countGroup[area]
-            .map(printCountObj)
-            .join(' ')
         let areaIcon
         if (area === '合计') {
             areaIcon = '💫'
         } else {
             areaIcon = '✨'
             const complexObj = countGroup[area].pop()
-            const complexDisplay = printComplexObj(complexObj)
-            if (complexDisplay) {
+            if (Object.keys(complexObj).length > 1) {
+                const complexDisplay = printComplexObj(complexObj)
                 complexList.push(`🌟${area}: ${complexDisplay}`)
             }
         }
+        const countDisplay = countGroup[area].map(printCountObj).join(' ')
         result += `${areaIcon}${area}: ${countDisplay}<br/>`
     }
 
-    result += '<br/>' + complexList.join('<br/>')
-    result += '</div>'
+    result += '<br/>' + complexList.join('<br/>') + '</div>'
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
