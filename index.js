@@ -130,8 +130,9 @@ function groupAreaAll(jielongLeft, findKeys) {
 const ID_REGEX = /^(\d+)\.\s+/
 const SEPARATE_REGEX = /[\s;；,，、]/
 // const CANCEL_OMIT_REGEX = /[\s;；,，、](取消|cancel|\-) *$/
-const CANCEL_REGEX = /[\s;；,，、](取消|cancel|\-) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/
+const CANCEL_REGEX = /[\s;；,，、](取消\-?|cancel|\-) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/
 const MEAL_COUNT = /(^|[^A-Ma-m])((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]/
+const ADD_COUNT = /(^|[^A-Ma-m])\+((\d+)|([零一二两三四五六七八九十百千万亿]+))/
 const MEAL_PAID = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?已支?付/
 // const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?多(米?饭|主食|(?=\d|\s|$))/g
 const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?多([米菜]?饭|主食)/g
@@ -160,11 +161,12 @@ const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十�
 const SELF_BOX = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(自备)?饭?盒/g
 const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+且?([多少]?)/g
 // const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?[换換]菜/g
-const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(([多少]菜)|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不(需?要|用)|[换換免无飞走])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
+const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(([多少]菜)|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換]|都要)|不(需?要|用)|[换換免无飞走])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
 const COUNT_REGEXP = {
     type: 'mealCount',
     search: MEAL_COUNT,
+    add: ADD_COUNT,
     output: '份',
 }
 const COND_REGEXPS = [
@@ -636,19 +638,19 @@ function countAreaTotal(countGroup) {
 }
 
 // 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+(Nancy。|L~i~n|(Going. down. this. road|Cindy。|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
+const USER_NAME_AREA = /^\d+\.\s+((Going. down. this. road|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
-const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：Fanni 小FF妍🌟H区
-const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/
 // 匹配格式如：H区小妍Fanni🌟
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d]?(门岗)?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🌈🌟✨🎀💋💤💦● ོ་]*)/
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d]?(门岗)?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
 // 匹配其它格式：无园区，列举特别格式的姓名
-const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
+const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
 // const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
-const USER_ECMIX_OTHER_NAME = /^\d+\.\s+(([\u4e00-\u9fa5]+[\-—_~～+ ]*[A-Za-z]*|[A-Za-z]+[\-—_~～+ ]+[A-Za-z]+|[A-Za-z]+[\-—_~～+]*[\u4e00-\u9fa5]*|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🌈🌟✨🎀💋💤💦● ོ་]*)/
+const USER_ECMIX_OTHER_NAME = /^\d+\.\s+(([\u4e00-\u9fa5]+[\-—_~～+ ]*[A-Za-z]*|[A-Za-z]+[\-—_~～+ ]+[A-Za-z]+|[A-Za-z]+[\-—_~～+]*[\u4e00-\u9fa5]*|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
 
 const USER_REGEXPS = [USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_AREA_ECMIX, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
 const OTHER_REGEXPS = [USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
@@ -803,7 +805,7 @@ function getFactor(jielong) {
 }
 
 function getCount(jielong) {
-    const cMatched = MEAL_COUNT.exec(jielong)
+    const cMatched = COUNT_REGEXP.search.exec(jielong)
     let count
     if (cMatched) {
         if (cMatched[3]) {
@@ -814,10 +816,37 @@ function getCount(jielong) {
             count = 1
         }
     } else {
-        count = 1
+        const aMatched = COUNT_REGEXP.add.exec(jielong)
+        if (aMatched) {
+            if (aMatched[3]) {
+                count = Number(aMatched[3])
+            } else if (aMatched[4]) {
+                count = ChineseToNumber(aMatched[4])
+            } else {
+                count = 1
+            }
+        } else {
+            count = 1
+        }
     }
 
     return count
+}
+
+const chnNumInVegName = {
+    三: '杯杏鲍菇',
+    // 四: '棱豆',
+    四: '季豆',
+    九: '层塔',
+}
+
+function hasChnNumInName(countNum, text) {
+    for (const chnNum in chnNumInVegName) {
+        if (countNum === chnNum && text.startsWith(chnNumInVegName[chnNum])) {
+            return true
+        }
+    }
+    return false
 }
 
 function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
@@ -838,7 +867,7 @@ function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
             hasCount = true
             count = Number(result[4])
         } else if (result[5]) {
-            if (result[5] === '四' && text.startsWith('季豆')) {
+            if (hasChnNumInName(result[5], text)) {
                 hasCount = false
                 count = 1
                 text = `${result[5]}${text}`
@@ -1132,7 +1161,9 @@ function printCountGroup(countGroup) {
 function printDeliveryGroup(deliveryGroup) {
     const pathDisplay = AREAS.map(AREA => AREA.gate).join('～')
     const putDisplay = AREAS.filter(AREA => AREA.put).map(AREA => AREA.gate).join('、')
-    let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>灰色本田～粤B89G18<br/><br/>`
+    // let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>灰色本田～粤B89G18<br/><br/>`
+    let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>银色五菱～粤B598J7<br/><br/>`
+    
     for (const area in deliveryGroup) {
         const AREA = [...AREAS, OTHER].find(AREA => AREA.name === area)
         result += `✨${AREA.gate}：${deliveryGroup[area].join(' ')}<br/>`
