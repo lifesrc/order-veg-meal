@@ -133,35 +133,35 @@ const SEPARATE_REGEX = /[\s;；,，、]/
 const CANCEL_REGEX = /[\s;；,，、](取消\-?|cancel|\-) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/
 const MEAL_COUNT = /(^|[^A-Ma-m])((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]/
 const ADD_COUNT = /(^|[^A-Ma-m])\+((\d+)|([零一二两三四五六七八九十百千万亿]+))/
-const MEAL_PAID = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?已支?付/
-// const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?多(米?饭|主食|(?=\d|\s|$))/g
-const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?多([米菜]?饭|主食)/g
-// const LESS_RICE_MORE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?少饭多菜/g
-// const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?少(米?饭|主食|(?=\d|\s|$))/g
-const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?少([米菜]?饭|主食)/g
-const NO_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(不(需?要|用)|[免无飞走])(白?米?饭|杂粮饭|主食)/g
-const WHITE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(杂粮饭|主食)?[换換]?(白米?)饭且?([多少]?)/g
-const FRIED_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(炒饭|炒杂|杂粮炒?饭)且?([多少]?)/g
-const RIVER_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?炒?河粉?且?([多少]?)/g
-const RICE_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(炒?米[粉线]|炒粉)且?([多少]?)/g
-const NOODLES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(面条|炒面条?)且?([多少]?)/g
-const CHANGE_PUMPKIN = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]蒸?南[瓜关]且?([多少]?)/g
-const CHANGE_POTATO = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]蒸?[红番]薯且?([多少]?)/g
-const ADD_BAOZI = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(包子|馒头)/g
-const ADD_DISHES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?小菜/g
-const ADD_APPETITE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(自制)?下饭菜/g
-const ADD_SOUR_RADISH = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?((开胃)?萝|酸萝?)卜/g
-const ADD_SALAD = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?((水果)?[沙色]拉|水果)/g
-const ADD_WATERMELON = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(西瓜🍉+|西瓜|🍉+)/g
-const ADD_CONGEE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?白?粥/g
-const ADD_BEAN_JELLY = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(黑?凉粉|黑凉)/g
-const ADD_FREE_SAUCE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)酱/g
-const ADD_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?辣椒?酱/g
-const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(不(需?要?|用?)|[免无飞走])辣/g
-const SELF_BOX = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(自备)?饭?盒/g
-const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+且?([多少]?)/g
-// const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?[换換]菜/g
-const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(([多少]菜)|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換]|都要)|不(需?要|用)|[换換免无飞走])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
+const MEAL_PAID = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(已支?付)/
+// const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(多(米?饭|主食|(?=\d|\s|$)))/g
+const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(多([米菜]?饭|主食))/g
+// const LESS_RICE_MORE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少饭多菜)/g
+// const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少(米?饭|主食|(?=\d|\s|$)))/g
+const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少([米菜]?饭|主食))/g
+const NO_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((不(需?要|用)|[免无飞走])(白?米?饭|杂粮饭|主食))/g
+const WHITE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((杂粮饭|主食)?[换換]?(白米?)饭[\(（且]?([多少]?))/g
+const FRIED_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(炒饭|炒杂|杂粮炒?饭)[\(（且]?([多少]?))/g
+const RIVER_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?炒?河粉?[\(（且]?([多少]?))/g
+const RICE_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(炒?米[粉线]|炒粉)[\(（且]?([多少]?))/g
+const NOODLES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(面条|炒面条?)[\(（且]?([多少]?))/g
+const CHANGE_PUMPKIN = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?蒸?南[瓜关][\(（且]?([多少]?))/g
+const CHANGE_POTATO = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?蒸?[红番]薯[\(（且]?([多少]?))/g
+const ADD_BAOZI = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(包子|馒头))/g
+const ADD_DISHES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?小菜)/g
+const ADD_APPETITE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(自制)?下饭菜)/g
+const ADD_SOUR_RADISH = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?((开胃)?萝|酸萝?)卜)/g
+const ADD_SALAD = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?((水果)?[沙色]拉|水果))/g
+const ADD_WATERMELON = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(西瓜🍉+|西瓜|🍉+))/g
+const ADD_CONGEE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?白?粥)/g
+const ADD_BEAN_JELLY = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(黑?凉粉|黑凉))/g
+const ADD_FREE_SAUCE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)酱)/g
+const ADD_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?辣椒?酱)/g
+const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((不(需?要?|用?)|[免无飞走])辣)/g
+const SELF_BOX = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((自备)?饭?盒)/g
+const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[\(（且]?([多少]?))/g
+// const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([换換]菜)/g
+const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換]|都要)|不(需?要|用)|[换換加免无飞走])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+))/g
 
 const COUNT_REGEXP = {
     type: 'mealCount',
@@ -310,7 +310,7 @@ function getUserCount(jielongObj) {
 }
 
 function maxCount(conditions) {
-    return conditions.reduce((max, condition) => Math.max(max, condition.count), -Infinity)
+    return conditions.reduce((maxValue, condition) => Math.max(maxValue, condition.count), -Infinity)
 }
 
 function countByTotal(jielongList) {
@@ -318,8 +318,8 @@ function countByTotal(jielongList) {
         const { count, factor, conditions } = jielongObj
         const condCount = maxCount(conditions)
         let perCount
-        // 当未标记份数时取条件最大值
-        if (count === 1 && condCount > 1) {
+        // 当未标记份数时取条件最大值 TODO 未标记份数如何判断？
+        if (condCount > count) {
             perCount = condCount
         } else {
             perCount = count
@@ -333,6 +333,10 @@ function countByTotal(jielongList) {
     return { type, count, output }
 }
 
+/**
+ * 所有园区汇总统计
+ * @param {*} jielongList 
+ */
 function countByConditions(jielongList) {
     const conditionMap = {}
     const complexObj = { type: 'complexConds' }
@@ -411,8 +415,12 @@ function countByConditions(jielongList) {
             let complexCount = 0
             conditions.forEach(({ count, more, less, isComplex }) => {
                 condCount += count
-                moreCount += more
-                lessCount += less
+                if (more && more > 0) {
+                    moreCount += more
+                }
+                if (less && less > 0) {
+                    lessCount += less
+                }
                 if (isComplex) {
                     complexCount += count
                 }
@@ -429,6 +437,31 @@ function countByConditions(jielongList) {
         })
 
     countConds.push(complexObj)
+    return countConds
+}
+
+/**
+ * 各园区分别统计
+ * @param {*} jielongList 
+ */
+function countByConditions2(jielongList) {
+    const countConds = []
+    jielongList.forEach(({ factor, conditions }) => {
+        if (factor === 0 || conditions.length === 0) {
+            return
+        }
+        const output = conditions.map(({ count, word }, index) => {
+            if (index > 0 && count === 1) {
+                return word
+            }
+            return `${count}${word}`
+        }).join('•')
+        countConds.push({
+            conditions,
+            output,
+        })
+    })
+
     return countConds
 }
 
@@ -519,6 +552,10 @@ function combineByVegName(conditions) {
 
 function countByArea(jielongList) {
     return [countByTotal(jielongList), ...countByConditions(jielongList)]
+}
+
+function countByArea2(jielongList) {
+    return [countByTotal(jielongList), ...countByConditions2(jielongList)]
 }
 
 function countAreaAll(areaGroup) {
@@ -834,6 +871,7 @@ function getCount(jielong) {
 }
 
 const chnNumInVegName = {
+    // 三: '鲜',
     三: '杯杏鲍菇',
     // 四: '棱豆',
     四: '季豆',
@@ -881,7 +919,8 @@ function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
         }
         count *= factor
         // 原始 jielong 中找到所在位置
-        const word = matched.slice(1)
+        // const word = matched.slice(1)
+        const word = result[6]
         const start = jielong.indexOf(word, fromIndex)
         const end = start + word.length
         conditions.push({ type, hasCount, count, output, word, text, start, end })
@@ -896,9 +935,9 @@ function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
 function getPlainConds(COND_REGEXP, rjielong, jielongObj) {
     const { jielong, factor, conditions } = jielongObj
     const { type, search: searchRegex, output, noReplace } = COND_REGEXP
-    let result
     const matchWords = []
     let fromIndex = 0
+    let result
     while ((result = searchRegex.exec(rjielong))) {
         const matched = result[0]
         // 检查接龙目标词后一位置是否有换字，有则放弃此次匹配
@@ -946,7 +985,8 @@ function getPlainConds(COND_REGEXP, rjielong, jielongObj) {
             less = count
         }
         // 原始 jielong 中找到所在位置
-        const word = matched.slice(1)
+        // const word = matched.slice(1)
+        const word = result[6]
         const start = jielong.indexOf(word, fromIndex)
         const end = start + word.length
         conditions.push({ type, hasCount, count, more, less, output, word, start, end })
@@ -1056,8 +1096,12 @@ function printAreaGroup(areaGroup) {
                     }
                     return `<strong style="color: red">${display}</strong>`
                 }
-                if (count === 1 && conditions.length > 1 && maxCount(conditions) > 1) {
-                    return `<strong style="color: purple">${jielong}（份数与条件不一致）</strong>`
+
+                if (jielong.indexOf('取消') > -1) {
+                    return `<strong style="color: red">${jielong}</strong>` // TODO 数量上也要取消，看下接龙数据
+                }
+                if (maxCount(conditions) > count) { // count === 1 && conditions.length > 1 && 
+                    return `<strong style="color: purple">${jielong}（条件份数超过接龙）</strong>`
                 }
                 if (hasComplex(conditions)) {
                     return `<strong style="color: orange">${jielong}</strong>`
@@ -1131,6 +1175,39 @@ function printCountList(area, countList) {
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
+function printCountObj2(countObj) {
+    const { type, count, output } = countObj
+    if (type === 'mealCount') {
+        return `<strong style="color: #1f78d1">${count}${output}</strong>`
+    }
+    return output
+}
+
+/**
+ * 显示某区统计2
+ * @param {*} area
+ * @param {*} countList
+ */
+function printCountList2(area, countList) {
+    let countDisplay = ''
+    countList.map(printCountObj2)
+        .forEach((output, index) => {
+            if (index === 0) {
+                countDisplay += output
+            } else if (index === 1) {
+                countDisplay += ` (${output}`
+            } else {
+                countDisplay += ` ${output}`
+            }
+
+            if (index === countList.length - 1) {
+                countDisplay += ')'
+            }
+        })
+    const result = `<div>## ${area}统计<br/><br/>${countDisplay}</div>`
+    document.querySelector('.jielong-statistics').innerHTML = result
+}
+
 /**
  * 显示各区统计
  * @param {*} countGroup 
@@ -1177,8 +1254,10 @@ document.getElementById('button0').onclick = function() {
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list, map } = parseJielong(jielongContent.split('\n'))
     console.log('parseJielong list, map: ', list, map)
-    const countList = countByArea(list)
-    printCountList('J区', countList)
+    // const countList = countByArea(list)
+    // printCountList('J区', countList)
+    const countList2 = countByArea2(list)
+    printCountList2('J区', countList2)
 }
 
 document.getElementById('button').onclick = function() {
