@@ -129,8 +129,8 @@ function groupAreaAll(jielongLeft, findKeys) {
 
 const ID_REGEX = /^(\d+)\.\s+/
 const SEPARATE_REGEX = /[\s;；,，、]/
-// const CANCEL_OMIT_REGEX = /[\s;；,，、](取消|cancel|\-) *$/
-const CANCEL_REGEX = /[\s;；,，、](取消\-?|cancel|\-) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/
+// const CANCEL_OMIT_REGEX = /[\s;；,，、](取消|CANCEL|\-) *$/
+const CANCEL_REGEX = /[\s;；,，、](取消\-?|CANCEL|\-) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/i
 const MEAL_COUNT = /(^|[^A-Ma-m])((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]/
 const ADD_COUNT = /(^|[^A-Ma-m])\+((\d+)|([零一二两三四五六七八九十百千万亿]+))/
 const MEAL_PAID = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(已支?付)/
@@ -140,13 +140,13 @@ const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十�
 // const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少(米?饭|主食|(?=\d|\s|$)))/g
 const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少([米菜]?饭|主食))/g
 const NO_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((不(需?要|用)|[免无飞走])(白?米?饭|杂粮饭|主食))/g
-const WHITE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((杂粮饭|主食)?[换換]?(白米?)饭[\(（且]?([多少]?))/g
-const FRIED_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(炒饭|炒杂|杂粮炒?饭)[\(（且]?([多少]?))/g
-const RIVER_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?炒?河粉?[\(（且]?([多少]?))/g
-const RICE_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(炒?米[粉线]|炒粉)[\(（且]?([多少]?))/g
-const NOODLES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(面条|炒面条?)[\(（且]?([多少]?))/g
-const CHANGE_PUMPKIN = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?蒸?南[瓜关][\(（且]?([多少]?))/g
-const CHANGE_POTATO = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?蒸?[红番]薯[\(（且]?([多少]?))/g
+const WHITE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((杂粮饭|主食)?[换換]?(白米?)饭)[\(（且]?([多少]?)/g
+const FRIED_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(炒饭|炒杂|杂粮炒?饭))[\(（且]?([多少]?)/g
+const RIVER_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?炒?河粉?)[\(（且]?([多少]?)/g
+const RICE_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(炒?米[粉线]|炒粉))[\(（且]?([多少]?)/g
+const NOODLES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(面条|炒面条?))[\(（且]?([多少]?)/g
+const CHANGE_PUMPKIN = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?蒸?南[瓜关])[\(（且]?([多少]?)/g
+const CHANGE_POTATO = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?蒸?[红番]薯)[\(（且]?([多少]?)/g
 const ADD_BAOZI = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(包子|馒头))/g
 const ADD_DISHES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?小菜)/g
 const ADD_APPETITE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(自制)?下饭菜)/g
@@ -159,9 +159,9 @@ const ADD_FREE_SAUCE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九
 const ADD_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?辣椒?酱)/g
 const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((不(需?要?|用?)|[免无飞走])辣)/g
 const SELF_BOX = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((自备)?饭?盒)/g
-const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[\(（且]?([多少]?))/g
+const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)[\(（且]?([多少]?)/g
 // const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([换換]菜)/g
-const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換]|都要)|不(需?要|用)|[换換加免无飞走])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+))/g
+const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換]|都要)|不(需?要|用)|[换換加免无飞走])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
 const COUNT_REGEXP = {
     type: 'mealCount',
@@ -358,9 +358,9 @@ function countByConditions(jielongList) {
             if (conditions.length > 1) {
                 const complexCount = count * factor
                 const complexOutput = conditions
-                .map(({ type, text, output }) => {
+                .map(({ type, word, output }) => {
                     if (type === 'changeVeg') {
-                        return text
+                        return word
                     }
                     return output
                 })
@@ -386,9 +386,9 @@ function countByConditions(jielongList) {
                 const startCount = startCond.count
                 const complexOutput = complexConds
                     .sort((a, b) => b.count - a.count)
-                    .map(({ type, count, text, output }) => {
+                    .map(({ type, count, word, output }) => {
                         if (type === 'changeVeg') {
-                            return startCount === 1 ? text : `${count}${text}`
+                            return startCount === 1 ? word : `${count}${word}`
                         }
                         return startCount === 1 ? output : `${count}${output}`
                     })
@@ -479,9 +479,9 @@ function countChangeVeg0(conditions, type, output) {
     if (listSize > 0) {
         condOutput += `${output}(`
     }
-    combineList.forEach(({ text, count }, index) => {
+    combineList.forEach(({ word, count }, index) => {
         condCount += count
-        condOutput += listSize === 1 ? text : `${count}${text}`
+        condOutput += listSize === 1 ? word : `${count}${word}`
         if (index < listSize - 1) {
             condOutput += '、'
         }
@@ -531,19 +531,19 @@ function countChangeVeg(conditions, type, output) {
  * @param {换菜列表}} conditions 
  */
 function combineByVegName(conditions) {
-    const countObj = conditions.reduce((vegNameMap, { text, count }) => {
-        if (vegNameMap[text]) {
-            vegNameMap[text] += count
+    const countObj = conditions.reduce((vegNameMap, { word, count }) => {
+        if (vegNameMap[word]) {
+            vegNameMap[word] += count
         } else {
-            vegNameMap[text] = count
+            vegNameMap[word] = count
         }
         return vegNameMap
     }, {})
     const resultList = []
-    for(const text in countObj) {
+    for(const word in countObj) {
         resultList.push({
-            text,
-            count: countObj[text],
+            word,
+            count: countObj[word],
         })
     }
 
@@ -878,9 +878,9 @@ const chnNumInVegName = {
     九: '层塔',
 }
 
-function hasChnNumInName(countNum, text) {
+function hasChnNumInName(countNum, word) {
     for (const chnNum in chnNumInVegName) {
-        if (countNum === chnNum && text.startsWith(chnNumInVegName[chnNum])) {
+        if (countNum === chnNum && word.startsWith(chnNumInVegName[chnNum])) {
             return true
         }
     }
@@ -898,17 +898,17 @@ function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
         if (!matched) {
             continue
         }
-        let text = result[6]
         let hasCount
         let count // 当前接龙每次匹配条件份数
+        let word = result[6]
         if (result[4]) {
             hasCount = true
             count = Number(result[4])
         } else if (result[5]) {
-            if (hasChnNumInName(result[5], text)) {
+            if (hasChnNumInName(result[5], word)) {
                 hasCount = false
                 count = 1
-                text = `${result[5]}${text}`
+                word = `${result[5]}${word}`
             } else {
                 hasCount = true
                 count = ChineseToNumber(result[5])
@@ -920,10 +920,9 @@ function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
         count *= factor
         // 原始 jielong 中找到所在位置
         // const word = matched.slice(1)
-        const word = result[6]
         const start = jielong.indexOf(word, fromIndex)
         const end = start + word.length
-        conditions.push({ type, hasCount, count, output, word, text, start, end })
+        conditions.push({ type, hasCount, count, output, word, start, end })
         fromIndex = end
         matchWords.push(word) // 需要被替换的匹配词
     }
