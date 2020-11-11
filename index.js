@@ -129,8 +129,9 @@ function groupAreaAll(jielongLeft, findKeys) {
 
 const ID_REGEX = /^(\d+)\.\s+/
 const SEPARATE_REGEX = /[\s;；,，、]/
-// const CANCEL_OMIT_REGEX = /[\s;；,，、](取消|CANCEL|\-) *$/
-const CANCEL_REGEX = /[\s;；,，、](取消\-?|CANCEL|\-) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/i
+// const CANCEL_OMIT_REGEX = /[\s;；,，、](取消|CANCEL|\-) *$/i
+const CANCEL_CURRENT = /[\s;；,，、\)）](取消|CANCEL)/i
+const CANCEL_REGEX = /[\s;；,，、\)）](取消\-?|CANCEL|\-) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/i
 const MEAL_COUNT = /(^|[^A-Ma-m])((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]/
 const ADD_COUNT = /(^|[^A-Ma-m])\+((\d+)|([零一二两三四五六七八九十百千万亿]+))/
 const MEAL_PAID = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(已支?付)/
@@ -139,7 +140,7 @@ const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十�
 // const LESS_RICE_MORE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少饭多菜)/g
 // const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少(米?饭|主食|(?=\d|\s|$)))/g
 const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少([米菜]?饭|主食))/g
-const NO_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((不(需?要|用)|[免无飞走])(白?米?饭|杂粮饭|主食))/g
+const NO_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((不(需?要|用)|[免无飞走去])(白?米?饭|杂粮饭|主食))/g
 const WHITE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((杂粮饭|主食)?[换換]?(白米?)饭)[\(（且]?([多少]?)/g
 const FRIED_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(炒饭|炒杂|杂粮炒?饭))[\(（且]?([多少]?)/g
 const RIVER_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?炒?河粉?)[\(（且]?([多少]?)/g
@@ -157,11 +158,11 @@ const ADD_CONGEE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十�
 const ADD_BEAN_JELLY = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(黑?凉粉|黑凉))/g
 const ADD_FREE_SAUCE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)酱)/g
 const ADD_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?辣椒?酱)/g
-const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((不(需?要?|用?)|[免无飞走])辣)/g
+const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((不(需?要?|用?)|[免无飞走去])辣)/g
 const SELF_BOX = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((自备)?饭?盒)/g
 const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)[\(（且]?([多少]?)/g
 // const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([换換]菜)/g
-const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換]|都要)|不(需?要|用)|[换換加免无飞走])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
+const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換]|都要)|不(需?要|用)|[换換加免无飞走去])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
 const COUNT_REGEXP = {
     type: 'mealCount',
@@ -674,24 +675,6 @@ function countAreaTotal(countGroup) {
     ]
 }
 
-// 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+((Going. down. this. road|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
-// 匹配格式如：小妍 Fanni🌟H区
-const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/
-// 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/
-// 匹配格式如：Fanni 小FF妍🌟H区
-const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d]?|[云微]谷(\d?[A-Da-d])?座?))/
-// 匹配格式如：H区小妍Fanni🌟
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d]?(门岗)?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
-// 匹配其它格式：无园区，列举特别格式的姓名
-const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
-// const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
-const USER_ECMIX_OTHER_NAME = /^\d+\.\s+(([\u4e00-\u9fa5]+[\-—_~～+ ]*[A-Za-z]*|[A-Za-z]+[\-—_~～+ ]+[A-Za-z]+|[A-Za-z]+[\-—_~～+]*[\u4e00-\u9fa5]*|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
-
-const USER_REGEXPS = [USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_AREA_ECMIX, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
-const OTHER_REGEXPS = [USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
-
 function deliveryAreaAll(areaGroup) {
     const deliveryGroup = {}
     for (const area in areaGroup) {
@@ -705,8 +688,8 @@ function deliveryAreaAll(areaGroup) {
             })
         }
         for (const index in jielongList) {
-            const { parent, name } = jielongList[index]
-            if (!parent) {
+            const { parent, factor, name } = jielongList[index]
+            if (!parent && factor === 1) {
                 deliveryGroup[area].push(`@${name}`)
             }
         }
@@ -738,7 +721,7 @@ function parseJielong(jielongArray) {
                 rjielong = getPlainConds(COND_REGEXP, rjielong, jielongObj)
             }
         })
-    
+
         getComplexConds(jielongObj)
     }
 
@@ -751,9 +734,9 @@ function parseJielong(jielongArray) {
         }
         const area = getArea(jielong, ['name', 'regex'])
         const name = getName(jielong, area)
+        const factor = getFactor(jielong)
         const rjielong = jielong.replace(ID_REGEX, '').replace(name, '')
         const count = getCount(rjielong)
-        const factor = getFactor(rjielong)
         const isPaid = MEAL_PAID.test(rjielong)
         const jielongObj = { id, jielong, rjielong, area, name, count, factor, conditions: [], isPaid }
         setupParent(jielongObj)
@@ -794,6 +777,24 @@ function getArea(jielong, findKeys) {
     return findArea
 }
 
+// 匹配格式如：H区小妍Fanni🌟
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+// 匹配格式如：小妍 H区，Fanni🌟 H3
+const USER_NAME_AREA = /^\d+\.\s+((Going. down. this. road|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
+// 匹配格式如：小妍 Fanni🌟H区
+const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?))/
+// 匹配格式如：Fanni 小妍🌟H区
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?))/
+// 匹配格式如：Fanni 小FF妍🌟H区
+const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?))/
+// 匹配其它格式：无园区，列举特别格式的姓名
+const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
+// const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
+const USER_ECMIX_OTHER_NAME = /^\d+\.\s+(([\u4e00-\u9fa5]+[\-—_~～+ ]*[A-Za-z]*|[A-Za-z]+[\-—_~～+ ]+[A-Za-z]+|[A-Za-z]+[\-—_~～+]*[\u4e00-\u9fa5]*|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+
+const USER_REGEXPS = [USER_AREA_ECMIX, USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
+const OTHER_REGEXPS = [USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
+
 function getName(jielong, area) {
     // 当存在大写份数时截取份数之前的文本
     const cResult = /[零一二两三四五六七八九十百千万亿]+[份分个]/.exec(jielong)
@@ -827,6 +828,7 @@ function getName(jielong, area) {
 function getFactor(jielong) {
     // 匹配是否有取消操作(负操作)
     const cancelMatched = CANCEL_REGEX.exec(jielong)
+    
     let factor // 正负操作因子，对应份数操作
     if (cancelMatched && cancelMatched[1]) {
         if (cancelMatched[2] === '') { // 当未匹配到取消份数
@@ -1081,10 +1083,12 @@ function printAreaGroup(areaGroup) {
             ? sortedAreaList.map(jielongObj => {
                 const { jielong, count, isPaid, conditions, factor, parent } = jielongObj
                 if (factor === 0) {
+                    if (CANCEL_CURRENT.test(jielong)) {
+                        return `<strong style="color: red">${jielong}（不计数）</strong>`
+                    }
                     const display = `${jielong}（取消失败，格式请标明：取消n份、-n份、-n份[条件]、-n[条件]）`
                     return `<strong style="color: red">${display}</strong>`
-                }
-                if (factor === -1) {
+                } else if (factor === -1) {
                     let display = jielong
                     if (getUserCount(jielongObj) < 0) {
                         if (parent) {
@@ -1095,10 +1099,7 @@ function printAreaGroup(areaGroup) {
                     }
                     return `<strong style="color: red">${display}</strong>`
                 }
-
-                if (jielong.indexOf('取消') > -1) {
-                    return `<strong style="color: red">${jielong}</strong>` // TODO 数量上也要取消，看下接龙数据
-                }
+                
                 if (maxCount(conditions) > count) { // count === 1 && conditions.length > 1 && 
                     return `<strong style="color: purple">${jielong}（条件份数超过接龙）</strong>`
                 }
