@@ -1,5 +1,13 @@
 const AREAS = [
     {
+        name: '华为地铁A出口',
+        gate: '华为地铁A出口',
+        regex: /华为地铁站?[Aa]出口/,
+        word: '华为站A',
+        takers: [],
+        hiddenIfNone: true,
+    },
+    {
         name: '云谷',
         gate: '云谷',
         put: true,
@@ -72,6 +80,14 @@ const OTHER = {
     takers: [],
 }
 
+const AREA_MAP = AREAS.reduce((MAP, AREA) => {
+    MAP[AREA.name] = AREA
+    return MAP
+}, { [OTHER.name]: OTHER })
+function findAREAByName(area) {
+    return AREA_MAP[area] || OTHER
+}
+
 const strFinder = (jielong, areaStr) => jielong.toUpperCase().indexOf(areaStr) > -1
 const regFinder = (jielong, areaReg) => areaReg.test(jielong)
 const FINDERS = {
@@ -95,7 +111,6 @@ function groupByFinder(jielongList, findKey) {
                 areaLeft.push(jielongObj)
             }
         })
-
         areaGroup[AREA.name] = areaList
         jielongLeft = areaLeft
     })
@@ -113,13 +128,17 @@ function groupAreaAll(jielongLeft, findKeys) {
             if (index < findKeys.length - 1 && area === OTHER.name) {
                 continue
             }
+            const AREA = findAREAByName(area)
+            const areaList = areaGroup[area]
+            if (AREA.hiddenIfNone && !areaList.length) {
+                continue
+            }
             let jielongList
             if (totalGroup[area]) {
-                jielongList = totalGroup[area].concat(areaGroup[area])
+                jielongList = totalGroup[area].concat(areaList)
             } else {
-                jielongList = areaGroup[area]
+                jielongList = areaList
             }
-
             totalGroup[area] = jielongList
         }
     })
@@ -131,9 +150,9 @@ const ID_REGEX = /^(\d+)\.\s+/
 const SEPARATE_REGEX = /[\s;；,，、]/
 // const CANCEL_OMIT_REGEX = /[\s;；,，、](取消|CANCEL|\-) *$/i
 const CANCEL_CURRENT = /[\s;；,，、\)）](取消|CANCEL)/i
-const CANCEL_REGEX = /[\s;；,，、\)）](取消\-?|CANCEL|\-) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/i
+const CANCEL_REGEX = /[\s;；,，、\)）](取消\-?|CANCEL) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/i
 const MEAL_COUNT = /(^|[^A-Ma-m])((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]/
-const ADD_COUNT = /(^|[^A-Ma-m])\+((\d+)|([零一二两三四五六七八九十百千万亿]+))/
+const ADD_COUNT = /(^|[^A-Ma-m])[加\+]((\d+)|([零一二两三四五六七八九十百千万亿]+))/
 const MEAL_PAID = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(已支?付)/
 // const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(多(米?饭|主食|(?=\d|\s|$)))/g
 const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(多([米菜]?饭|主食))/g
@@ -210,7 +229,7 @@ const COND_REGEXPS = [
     {
         type: 'riceFlour',
         search: RICE_FLOUR,
-        output: '炒粉',
+        output: '炒米粉',
     },
     {
         type: 'noodles',
@@ -681,9 +700,9 @@ function deliveryAreaAll(areaGroup) {
         const jielongList = areaGroup[area]
         deliveryGroup[area] = []
         // default takers
-        const AREA = AREAS.find(AREA => AREA.name === area)
-        if (AREA && AREA.takers && AREA.takers.length) {
-            AREA.takers.forEach(taker => {
+        const { takers } = findAREAByName(area)
+        if (takers && takers.length) {
+            takers.forEach(taker => {
                 deliveryGroup[area].push(`@${taker}`)
             })
         }
@@ -694,6 +713,7 @@ function deliveryAreaAll(areaGroup) {
             }
         }
     }
+
     return deliveryGroup
 }
 
@@ -778,15 +798,15 @@ function getArea(jielong, findKeys) {
 }
 
 // 匹配格式如：H区小妍Fanni🌟
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为地铁站?[Aa]出口)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
 // 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+((Going. down. this. road|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
+const USER_NAME_AREA = /^\d+\.\s+((\^点点滴滴\^|Going. down. this. road|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为地铁站?[Aa]出口))/  // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
-const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为地铁站?[Aa]出口))/
 // 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为地铁站?[Aa]出口))/
 // 匹配格式如：Fanni 小FF妍🌟H区
-const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?))/
+const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为地铁站?[Aa]出口))/
 // 匹配其它格式：无园区，列举特别格式的姓名
 const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
 // const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
@@ -828,7 +848,6 @@ function getName(jielong, area) {
 function getFactor(jielong) {
     // 匹配是否有取消操作(负操作)
     const cancelMatched = CANCEL_REGEX.exec(jielong)
-    
     let factor // 正负操作因子，对应份数操作
     if (cancelMatched && cancelMatched[1]) {
         if (cancelMatched[2] === '') { // 当未匹配到取消份数
@@ -1078,9 +1097,10 @@ function sortByComplex(jielongList) {
 function printAreaGroup(areaGroup) {
     let result = '<div>## 接龙分区<br/><br/>'
     for (const area in areaGroup) {
-        const sortedAreaList = sortByComplex(sortByPaid(areaGroup[area]))
-        const jielongDisplay = sortedAreaList.length
-            ? sortedAreaList.map(jielongObj => {
+        const areaList = areaGroup[area]
+        let jielongDisplay
+        if (areaList.length) {
+            jielongDisplay = sortByComplex(sortByPaid(areaList)).map(jielongObj => {
                 const { jielong, count, isPaid, conditions, factor, parent } = jielongObj
                 if (factor === 0) {
                     if (CANCEL_CURRENT.test(jielong)) {
@@ -1111,7 +1131,9 @@ function printAreaGroup(areaGroup) {
                 }
                 return jielong
             }).join('<br/>')
-            : ''
+        } else {
+            jielongDisplay = ''
+        }
         result += `<span>${area}</span>：<br/><div>${jielongDisplay}</div><br/>`
     }
     result += '</div>'
@@ -1128,6 +1150,7 @@ function printComplexObj(complexObj) {
             complexTotal += count
         }
     }
+    
     if (complexOutputs.length) {
         // return `<span style="color: orange"><br/>${complexTotal}复合{${complexOutputs.join(' ')}}</span>`
         return `<span style="color: orange">${complexTotal}复合{${complexOutputs.join(' ')}}</span>` //【】
@@ -1230,22 +1253,24 @@ function printCountGroup(countGroup) {
         const countDisplay = countGroup[area].map(printCountObj).join(' ')
         result += `${areaIcon}${area}: ${countDisplay}<br/>`
     }
-
     result += '<br/>' + complexList.join('<br/>') + '</div>'
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
 function printDeliveryGroup(deliveryGroup) {
-    const pathDisplay = AREAS.map(AREA => AREA.gate).join('～')
-    const putDisplay = AREAS.filter(AREA => AREA.put).map(AREA => AREA.gate).join('、')
-    // let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>灰色本田～粤B89G18<br/><br/>`
-    let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>银色五菱～粤B598J7<br/><br/>`
-    
+    let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>灰色本田～粤B89G18<br/><br/>`
+    // let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>银色五菱～粤B598J7<br/><br/>`
+    const pathList = []
+    const putList = []
     for (const area in deliveryGroup) {
-        const AREA = [...AREAS, OTHER].find(AREA => AREA.name === area)
-        result += `✨${AREA.gate}：${deliveryGroup[area].join(' ')}<br/>`
+        const { gate, put } = findAREAByName(area)
+        result += `✨${gate}：${deliveryGroup[area].join(' ')}<br/>`
+        pathList.push(gate)
+        if (put) {
+            putList.push(gate)
+        }
     }
-    result += `<br/>💫路线：${pathDisplay}（${putDisplay}可放餐）</div>`
+    result += `<br/>💫路线：${pathList.join('～')}（${putList.join('、')}可放餐）</div>`
     document.querySelector('.jielong-delivery').innerHTML = result
 }
 
