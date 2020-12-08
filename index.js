@@ -190,7 +190,7 @@ const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十�
 const SELF_BOX = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((自备)?饭?盒)/g
 const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)[\(（且]?([多少]?)/g
 // const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([换換]菜)/g
-const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換改]|都要)|不(需?要|用)|[换換加免无飞走去])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
+const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換改]|都要)|不(需?要|用)|[换換免无飞走去])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
 const COUNT_REGEXP = {
     type: 'mealCount',
@@ -387,16 +387,23 @@ function countByConditions(jielongList) {
             if (conditions.length > 1) {
                 const complexCount = count * factor
                 const complexOutput = conditions
-                .map(({ type, word, output }) => {
+                .sort((a, b) => b.count - a.count)
+                .map(({ type, count, word, output }, index) => {
+                    let text
                     if (type === 'changeVeg') {
-                        return word
+                        text = word
+                    } else {
+                        text = output
                     }
-                    return output
+                    if (index === 0) {
+                        return `${count}${text}`
+                    }
+                    return count === 1 ? text : `${count}${text}`
                 })
                 .join('•')
                 complexObj[id] = {
                     count: complexCount,
-                    outputs: [`${count}${complexOutput}`],
+                    outputs: [complexOutput],
                 }
             }
         } else if (hasComplex(conditions)) {
