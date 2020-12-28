@@ -24,8 +24,8 @@ const AREAS = [
     },
     {
         name: 'J区',
-        gate: 'J南',
-        regex: /[Jj][区南\d]/,
+        gate: 'J西',
+        regex: /[Jj][区西\d]/,
         word: 'J',
         put: true,
         // takers: ['张斌-J区', '佳忠J区 多饭'],
@@ -137,21 +137,23 @@ function groupAreaAll(jielongLeft, findKeys) {
             if (index < findKeys.length - 1 && area === OTHER.name) {
                 continue
             }
-            const AREA = findAREAByName(area)
-            const areaList = areaGroup[area]
-            if (AREA.hiddenIfNone && !areaList.length) {
-                continue
-            }
             let jielongList
             if (totalGroup[area]) {
-                jielongList = totalGroup[area].concat(areaList)
+                jielongList = totalGroup[area].concat(areaGroup[area])
             } else {
-                jielongList = areaList
+                jielongList = areaGroup[area]
             }
             totalGroup[area] = jielongList
         }
     })
 
+    for (const area in totalGroup) {
+        const AREA = findAREAByName(area)
+        const areaList = totalGroup[area]
+        if (AREA.hiddenIfNone && !areaList.length) {
+            delete totalGroup[area]
+        }
+    }
     return totalGroup
 }
 

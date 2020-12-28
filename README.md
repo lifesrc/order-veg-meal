@@ -11,3 +11,5 @@
 （拷贝接龙到输入框，点击各区统计即可得运行结果）
 - 线上源码编辑: https://codepen.io/messfairy/pen/qBOKzqW
 （提示登录则输入用户名/密码，公共账号: lifesrc/lifesrc123)
+CODING 开放平台：
+https://messfairy-01.coding.net/p/order-veg-meal/d/order-veg-meal/git
