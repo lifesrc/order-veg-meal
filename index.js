@@ -1,11 +1,27 @@
 const AREAS = [
     {
+        name: '华为地铁A出口',
+        gate: '华为地铁A出口',
+        regex: /华为(地铁)?站?[Aa]出口/,
+        word: '华为站A',
+        takers: [],
+        hiddenIfNone: true,
+    },
+    {
         name: '云谷',
         gate: '云谷',
-        put: true,
         regex: /云谷(\d?[A-Da-d])?座?/,
         word: '云',
+        put: true,
         takers: [],
+    },
+    {
+        name: '金荣达',
+        gate: '金荣达',
+        regex: /金[荣蓉]达/,
+        word: '金荣达',
+        takers: [],
+        hiddenIfNone: true,
     },
     {
         name: 'E区',
@@ -16,10 +32,10 @@ const AREAS = [
     },
     {
         name: 'J区',
-        gate: 'J南',
-        put: true,
-        regex: /[Jj][区南\d]/,
+        gate: 'J西',
+        regex: /[Jj][区西\d]/,
         word: 'J',
+        put: true,
         // takers: ['张斌-J区', '佳忠J区 多饭'],
         // takers: ['佳忠J区 多饭'],
         // takers: ['张斌-J区'],
@@ -29,17 +45,17 @@ const AREAS = [
     {
         name: 'F区',
         gate: 'F南',
-        put: true,
         regex: /[Ff][区南\d]/,
         word: 'F',
+        put: true,
         takers: [],
     },
     {
         name: 'B区',
         gate: 'B东',
-        put: true,
         regex: /[Bb][区东\d]/,
         word: 'B',
+        put: true,
         takers: [],
     },
     {
@@ -63,6 +79,14 @@ const AREAS = [
         word: '微',
         takers: [],
     },
+    {
+        name: 'K区',
+        gate: 'K东南',
+        regex: /[Kk][区东南\d]/,
+        word: 'K',
+        takers: [],
+        hiddenIfNone: true,
+    },
 ]
 const OTHER = {
     name: '其它',
@@ -70,6 +94,15 @@ const OTHER = {
     regex: /其它/,
     word: '其它',
     takers: [],
+    hiddenIfNone: true,
+}
+
+const AREA_MAP = AREAS.reduce((MAP, AREA) => {
+    MAP[AREA.name] = AREA
+    return MAP
+}, { [OTHER.name]: OTHER })
+function findAREAByName(area) {
+    return AREA_MAP[area] || OTHER
 }
 
 const strFinder = (jielong, areaStr) => jielong.toUpperCase().indexOf(areaStr) > -1
@@ -95,7 +128,6 @@ function groupByFinder(jielongList, findKey) {
                 areaLeft.push(jielongObj)
             }
         })
-
         areaGroup[AREA.name] = areaList
         jielongLeft = areaLeft
     })
@@ -119,51 +151,62 @@ function groupAreaAll(jielongLeft, findKeys) {
             } else {
                 jielongList = areaGroup[area]
             }
-
             totalGroup[area] = jielongList
         }
     })
 
+    for (const area in totalGroup) {
+        const AREA = findAREAByName(area)
+        const areaList = totalGroup[area]
+        if (AREA.hiddenIfNone && !areaList.length) {
+            delete totalGroup[area]
+        }
+    }
     return totalGroup
 }
 
 const ID_REGEX = /^(\d+)\.\s+/
 const SEPARATE_REGEX = /[\s;；,，、]/
-// const CANCEL_OMIT_REGEX = /[\s;；,，、](取消|cancel|\-) *$/
-const CANCEL_REGEX = /[\s;；,，、](取消|cancel|\-) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/
-const MEAL_COUNT = /(^|[^A-Ma-m])((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]/
-const MEAL_PAID = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?已支?付/
-// const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?多(米?饭|主食|(?=\d|\s|$))/g
-const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?多([米菜]?饭|主食)/g
-// const LESS_RICE_MORE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?少饭多菜/g
-// const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?少(米?饭|主食|(?=\d|\s|$))/g
-const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?少([米菜]?饭|主食)/g
-const NO_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(不(需?要|用)|[免无飞走])(白?米?饭|杂粮饭|主食)/g
-const WHITE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(杂粮饭|主食)?[换換]?(白米?)饭且?([多少]?)/g
-const FRIED_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(炒饭|炒杂|杂粮炒?饭)且?([多少]?)/g
-const RIVER_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?炒?河粉?且?([多少]?)/g
-const RICE_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(炒?米[粉线]|炒粉)且?([多少]?)/g
-const NOODLES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]?成?(面条|炒面条?)且?([多少]?)/g
-const CHANGE_PUMPKIN = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換]南瓜且?([多少]?)/g
-const CHANGE_POTATO = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)?[换換][红番]薯且?([多少]?)/g
-const ADD_DISHES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?小菜/g
-const ADD_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?辣椒?酱/g
-const ADD_SOUR_RADISH = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?((开胃)?萝|酸萝?)卜/g
-const ADD_BAOZI = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(包子|馒头)/g
-const ADD_SALAD = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?((水果)?[沙色]拉|水果)/g
-const ADD_WATERMELON = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?(西瓜🍉+|西瓜|🍉+)/g
-const ADD_CONGEE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?粥/g
-const ADD_BEAN_JELLY = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)?黑?凉粉/g
-const ADD_FREE_SAUCE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(\+|加|➕\s*)酱/g
-const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(不(需?要?|用?)|[免无飞走])辣/g
-const SELF_BOX = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(自备)?饭?盒/g
-const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+且?([多少]?)/g
-// const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?[换換]菜/g
-const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(([多少]菜)|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+[换換]|不(需?要|用)|[换換免无飞走])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
+// const CANCEL_OMIT_REGEX = /[\s;；,，、](取消|CANCEL|\-) *$/i
+const CANCEL_CURRENT = /[\s;；,，、\)）](取消|CANCEL)/i
+const CANCEL_REGEX = /[\s;；,，、\)）](取消\-?|CANCEL) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/i
+const MEAL_COUNT = /(^|[^A-Ma-m])((\d+)|([零一二两三四五六七八九十百千万亿]+))([份分个]|$)/
+const ADD_COUNT = /(^|[^A-Ma-m])[加\+]((\d+)|([零一二两三四五六七八九十百千万亿]+))/
+const MEAL_PAID = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(已支?付)/
+// const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(多(米?饭|主食|(?=\d|\s|$)))/g
+const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(多([米菜]?饭|主食))/g
+// const LESS_RICE_MORE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少饭多菜)/g
+// const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少(米?饭|主食|(?=\d|\s|$)))/g
+const LESS_LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少少([米菜]?饭|主食))/g
+const LESS_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(少([米菜]?饭|主食))(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?/g
+const NO_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((不(需?要|用)|[免无飞走去])(白?米?饭|杂粮饭|主食))/g
+const WHITE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((杂粮饭|主食)?[换換]?(白米?)饭)[\(（且]?([多少]?)/g
+const FRIED_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(炒饭|炒杂|杂粮炒?饭))[\(（且]?([多少]?)/g
+const RIVER_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?炒?河粉?)[\(（且]?([多少]?)/g
+const RICE_FLOUR = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(炒?米[粉线]|炒粉))[\(（且]?([多少]?)/g
+const NOODLES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?成?(面条|炒面条?))[\(（且]?([多少]?)/g
+const CHANGE_PUMPKIN = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?蒸?南[瓜关])[\(（且]?([多少]?)/g
+const CHANGE_POTATO = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)?[换換]?蒸?[红番]薯)[\(（且]?([多少]?)/g
+const ADD_BAOZI = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(包子|馒头))/g
+const ADD_DISHES = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?小菜)/g
+const ADD_APPETITE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(自制)?下饭菜)/g
+const ADD_SOUR_RADISH = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?((开胃)?萝|酸萝?)卜)/g
+const ADD_SALAD = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?((水果)?[沙色]拉|水果))/g
+const ADD_WATERMELON = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(西瓜🍉+|西瓜|🍉+))/g
+const ADD_CONGEE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?白?粥)/g
+const ADD_BEAN_JELLY = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?(黑?凉粉|黑凉))/g
+const ADD_FREE_SAUCE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)酱)/g
+const ADD_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((\+|加|➕\s*)?辣椒?酱)/g
+const NO_PEPPER = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((不(需?要?|用?)|[免无飞走去])辣)/g
+const SELF_BOX = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((自备)?饭?盒)/g
+const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?((白?米饭|杂粮饭|主食)[换換][\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)[\(（且]?([多少]?)/g
+// const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([换換]菜)/g
+const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?|都是)?([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換改]|都要)|不(需?要|用)|[换換免无飞走去])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
 const COUNT_REGEXP = {
     type: 'mealCount',
     search: MEAL_COUNT,
+    add: ADD_COUNT,
     output: '份',
 }
 const COND_REGEXPS = [
@@ -178,6 +221,11 @@ const COND_REGEXPS = [
     //     search: LESS_RICE_MORE_VEG,
     //     output: '少饭多菜',
     // },
+    {
+        type: 'lessLessRice',
+        search: LESS_LESS_RICE,
+        output: '少少饭',
+    },
     {
         type: 'lessRice',
         search: LESS_RICE,
@@ -206,7 +254,7 @@ const COND_REGEXPS = [
     {
         type: 'riceFlour',
         search: RICE_FLOUR,
-        output: '炒粉',
+        output: '炒米粉',
     },
     {
         type: 'noodles',
@@ -224,24 +272,24 @@ const COND_REGEXPS = [
         output: '换红薯',
     },
     {
+        type: 'addBaozi',
+        search: ADD_BAOZI,
+        output: '加包子',
+    },
+    {
         type: 'addDishes',
         search: ADD_DISHES,
         output: '加小菜',
     },
     {
-        type: 'addPepper',
-        search: ADD_PEPPER,
-        output: '加辣酱',
+        type: 'addAppetite',
+        search: ADD_APPETITE,
+        output: '下饭菜',
     },
     {
         type: 'addSourRadish',
         search: ADD_SOUR_RADISH,
         output: '开胃萝卜',
-    },
-    {
-        type: 'addBaozi',
-        search: ADD_BAOZI,
-        output: '加包子',
     },
     {
         type: 'addSalad',
@@ -261,12 +309,17 @@ const COND_REGEXPS = [
     {
         type: 'addCongee',
         search: ADD_CONGEE,
-        output: '加粥',
+        output: '白粥',
     },
     {
         type: 'addFreeSauce',
         search: ADD_FREE_SAUCE,
         output: '加酱',
+    },
+    {
+        type: 'addPepper',
+        search: ADD_PEPPER,
+        output: '加辣酱',
     },
     {
         type: 'noPepper',
@@ -302,7 +355,7 @@ function getUserCount(jielongObj) {
 }
 
 function maxCount(conditions) {
-    return conditions.reduce((max, condition) => Math.max(max, condition.count), -Infinity)
+    return conditions.reduce((maxValue, condition) => Math.max(maxValue, condition.count), -Infinity)
 }
 
 function countByTotal(jielongList) {
@@ -310,8 +363,8 @@ function countByTotal(jielongList) {
         const { count, factor, conditions } = jielongObj
         const condCount = maxCount(conditions)
         let perCount
-        // 当未标记份数时取条件最大值
-        if (count === 1 && condCount > 1) {
+        // 当未标记份数时取条件最大值 TODO 未标记份数如何判断？
+        if (condCount > count) {
             perCount = condCount
         } else {
             perCount = count
@@ -325,6 +378,10 @@ function countByTotal(jielongList) {
     return { type, count, output }
 }
 
+/**
+ * 所有园区汇总统计
+ * @param {*} jielongList 
+ */
 function countByConditions(jielongList) {
     const conditionMap = {}
     const complexObj = { type: 'complexConds' }
@@ -346,16 +403,23 @@ function countByConditions(jielongList) {
             if (conditions.length > 1) {
                 const complexCount = count * factor
                 const complexOutput = conditions
-                .map(({ type, text, output }) => {
+                .sort((a, b) => b.count - a.count)
+                .map(({ type, count, word, output }, index) => {
+                    let text
                     if (type === 'changeVeg') {
-                        return text
+                        text = word
+                    } else {
+                        text = output
                     }
-                    return output
+                    if (index === 0) {
+                        return `${count}${text}`
+                    }
+                    return count === 1 ? text : `${count}${text}`
                 })
                 .join('•')
                 complexObj[id] = {
                     count: complexCount,
-                    outputs: [`${count}${complexOutput}`],
+                    outputs: [complexOutput],
                 }
             }
         } else if (hasComplex(conditions)) {
@@ -374,9 +438,9 @@ function countByConditions(jielongList) {
                 const startCount = startCond.count
                 const complexOutput = complexConds
                     .sort((a, b) => b.count - a.count)
-                    .map(({ type, count, text, output }) => {
+                    .map(({ type, count, word, output }) => {
                         if (type === 'changeVeg') {
-                            return startCount === 1 ? text : `${count}${text}`
+                            return startCount === 1 ? word : `${count}${word}`
                         }
                         return startCount === 1 ? output : `${count}${output}`
                     })
@@ -403,8 +467,12 @@ function countByConditions(jielongList) {
             let complexCount = 0
             conditions.forEach(({ count, more, less, isComplex }) => {
                 condCount += count
-                moreCount += more
-                lessCount += less
+                if (more && more > 0) {
+                    moreCount += more
+                }
+                if (less && less > 0) {
+                    lessCount += less
+                }
                 if (isComplex) {
                     complexCount += count
                 }
@@ -424,6 +492,37 @@ function countByConditions(jielongList) {
     return countConds
 }
 
+/**
+ * 各园区分别统计
+ * @param {*} jielongList 
+ */
+function countByConditions2(jielongList) {
+    const countConds = []
+    jielongList.forEach(({ factor, conditions }) => {
+        if (factor === 0 || conditions.length === 0) {
+            return
+        }
+        const output = conditions.map(({ count, word }, index) => {
+            if (index > 0 && count === 1) {
+                return word
+            }
+            return `${count}${word}`
+        }).join('•')
+        countConds.push({
+            conditions,
+            output,
+        })
+    })
+
+    return countConds
+}
+
+/**
+ * 旧版换菜统计
+ * @param {*} conditions 
+ * @param {*} type 
+ * @param {*} output 
+ */
 function countChangeVeg0(conditions, type, output) {
     const combineList = combineByVegName(conditions)
     const listSize = combineList.length
@@ -432,9 +531,9 @@ function countChangeVeg0(conditions, type, output) {
     if (listSize > 0) {
         condOutput += `${output}(`
     }
-    combineList.forEach(({ text, count }, index) => {
+    combineList.forEach(({ word, count }, index) => {
         condCount += count
-        condOutput += listSize === 1 ? text : `${count}${text}`
+        condOutput += listSize === 1 ? word : `${count}${word}`
         if (index < listSize - 1) {
             condOutput += '、'
         }
@@ -452,6 +551,12 @@ function countChangeVeg0(conditions, type, output) {
     }
 }
 
+/**
+ * 新版换菜统计（简化）
+ * @param {*} conditions 
+ * @param {*} type 
+ * @param {*} output 
+ */
 function countChangeVeg(conditions, type, output) {
     const combineList = combineByVegName(conditions)
     const listSize = combineList.length
@@ -472,24 +577,25 @@ function countChangeVeg(conditions, type, output) {
         output: condOutput,
     }
 }
+
 /**
  * 按菜名合并每个菜几份
  * @param {换菜列表}} conditions 
  */
 function combineByVegName(conditions) {
-    const countObj = conditions.reduce((vegNameMap, { text, count }) => {
-        if (vegNameMap[text]) {
-            vegNameMap[text] += count
+    const countObj = conditions.reduce((vegNameMap, { word, count }) => {
+        if (vegNameMap[word]) {
+            vegNameMap[word] += count
         } else {
-            vegNameMap[text] = count
+            vegNameMap[word] = count
         }
         return vegNameMap
     }, {})
     const resultList = []
-    for(const text in countObj) {
+    for(const word in countObj) {
         resultList.push({
-            text,
-            count: countObj[text],
+            word,
+            count: countObj[word],
         })
     }
 
@@ -498,6 +604,10 @@ function combineByVegName(conditions) {
 
 function countByArea(jielongList) {
     return [countByTotal(jielongList), ...countByConditions(jielongList)]
+}
+
+function countByArea2(jielongList) {
+    return [countByTotal(jielongList), ...countByConditions2(jielongList)]
 }
 
 function countAreaAll(areaGroup) {
@@ -512,41 +622,41 @@ function countAreaAll(areaGroup) {
 
 function countAreaTotal(countGroup) {
     let total = 0
-    let moreRiceTotal = 0
+    // let moreRiceTotal = 0
     // let lessRiceMoreVegTotal = 0
-    let lessRiceTotal = 0
-    let noRiceTotal = 0
-    let friedRiceTotal = 0
-    let riverFlourTotal = 0
-    let changePumpkinTotal = 0
-    let changePotatoTotal = 0
-    let changeStapleTotal = 0
-    let changeVegTotal = 0
+    // let lessRiceTotal = 0
+    // let noRiceTotal = 0
+    // let friedRiceTotal = 0
+    // let riverFlourTotal = 0
+    // let changePumpkinTotal = 0
+    // let changePotatoTotal = 0
+    // let changeStapleTotal = 0
+    // let changeVegTotal = 0
     let selfBoxTotal = 0
     for (const area in countGroup) {
         countGroup[area].forEach(({ type, count }) => {
             if (type === 'mealCount') {
                 total += count
-            } else if (type === 'moreRice') {
-                moreRiceTotal += count
+            // } else if (type === 'moreRice') {
+            //     moreRiceTotal += count
             // } else if (type === 'lessRiceMoreVeg') {
             //     lessRiceMoreVegTotal += count
-            } else if (type === 'lessRice') {
-                lessRiceTotal += count
-            } else if (type === 'noRice') {
-                noRiceTotal += count
-            } else if (type === 'friedRice') {
-                friedRiceTotal += count
-            } else if (type === 'riverFlour') {
-                riverFlourTotal += count
-            } else if (type === 'changePumpkin') {
-                changePumpkinTotal += count
-            } else if (type === 'changePotato') {
-                changePotatoTotal += count
-            } else if (type === 'changeStaple') {
-                changeStapleTotal += count
-            } else if (type === 'changeVeg') {
-                changeVegTotal += count
+            // } else if (type === 'lessRice') {
+            //     lessRiceTotal += count
+            // } else if (type === 'noRice') {
+            //     noRiceTotal += count
+            // } else if (type === 'friedRice') {
+            //     friedRiceTotal += count
+            // } else if (type === 'riverFlour') {
+            //     riverFlourTotal += count
+            // } else if (type === 'changePumpkin') {
+            //     changePumpkinTotal += count
+            // } else if (type === 'changePotato') {
+            //     changePotatoTotal += count
+            // } else if (type === 'changeStaple') {
+            //     changeStapleTotal += count
+            // } else if (type === 'changeVeg') {
+            //     changeVegTotal += count
             } else if (type === 'selfBox') {
                 selfBoxTotal += count
             }
@@ -616,42 +726,26 @@ function countAreaTotal(countGroup) {
     ]
 }
 
-// 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+(L~i~n|(Cindy。|Nancy。|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/  // ([，, -—_]?([多少]饭|不要米饭))?
-// 匹配格式如：小妍 Fanni🌟H区
-const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Z a-z]*)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
-// 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
-// 匹配格式如：Fanni 小FF妍🌟H区
-const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*[ \-—_~～+]*([A-Ma-m][区\d]?|[云微]谷(\d?[A-Da-d])?座?))/
-// 匹配格式如：H区小妍Fanni🌟
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区\d]?(门岗)?|[云微]谷(\d?[A-Da-d])?座?)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+)[🌈🦋🍉🌻🌼💤🌟✨🌱🍀🍭🎈🎀💋🌵● ོ་]*)/
-// 匹配其它格式：无园区，列举特别格式的姓名
-const USER_ESP_OTHER_NAME = /^\d+\.\s+(宝妹儿~|维 维|danna ²⁰²⁰|果果lynn🌈|Han🦋|西瓜锦鲤🍉|灵芝🌻|嘟嘟💤|Fanni🌟|🌱Carina|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|鲤鱼🐟|One卷卷🍃|sᴛᴀʀʀʏ.|D区门岗-赵金亮|Nancy(●––●) F区)/
-const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
-
-const USER_REGEXPS = [USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_AREA_ECMIX, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
-const OTHER_REGEXPS = [USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
-
 function deliveryAreaAll(areaGroup) {
     const deliveryGroup = {}
     for (const area in areaGroup) {
         const jielongList = areaGroup[area]
         deliveryGroup[area] = []
         // default takers
-        const AREA = AREAS.find(AREA => AREA.name === area)
-        if (AREA && AREA.takers && AREA.takers.length) {
-            AREA.takers.forEach(taker => {
+        const { takers } = findAREAByName(area)
+        if (takers && takers.length) {
+            takers.forEach(taker => {
                 deliveryGroup[area].push(`@${taker}`)
             })
         }
         for (const index in jielongList) {
-            const { parent, name } = jielongList[index]
-            if (!parent) {
+            const { parent, factor, name } = jielongList[index]
+            if (!parent && factor === 1) {
                 deliveryGroup[area].push(`@${name}`)
             }
         }
     }
+
     return deliveryGroup
 }
 
@@ -679,7 +773,7 @@ function parseJielong(jielongArray) {
                 rjielong = getPlainConds(COND_REGEXP, rjielong, jielongObj)
             }
         })
-    
+
         getComplexConds(jielongObj)
     }
 
@@ -692,9 +786,9 @@ function parseJielong(jielongArray) {
         }
         const area = getArea(jielong, ['name', 'regex'])
         const name = getName(jielong, area)
+        const factor = getFactor(jielong)
         const rjielong = jielong.replace(ID_REGEX, '').replace(name, '')
         const count = getCount(rjielong)
-        const factor = getFactor(rjielong)
         const isPaid = MEAL_PAID.test(rjielong)
         const jielongObj = { id, jielong, rjielong, area, name, count, factor, conditions: [], isPaid }
         setupParent(jielongObj)
@@ -735,7 +829,31 @@ function getArea(jielong, findKeys) {
     return findArea
 }
 
+// 匹配格式如：H区小妍Fanni🌟
+// const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口)|金荣达[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+// 匹配格式如：小妍 H区，Fanni🌟 H3
+const USER_NAME_AREA = /^\d+\.\s+((尐霏|_Carina|🍀 杨茜|\^点点滴滴\^|Going. down. this. road|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/  // ([，, -—_]?([多少]饭|不要米饭))?
+// 匹配格式如：小妍 Fanni🌟H区
+const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
+// 匹配格式如：Fanni 小妍🌟H区
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
+// 匹配格式如：Fanni 小FF妍🌟H区
+const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
+// 匹配其它格式：无园区，列举特别格式的姓名
+const USER_ESP_OTHER_NAME = /^\d+\.\s+(尐霏|宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🍀 杨茜|🌱Carina|_Carina🌱|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
+// const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
+const USER_ECMIX_OTHER_NAME = /^\d+\.\s+(([\u4e00-\u9fa5]+[\-—_~～+ ]*[A-Za-z]*|[A-Za-z]+[\-—_~～+ ]+[A-Za-z]+|[A-Za-z]+[\-—_~～+]*[\u4e00-\u9fa5]*|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+
+const USER_REGEXPS = [USER_AREA_ECMIX, USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
+const OTHER_REGEXPS = [USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
+
 function getName(jielong, area) {
+    // 当存在大写份数时截取份数之前的文本
+    const cResult = /[零一二两三四五六七八九十百千万亿]+[份分个]/.exec(jielong)
+    if (cResult) {
+        jielong = jielong.slice(0, cResult.index)
+    }
     let regexps
     if (area === OTHER) {
         regexps = OTHER_REGEXPS
@@ -778,7 +896,7 @@ function getFactor(jielong) {
 }
 
 function getCount(jielong) {
-    const cMatched = MEAL_COUNT.exec(jielong)
+    const cMatched = COUNT_REGEXP.search.exec(jielong)
     let count
     if (cMatched) {
         if (cMatched[3]) {
@@ -789,10 +907,38 @@ function getCount(jielong) {
             count = 1
         }
     } else {
-        count = 1
+        const aMatched = COUNT_REGEXP.add.exec(jielong)
+        if (aMatched) {
+            if (aMatched[3]) {
+                count = Number(aMatched[3])
+            } else if (aMatched[4]) {
+                count = ChineseToNumber(aMatched[4])
+            } else {
+                count = 1
+            }
+        } else {
+            count = 1
+        }
     }
 
     return count
+}
+
+const chnNumInVegName = {
+    // 三: '鲜',
+    三: '杯杏鲍菇',
+    // 四: '棱豆',
+    四: '季豆',
+    九: '层塔',
+}
+
+function hasChnNumInName(countNum, word) {
+    for (const chnNum in chnNumInVegName) {
+        if (countNum === chnNum && word.startsWith(chnNumInVegName[chnNum])) {
+            return true
+        }
+    }
+    return false
 }
 
 function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
@@ -806,17 +952,20 @@ function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
         if (!matched) {
             continue
         }
-        let text = result[6]
         let hasCount
         let count // 当前接龙每次匹配条件份数
-        if (result[4]) {
+        let word = result[6]
+        if (result[2] === '都是') {
+            hasCount = false
+            count = jielongObj.count
+        } else if (result[4]) {
             hasCount = true
             count = Number(result[4])
         } else if (result[5]) {
-            if (result[5] === '四' && text.startsWith('季豆')) {
+            if (hasChnNumInName(result[5], word)) {
                 hasCount = false
                 count = 1
-                text = `${result[5]}${text}`
+                word = `${result[5]}${word}`
             } else {
                 hasCount = true
                 count = ChineseToNumber(result[5])
@@ -827,10 +976,10 @@ function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
         }
         count *= factor
         // 原始 jielong 中找到所在位置
-        const word = matched.slice(1)
+        // const word = matched.slice(1)
         const start = jielong.indexOf(word, fromIndex)
         const end = start + word.length
-        conditions.push({ type, hasCount, count, output, word, text, start, end })
+        conditions.push({ type, hasCount, count, output, word, start, end })
         fromIndex = end
         matchWords.push(word) // 需要被替换的匹配词
     }
@@ -842,9 +991,9 @@ function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
 function getPlainConds(COND_REGEXP, rjielong, jielongObj) {
     const { jielong, factor, conditions } = jielongObj
     const { type, search: searchRegex, output, noReplace } = COND_REGEXP
-    let result
     const matchWords = []
     let fromIndex = 0
+    let result
     while ((result = searchRegex.exec(rjielong))) {
         const matched = result[0]
         // 检查接龙目标词后一位置是否有换字，有则放弃此次匹配
@@ -874,12 +1023,18 @@ function getPlainConds(COND_REGEXP, rjielong, jielongObj) {
         let less = 0
         let hasCount
         let count  // 当前接龙每次匹配条件份数
-        if (result[4]) {
+        let numFollow
+        let chnFollow
+        if (searchRegex === LESS_RICE) {
+            numFollow = result[result.length - 3]
+            chnFollow = result[result.length - 2]
+        }
+        if (result[4] || numFollow) {
             hasCount = true
-            count = Number(result[4])
-        } else if (result[5]) {
+            count = Number(result[4] || numFollow)
+        } else if (result[5] || chnFollow) {
             hasCount = true
-            count = ChineseToNumber(result[5])
+            count = ChineseToNumber(result[5] || chnFollow)
         } else {
             hasCount = false
             count = 1
@@ -892,7 +1047,8 @@ function getPlainConds(COND_REGEXP, rjielong, jielongObj) {
             less = count
         }
         // 原始 jielong 中找到所在位置
-        const word = matched.slice(1)
+        // const word = matched.slice(1)
+        const word = result[6]
         const start = jielong.indexOf(word, fromIndex)
         const end = start + word.length
         conditions.push({ type, hasCount, count, more, less, output, word, start, end })
@@ -962,18 +1118,18 @@ function sortByPaid(jielongList) {
 }
 
 function sortByComplex(jielongList) {
-    const multiple = []
-    const noMultiple = []
+    const complexList = []
+    const noComplexList = []
     jielongList.forEach(jielongObj => {
-        const { count, conditions } = jielongObj
-        if (count === 1 && conditions.length > 1 || hasComplex(conditions)) {
-            multiple.push(jielongObj)
+        const { conditions } = jielongObj
+        if (hasComplex(conditions)) {
+            complexList.push(jielongObj)
         } else {
-            noMultiple.push(jielongObj)
+            noComplexList.push(jielongObj)
         }
     })
 
-    return [...multiple, ...noMultiple]
+    return [...complexList, ...noComplexList]
 }
 
 /**
@@ -983,15 +1139,18 @@ function sortByComplex(jielongList) {
 function printAreaGroup(areaGroup) {
     let result = '<div>## 接龙分区<br/><br/>'
     for (const area in areaGroup) {
-        const sortedAreaList = sortByComplex(sortByPaid(areaGroup[area]))
-        const jielongDisplay = sortedAreaList.length
-            ? sortedAreaList.map(jielongObj => {
+        const areaList = areaGroup[area]
+        let jielongDisplay
+        if (areaList.length) {
+            jielongDisplay = sortByComplex(sortByPaid(areaList)).map(jielongObj => {
                 const { jielong, count, isPaid, conditions, factor, parent } = jielongObj
                 if (factor === 0) {
+                    if (CANCEL_CURRENT.test(jielong)) {
+                        return `<strong style="color: red">${jielong}（不计数）</strong>`
+                    }
                     const display = `${jielong}（取消失败，格式请标明：取消n份、-n份、-n份[条件]、-n[条件]）`
                     return `<strong style="color: red">${display}</strong>`
-                }
-                if (factor === -1) {
+                } else if (factor === -1) {
                     let display = jielong
                     if (getUserCount(jielongObj) < 0) {
                         if (parent) {
@@ -1002,20 +1161,21 @@ function printAreaGroup(areaGroup) {
                     }
                     return `<strong style="color: red">${display}</strong>`
                 }
-                if (count === 1 && conditions.length > 1) {
-                    if (maxCount(conditions) > 1) {
-                        return `<strong style="color: purple">${jielong}（份数与条件不一致）</strong>`
-                    }
-                    if (hasComplex(conditions)) {
-                        return `<strong style="color: orange">${jielong}</strong>`
-                    }
+                
+                if (maxCount(conditions) > count) { // count === 1 && conditions.length > 1 && 
+                    return `<strong style="color: purple">${jielong}（条件份数超过接龙）</strong>`
+                }
+                if (hasComplex(conditions)) {
+                    return `<strong style="color: orange">${jielong}</strong>`
                 }
                 if (isPaid) {
                     return `<strong style="color: green">${jielong}</strong>`
                 }
                 return jielong
             }).join('<br/>')
-            : ''
+        } else {
+            jielongDisplay = ''
+        }
         result += `<span>${area}</span>：<br/><div>${jielongDisplay}</div><br/>`
     }
     result += '</div>'
@@ -1032,6 +1192,7 @@ function printComplexObj(complexObj) {
             complexTotal += count
         }
     }
+    
     if (complexOutputs.length) {
         // return `<span style="color: orange"><br/>${complexTotal}复合{${complexOutputs.join(' ')}}</span>`
         return `<span style="color: orange">${complexTotal}复合{${complexOutputs.join(' ')}}</span>` //【】
@@ -1079,6 +1240,39 @@ function printCountList(area, countList) {
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
+function printCountObj2(countObj) {
+    const { type, count, output } = countObj
+    if (type === 'mealCount') {
+        return `<strong style="color: #1f78d1">${count}${output}</strong>`
+    }
+    return output
+}
+
+/**
+ * 显示某区统计2
+ * @param {*} area
+ * @param {*} countList
+ */
+function printCountList2(area, countList) {
+    let countDisplay = ''
+    countList.map(printCountObj2)
+        .forEach((output, index) => {
+            if (index === 0) {
+                countDisplay += output
+            } else if (index === 1) {
+                countDisplay += ` (${output}`
+            } else {
+                countDisplay += ` ${output}`
+            }
+
+            if (index === countList.length - 1) {
+                countDisplay += ')'
+            }
+        })
+    const result = `<div>## ${area}统计<br/><br/>${countDisplay}</div>`
+    document.querySelector('.jielong-statistics').innerHTML = result
+}
+
 /**
  * 显示各区统计
  * @param {*} countGroup 
@@ -1087,37 +1281,38 @@ function printCountGroup(countGroup) {
     let result = '<div>## 各区统计<br/><br/>'
     const complexList = []
     for (const area in countGroup) {
-        const countDisplay = countGroup[area]
-            .map(printCountObj)
-            .join(' ')
         let areaIcon
         if (area === '合计') {
             areaIcon = '💫'
         } else {
             areaIcon = '✨'
             const complexObj = countGroup[area].pop()
-            const complexDisplay = printComplexObj(complexObj)
-            if (complexDisplay) {
+            if (Object.keys(complexObj).length > 1) {
+                const complexDisplay = printComplexObj(complexObj)
                 complexList.push(`🌟${area}: ${complexDisplay}`)
             }
         }
+        const countDisplay = countGroup[area].map(printCountObj).join(' ')
         result += `${areaIcon}${area}: ${countDisplay}<br/>`
     }
-
-    result += '<br/>' + complexList.join('<br/>')
-    result += '</div>'
+    result += '<br/>' + complexList.join('<br/>') + '</div>'
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
 function printDeliveryGroup(deliveryGroup) {
-    const pathDisplay = AREAS.map(AREA => AREA.gate).join('～')
-    const putDisplay = AREAS.filter(AREA => AREA.put).map(AREA => AREA.gate).join('、')
     let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>灰色本田～粤B89G18<br/><br/>`
+    // let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>银色五菱～粤B598J7<br/><br/>`
+    const pathList = []
+    const putList = []
     for (const area in deliveryGroup) {
-        const AREA = [...AREAS, OTHER].find(AREA => AREA.name === area)
-        result += `✨${AREA.gate}：${deliveryGroup[area].join(' ')}<br/>`
+        const { gate, put } = findAREAByName(area)
+        result += `✨${gate}：${deliveryGroup[area].join(' ')}<br/>`
+        pathList.push(gate)
+        if (put) {
+            putList.push(gate)
+        }
     }
-    result += `<br/>💫路线：${pathDisplay}（${putDisplay}可放餐）</div>`
+    result += `<br/>💫路线：${pathList.join('～')}（${putList.join('、')}可放餐）</div>`
     document.querySelector('.jielong-delivery').innerHTML = result
 }
 
@@ -1126,8 +1321,10 @@ document.getElementById('button0').onclick = function() {
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list, map } = parseJielong(jielongContent.split('\n'))
     console.log('parseJielong list, map: ', list, map)
-    const countList = countByArea(list)
-    printCountList('J区', countList)
+    // const countList = countByArea(list)
+    // printCountList('J区', countList)
+    const countList2 = countByArea2(list)
+    printCountList2('J区', countList2)
 }
 
 document.getElementById('button').onclick = function() {
