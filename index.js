@@ -213,11 +213,17 @@ const CHANGE_STAPLE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九�
 // const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?([换換]菜)/g
 const CHANGE_VEG = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?|都是)?([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換改]|都要)|不(需?要|用)|[换換免无飞走去])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
+const MEAL_PRICE = 16 // 素套餐单价
+const SINGLE_PRICE = 8 // 单点炒饭粉面单价
+const JELLY_PRICE = 3 // 黑凉粉单价
+const CHANGE_PRICE = 2 // 换主食单价
+const ADD_PRICE = 1 // 加小食单价
 const COUNT_REGEXP = {
     type: 'mealCount',
     search: MEAL_COUNT,
     add: ADD_COUNT,
     output: '份',
+    price: MEAL_PRICE,
 }
 const COND_REGEXPS = [
     {
@@ -255,36 +261,43 @@ const COND_REGEXPS = [
         type: 'friedRice',
         search: FRIED_RICE,
         output: '炒饭',
+        price: CHANGE_PRICE,
     },
     {
         type: 'singleRiverFlour',
         search: SINGLE_RIVER_FLOUR,
         output: '单点炒河',
+        price: SINGLE_PRICE,
     },
     {
         type: 'riverFlour',
         search: RIVER_FLOUR,
         output: '炒河',
+        price: CHANGE_PRICE,
     },
     {
         type: 'riceFlour',
         search: RICE_FLOUR,
-        output: '炒米粉',
+        output: '炒粉',
+        price: CHANGE_PRICE,
     },
     {
         type: 'noodles',
         search: NOODLES,
         output: '炒面',
+        price: CHANGE_PRICE,
     },
     {
         type: 'changePumpkin',
         search: CHANGE_PUMPKIN,
         output: '换南瓜',
+        price: CHANGE_PRICE,
     },
     {
         type: 'changePotato',
         search: CHANGE_POTATO,
         output: '换红薯',
+        price: CHANGE_PRICE,
     },
     {
         type: 'addBaozi',
@@ -320,11 +333,13 @@ const COND_REGEXPS = [
         type: 'addBeanJelly',
         search: ADD_BEAN_JELLY,
         output: '黑凉',
+        price: JELLY_PRICE,
     },
     {
         type: 'addCongee',
         search: ADD_CONGEE,
         output: '白粥',
+        price: ADD_PRICE,
     },
     {
         type: 'addFreeSauce',
@@ -342,11 +357,6 @@ const COND_REGEXPS = [
         output: '免辣',
     },
     {
-        type: 'selfBox',
-        search: SELF_BOX,
-        output: '饭盒',
-    },
-    {
         type: 'changeStaple',
         search: CHANGE_STAPLE,
         output: '换主食',
@@ -356,7 +366,20 @@ const COND_REGEXPS = [
         search: CHANGE_VEG,
         output: '换菜',
     },
+    {
+        type: 'selfBox',
+        search: SELF_BOX,
+        output: '饭盒',
+    },
 ]
+
+const { type, price } = COUNT_REGEXP
+const PRICE_TYPE_MAP = COND_REGEXPS.reduce((priceTypeMap, { type, price }) => {
+    if (price) {
+        priceTypeMap[type] = price
+    }
+    return priceTypeMap
+}, { [type]: price })
 
 function getUserCount(jielongObj) {
     let current = jielongObj
@@ -637,41 +660,56 @@ function countAreaAll(areaGroup) {
 
 function countAreaTotal(countGroup) {
     let total = 0
-    // let moreRiceTotal = 0
-    // let lessRiceMoreVegTotal = 0
-    // let lessRiceTotal = 0
-    // let noRiceTotal = 0
-    // let friedRiceTotal = 0
-    // let riverFlourTotal = 0
-    // let changePumpkinTotal = 0
-    // let changePotatoTotal = 0
-    // let changeStapleTotal = 0
-    // let changeVegTotal = 0
+    let moreRiceTotal = 0
+    let lessRiceMoreVegTotal = 0
+    let lessRiceTotal = 0
+    let noRiceTotal = 0
+    let friedRiceTotal = 0
+    let singleRiverFlourTotal = 0
+    let riverFlourTotal = 0
+    let riceFlourTotal = 0
+    let noodlesTotal = 0
+    let changePumpkinTotal = 0
+    let changePotatoTotal = 0
+    let changeStapleTotal = 0
+    let changeVegTotal = 0
+    let addBeanJellyTotal = 0
+    let addCongeeTotal = 0
     let selfBoxTotal = 0
     for (const area in countGroup) {
         countGroup[area].forEach(({ type, count }) => {
             if (type === 'mealCount') {
                 total += count
-            // } else if (type === 'moreRice') {
-            //     moreRiceTotal += count
-            // } else if (type === 'lessRiceMoreVeg') {
-            //     lessRiceMoreVegTotal += count
-            // } else if (type === 'lessRice') {
-            //     lessRiceTotal += count
-            // } else if (type === 'noRice') {
-            //     noRiceTotal += count
-            // } else if (type === 'friedRice') {
-            //     friedRiceTotal += count
-            // } else if (type === 'riverFlour') {
-            //     riverFlourTotal += count
-            // } else if (type === 'changePumpkin') {
-            //     changePumpkinTotal += count
-            // } else if (type === 'changePotato') {
-            //     changePotatoTotal += count
-            // } else if (type === 'changeStaple') {
-            //     changeStapleTotal += count
-            // } else if (type === 'changeVeg') {
-            //     changeVegTotal += count
+            } else if (type === 'moreRice') {
+                moreRiceTotal += count
+            } else if (type === 'lessRiceMoreVeg') {
+                lessRiceMoreVegTotal += count
+            } else if (type === 'lessRice') {
+                lessRiceTotal += count
+            } else if (type === 'noRice') {
+                noRiceTotal += count
+            } else if (type === 'friedRice') {
+                friedRiceTotal += count
+            } else if (type === 'singleRiverFlour') {
+                singleRiverFlourTotal += count
+            } else if (type === 'riverFlour') {
+                riverFlourTotal += count
+            } else if (type === 'riceFlour') {
+                riceFlourTotal += count
+            } else if (type === 'noodles') {
+                noodlesTotal += count
+            } else if (type === 'changePumpkin') {
+                changePumpkinTotal += count
+            } else if (type === 'changePotato') {
+                changePotatoTotal += count
+            } else if (type === 'changeStaple') {
+                changeStapleTotal += count
+            } else if (type === 'changeVeg') {
+                changeVegTotal += count
+            } else if (type === 'addBeanJelly') {
+                addBeanJellyTotal += count
+            } else if (type === 'addCongee') {
+                addCongeeTotal += count
             } else if (type === 'selfBox') {
                 selfBoxTotal += count
             }
@@ -683,56 +721,96 @@ function countAreaTotal(countGroup) {
             count: total,
             output: '份',
         },
-        // {
-        //     type: 'moreRice',
-        //     count: moreRiceTotal,
-        //     output: '多饭',
-        // },
-        // {
-        //     type: 'lessRiceMoreVeg',
-        //     count: lessRiceMoreVegTotal,
-        //     output: '少饭多菜',
-        // },
-        // {
-        //     type: 'lessRice',
-        //     count: lessRiceTotal,
-        //     output: '少饭',
-        // },
-        // {
-        //     type: 'noRice',
-        //     count: noRiceTotal,
-        //     output: '无饭',
-        // },
-        // {
-        //     type: 'friedRice',
-        //     count: friedRiceTotal,
-        //     output: '炒饭',
-        // },
-        // {
-        //     type: 'riverFlour',
-        //     count: riverFlourTotal,
-        //     output: '炒河',
-        // },
-        // {
-        //     type: 'changePumpkin',
-        //     count: changePumpkinTotal,
-        //     output: '换南瓜',
-        // },
-        // {
-        //     type: 'changePotato',
-        //     count: changePotatoTotal,
-        //     output: '换红薯',
-        // },
-        // {
-        //     type: 'changeStaple',
-        //     count: changeStapleTotal,
-        //     output: '换主食',
-        // },
-        // {
-        //     type: 'changeVeg',
-        //     count: changeVegTotal,
-        //     output: '换菜',
-        // },
+        {
+            type: 'moreRice',
+            count: moreRiceTotal,
+            output: '多饭',
+            hidden: true,
+        },
+        {
+            type: 'lessRiceMoreVeg',
+            count: lessRiceMoreVegTotal,
+            output: '少饭多菜',
+            hidden: true,
+        },
+        {
+            type: 'lessRice',
+            count: lessRiceTotal,
+            output: '少饭',
+            hidden: true,
+        },
+        {
+            type: 'noRice',
+            count: noRiceTotal,
+            output: '无饭',
+            hidden: true,
+        },
+        {
+            type: 'friedRice',
+            count: friedRiceTotal,
+            output: '炒饭',
+            hidden: true,
+        },
+        {
+            type: 'singleRiverFlour',
+            count: singleRiverFlourTotal,
+            output: '单点炒河',
+            hidden: true,
+        },
+        {
+            type: 'riverFlour',
+            count: riverFlourTotal,
+            output: '炒河',
+            hidden: true,
+        },
+        {
+            type: 'riceFlour',
+            count: riceFlourTotal,
+            output: '炒粉',
+            hidden: true,
+        },
+        {
+            type: 'noodles',
+            count: noodlesTotal,
+            output: '炒面',
+            hidden: true,
+        },
+        {
+            type: 'changePumpkin',
+            count: changePumpkinTotal,
+            output: '换南瓜',
+            hidden: true,
+        },
+        {
+            type: 'changePotato',
+            count: changePotatoTotal,
+            output: '换红薯',
+            hidden: true,
+        },
+        {
+            type: 'changeStaple',
+            count: changeStapleTotal,
+            output: '换主食',
+            hidden: true,
+        },
+        {
+            type: 'changeVeg',
+            count: changeVegTotal,
+            output: '换菜',
+            hidden: true,
+        },
+        {
+            type: 'addBeanJelly',
+            count: addBeanJellyTotal,
+            output: '黑凉',
+            hidden: true,
+        },
+        {
+            type: 'addCongee',
+            count: addCongeeTotal,
+            output: '白粥',
+            hidden: true,
+        },
         {
             type: 'selfBox',
             count: selfBoxTotal,
@@ -845,20 +923,20 @@ function getArea(jielong, findKeys) {
 }
 
 // 匹配格式如：H区小妍Fanni🌟
-// const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口)|金荣达[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+// const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口)|金荣达[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
 // 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+((ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|_Carina..💭|\^点点滴滴\^|Going. down. this. road|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/  // ([，, -—_]?([多少]饭|不要米饭))?
+const USER_NAME_AREA = /^\d+\.\s+((ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|_Carina..💭|\^点点滴滴\^|Going. down. this. road|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/  // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
-const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
+const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
 // 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
 // 匹配格式如：Fanni 小FF妍🌟H区
-const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
+const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
 // 匹配其它格式：无园区，列举特别格式的姓名
 const USER_ESP_OTHER_NAME = /^\d+\.\s+(ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|喵喵张😝|🍋 易湘娇|尐霏|宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🍀 杨茜|_Carina..💭|🌱Carina|_Carina🌱|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
 // const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
-const USER_ECMIX_OTHER_NAME = /^\d+\.\s+(([\u4e00-\u9fa5]+[\-—_~～+ ]*[A-Za-z]*|[A-Za-z]+[\-—_~～+ ]+[A-Za-z]+|[A-Za-z]+[\-—_~～+]*[\u4e00-\u9fa5]*|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+const USER_ECMIX_OTHER_NAME = /^\d+\.\s+(([\u4e00-\u9fa5]+[ \-—_~～+]*[A-Za-z]*|[A-Za-z]+[ \-—_~～+]+[A-Za-z]+|[A-Za-z]+[\-—_~～+]*[\u4e00-\u9fa5]*|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
 
 const USER_REGEXPS = [USER_AREA_ECMIX, USER_NAME_AREA, USER_CENAME_AREA, USER_ECNAME_AREA, USER_ECMIX_AREA, USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
 const OTHER_REGEXPS = [USER_ESP_OTHER_NAME, USER_ECMIX_OTHER_NAME]
@@ -1158,7 +1236,7 @@ function sortByComplex(jielongList) {
  * @param {*} areaGroup 
  */
 function printAreaGroup(areaGroup) {
-    let result = '<div>## 接龙分区<br/><br/>'
+    let result = '<div><strong>## 接龙分区</strong><br/><br/>'
     for (const area in areaGroup) {
         const areaList = areaGroup[area]
         let jielongDisplay
@@ -1221,12 +1299,32 @@ function printComplexObj(complexObj) {
     return ''
 }
 
+function printPriceObj(countObj) {
+    const { type, count, output } = countObj
+    const price = PRICE_TYPE_MAP[type]
+    // 数量和价格均大于0时打印
+    if (count > 0 && price > 0) {
+        let countDisplay
+        if (type === 'mealCount') {
+            countDisplay = `<strong style="color: #1f78d1">${count}${output}</strong>`
+        } else {
+            countDisplay = `<span>${count}${output}</span>`
+        }
+        const priceDisplay = `<span style="color: grey">(${price}×${count}=${price * count}元)</span>`
+        return `${countDisplay}${priceDisplay}`
+    }
+    return ''
+}
+
 function printCountObj(countObj) {
+    if (countObj.hidden) {
+        return ''
+    }
     const { type, count, output, more, less, complex } = countObj
     // if (type === 'complexConds') {
     //     return printComplexObj(countObj)
     // }
-    // 统计为0或负数都不打印
+    // 数量为0或负数时不打印
     if (count > 0) {
         if (type === 'mealCount') {
             return `<strong style="color: #1f78d1">${count}${output}</strong>`
@@ -1257,7 +1355,7 @@ function printCountList(area, countList) {
     const countDisplay = countList
         .map(printCountObj)
         .join(' ')
-    const result = `<div>## ${area}统计<br/><br/>${countDisplay}</div>`
+    const result = `<div><strong>## ${area}统计</strong><br/><br/>${countDisplay}<br/><br/></div>`
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
@@ -1290,16 +1388,16 @@ function printCountList2(area, countList) {
                 countDisplay += ')'
             }
         })
-    const result = `<div>## ${area}统计<br/><br/>${countDisplay}</div>`
+    const result = `<div><strong>## ${area}统计</strong><br/><br/>${countDisplay}<br/><br/></div>`
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
 /**
- * 显示各区统计
+ * 打印各区份数
  * @param {*} countGroup 
  */
 function printCountGroup(countGroup) {
-    let result = '<div>## 各区统计<br/><br/>'
+    let result = '<div><strong>## 各区份数</strong><br/><br/>'
     const complexList = []
     for (const area in countGroup) {
         let areaIcon
@@ -1316,13 +1414,52 @@ function printCountGroup(countGroup) {
         const countDisplay = countGroup[area].map(printCountObj).join(' ')
         result += `${areaIcon}${area}: ${countDisplay}<br/>`
     }
-    result += '<br/>' + complexList.join('<br/>') + '</div>'
+    result += `<br/>${complexList.join('<br/>')}<br/><br/></div>`
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
+/**
+ * 打印各区金额
+ * @param {*} countGroup 
+ */
+function printAmountGroup(countGroup) {
+    let result = '<div><strong>## 各区金额</strong><br/><br/>'
+    for (const area in countGroup) {
+        const [mealCount] = countGroup[area]
+        if (mealCount.count > 0) {
+            let areaIcon
+            if (area === '合计') {
+                areaIcon = '💫'
+            } else {
+                areaIcon = '✨'
+            }
+            const countPrintList = []
+            const amountList = []
+            countGroup[area].forEach(countObj => {
+                const { type, count } = countObj
+                const price = PRICE_TYPE_MAP[type]
+                // 数量和价格均大于0时打印
+                if (count > 0 && price > 0) {
+                    countPrintList.push(printPriceObj(countObj))
+                    amountList.push(price * count)
+                }
+            })
+            const countDisplay = countPrintList.join(' ')
+            const amountDisplay = `<strong style="color: green">共${amountList.reduce((a, b) => a + b, 0)}元</strong>`
+            result += `${areaIcon}${area}: ${countDisplay} ${amountDisplay}<br/>`
+        }
+    }
+    result += '</div>'
+    document.querySelector('.jielong-amount').innerHTML = result
+}
+
+/**
+ * 打印各区送餐消息
+ * @param {*} deliveryGroup 
+ */
 function printDeliveryGroup(deliveryGroup) {
-    let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>灰色本田～粤B89G18<br/><br/>`
-    // let result = `<div>## 送餐消息<br/><br/>7分钟到云谷<br/><br/>银色五菱～粤B598J7<br/><br/>`
+    let result = `<div><strong>## 送餐消息</strong><br/><br/>7分钟到云谷<br/><br/>灰色本田～粤B89G18<br/><br/>`
+    // let result = `<div><strong>## 送餐消息</strong><br/><br/>7分钟到云谷<br/><br/>银色五菱～粤B598J7<br/><br/>`
     const pathList = []
     const putList = []
     for (const area in deliveryGroup) {
@@ -1362,4 +1499,5 @@ document.getElementById('button').onclick = function() {
     printAreaGroup(areaGroup)
     printDeliveryGroup(deliveryGroup)
     printCountGroup(countGroup)
+    printAmountGroup(countGroup)
 }
