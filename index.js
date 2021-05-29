@@ -373,13 +373,16 @@ const COND_REGEXPS = [
     },
 ]
 
-const { type, price } = COUNT_REGEXP
+const CONDITION_TYPE_MAP = COND_REGEXPS.reduce((conditionMap, CONDITION) => {
+    conditionMap[CONDITION.type] = CONDITION
+    return conditionMap
+}, { [COUNT_REGEXP.type]: COUNT_REGEXP })
 const PRICE_TYPE_MAP = COND_REGEXPS.reduce((priceTypeMap, { type, price }) => {
     if (price) {
         priceTypeMap[type] = price
     }
     return priceTypeMap
-}, { [type]: price })
+}, { [COUNT_REGEXP.type]: COUNT_REGEXP.price })
 
 function getUserCount(jielongObj) {
     let current = jielongObj
@@ -658,165 +661,40 @@ function countAreaAll(areaGroup) {
     return countGroup
 }
 
+/**
+ * 各区条件总份数计数
+ * @param {*} countGroup 
+ * @returns 各区条件总份数
+ */
 function countAreaTotal(countGroup) {
-    let total = 0
-    let moreRiceTotal = 0
-    let lessRiceMoreVegTotal = 0
-    let lessRiceTotal = 0
-    let noRiceTotal = 0
-    let friedRiceTotal = 0
-    let singleRiverFlourTotal = 0
-    let riverFlourTotal = 0
-    let riceFlourTotal = 0
-    let noodlesTotal = 0
-    let changePumpkinTotal = 0
-    let changePotatoTotal = 0
-    let changeStapleTotal = 0
-    let changeVegTotal = 0
-    let addBeanJellyTotal = 0
-    let addCongeeTotal = 0
-    let selfBoxTotal = 0
+    const condTypes = [
+        'mealCount', 'moreRice', /* 'lessRiceMoreVeg' */, 'lessRice', 'noRice', 'friedRice', 'singleRiverFlour', 'riverFlour',
+        'riceFlour', 'noodles', 'changePumpkin', 'changePotato', 'changeStaple', 'changeVeg', 'addBeanJelly', 'addCongee', 'selfBox',
+    ]
+    const shownTypes = ['mealCount', 'selfBox']
+    const condTotalMap = condTypes.reduce((map, condType) => {
+        map[condType] = 0
+        return map
+    }, {})
+
     for (const area in countGroup) {
         countGroup[area].forEach(({ type, count }) => {
-            if (type === 'mealCount') {
-                total += count
-            } else if (type === 'moreRice') {
-                moreRiceTotal += count
-            } else if (type === 'lessRiceMoreVeg') {
-                lessRiceMoreVegTotal += count
-            } else if (type === 'lessRice') {
-                lessRiceTotal += count
-            } else if (type === 'noRice') {
-                noRiceTotal += count
-            } else if (type === 'friedRice') {
-                friedRiceTotal += count
-            } else if (type === 'singleRiverFlour') {
-                singleRiverFlourTotal += count
-            } else if (type === 'riverFlour') {
-                riverFlourTotal += count
-            } else if (type === 'riceFlour') {
-                riceFlourTotal += count
-            } else if (type === 'noodles') {
-                noodlesTotal += count
-            } else if (type === 'changePumpkin') {
-                changePumpkinTotal += count
-            } else if (type === 'changePotato') {
-                changePotatoTotal += count
-            } else if (type === 'changeStaple') {
-                changeStapleTotal += count
-            } else if (type === 'changeVeg') {
-                changeVegTotal += count
-            } else if (type === 'addBeanJelly') {
-                addBeanJellyTotal += count
-            } else if (type === 'addCongee') {
-                addCongeeTotal += count
-            } else if (type === 'selfBox') {
-                selfBoxTotal += count
+            if (!(isNaN(condTotalMap[type]))) {
+                condTotalMap[type] += count
             }
         })
     }
-    return [
-        {
-            type: 'mealCount',
-            count: total,
-            output: '份',
-        },
-        {
-            type: 'moreRice',
-            count: moreRiceTotal,
-            output: '多饭',
-            hidden: true,
-        },
-        {
-            type: 'lessRiceMoreVeg',
-            count: lessRiceMoreVegTotal,
-            output: '少饭多菜',
-            hidden: true,
-        },
-        {
-            type: 'lessRice',
-            count: lessRiceTotal,
-            output: '少饭',
-            hidden: true,
-        },
-        {
-            type: 'noRice',
-            count: noRiceTotal,
-            output: '无饭',
-            hidden: true,
-        },
-        {
-            type: 'friedRice',
-            count: friedRiceTotal,
-            output: '炒饭',
-            hidden: true,
-        },
-        {
-            type: 'singleRiverFlour',
-            count: singleRiverFlourTotal,
-            output: '单点炒河',
-            hidden: true,
-        },
-        {
-            type: 'riverFlour',
-            count: riverFlourTotal,
-            output: '炒河',
-            hidden: true,
-        },
-        {
-            type: 'riceFlour',
-            count: riceFlourTotal,
-            output: '炒粉',
-            hidden: true,
-        },
-        {
-            type: 'noodles',
-            count: noodlesTotal,
-            output: '炒面',
-            hidden: true,
-        },
-        {
-            type: 'changePumpkin',
-            count: changePumpkinTotal,
-            output: '换南瓜',
-            hidden: true,
-        },
-        {
-            type: 'changePotato',
-            count: changePotatoTotal,
-            output: '换红薯',
-            hidden: true,
-        },
-        {
-            type: 'changeStaple',
-            count: changeStapleTotal,
-            output: '换主食',
-            hidden: true,
-        },
-        {
-            type: 'changeVeg',
-            count: changeVegTotal,
-            output: '换菜',
-            hidden: true,
-        },
-        {
-            type: 'addBeanJelly',
-            count: addBeanJellyTotal,
-            output: '黑凉',
-            hidden: true,
-        },
-        {
-            type: 'addCongee',
-            count: addCongeeTotal,
-            output: '白粥',
-            hidden: true,
-        },
-        {
-            type: 'selfBox',
-            count: selfBoxTotal,
-            output: '饭盒',
-        },
-    ]
+
+    return condTypes.map(type => {
+        const count = condTotalMap[type]
+        const { output } = CONDITION_TYPE_MAP[type]
+        return {
+            type,
+            count,
+            output,
+            hidden: shownTypes.indexOf(type) === -1,
+        }
+    })
 }
 
 function deliveryAreaAll(areaGroup) {
