@@ -179,7 +179,7 @@ const SEPARATE_REGEX = /[\s;；,，、]/
 // const CANCEL_OMIT_REGEX = /[\s;；,，、](取消|CANCEL|\-) *$/i
 const CANCEL_CURRENT = /[\s;；,，、\)）](取消|CANCEL)/i
 const CANCEL_REGEX = /[\s;；,，、\)）](取消\-?|CANCEL) *(\d+[份分个]|[零一二两三四五六七八九十百千万亿]+[份分个]|\s*|$)/i
-const MEAL_COUNT = /(^|[^A-Ma-m])((\d+)|([零一二两三四五六七八九十百千万亿]+))([份分个]|$)/
+const MEAL_COUNT = /(^|[^A-Ma-m])((\d+)|([零一二两三四五六七八九十百千万亿]+))([份分个](单点)?|$)/
 const ADD_COUNT = /(^|[^A-Ma-m])[加\+]((\d+)|([零一二两三四五六七八九十百千万亿]+))/
 const MEAL_PAID = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(已支?付)/
 // const MORE_RICE = /(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?)?(多(米?饭|主食|(?=\d|\s|$)))/g
@@ -396,7 +396,13 @@ function getUserCount(jielongObj) {
 }
 
 function maxCount(conditions) {
-    return conditions.reduce((maxValue, condition) => Math.max(maxValue, condition.count), -Infinity)
+    return conditions.reduce((maxValue, condition) => {
+        // 单点不算套餐份数
+        if (condition.type.startsWith('single')) {
+            return maxValue
+        }
+        return Math.max(maxValue, condition.count)
+    }, -Infinity)
 }
 
 function countByTotal(jielongList) {
@@ -671,7 +677,7 @@ function countAreaTotal(countGroup) {
         'mealCount', 'moreRice', /* 'lessRiceMoreVeg' */, 'lessRice', 'noRice', 'friedRice', 'singleRiverFlour', 'riverFlour',
         'riceFlour', 'noodles', 'changePumpkin', 'changePotato', 'changeStaple', 'changeVeg', 'addBeanJelly', 'addCongee', 'selfBox',
     ]
-    const shownTypes = ['mealCount', 'selfBox']
+    const shownTypes = ['mealCount', 'singleRiverFlour', 'selfBox']
     const condTotalMap = condTypes.reduce((map, condType) => {
         map[condType] = 0
         return map
@@ -801,16 +807,16 @@ function getArea(jielong, findKeys) {
 }
 
 // 匹配格式如：H区小妍Fanni🌟
-// const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口)|金荣达[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+// const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|(天安)?云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口)|金荣达[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|(天安)?云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
 // 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+((ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|_Carina..💭|\^点点滴滴\^|Going. down. this. road|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/  // ([，, -—_]?([多少]饭|不要米饭))?
+const USER_NAME_AREA = /^\d+\.\s+((葫芦大侠_欢   |@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|_Carina..💭|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d](门岗)?|云谷一栋B座|(天安)?云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/  // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
-const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
+const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|(天安)?云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
 // 匹配格式如：Fanni 小妍🌟H区
-const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
+const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|(天安)?云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
 // 匹配格式如：Fanni 小FF妍🌟H区
-const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
+const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|(天安)?云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
 // 匹配其它格式：无园区，列举特别格式的姓名
 const USER_ESP_OTHER_NAME = /^\d+\.\s+(ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|喵喵张😝|🍋 易湘娇|尐霏|宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🍀 杨茜|_Carina..💭|🌱Carina|_Carina🌱|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
 // const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
@@ -870,7 +876,9 @@ function getCount(jielong) {
     const cMatched = COUNT_REGEXP.search.exec(jielong)
     let count
     if (cMatched) {
-        if (cMatched[3]) {
+        if (cMatched[6] === '单点') {
+            count = 0 // 单点不算套餐份数
+        } else if (cMatched[3]) {
             count = Number(cMatched[3])
         } else if (cMatched[4]) {
             if (cMatched[1] === '第') { // 出现第...份，算一份
@@ -1303,8 +1311,9 @@ function printCountGroup(countGroup) {
 function printAmountGroup(countGroup) {
     let result = '<div><strong>## 各区金额</strong><br/><br/>'
     for (const area in countGroup) {
-        const [mealCount] = countGroup[area]
-        if (mealCount.count > 0) {
+        const countObjs = countGroup[area]
+        const [mealCount] = countObjs
+        if (mealCount.count > 0 || countObjs.length > 1) {
             let areaIcon
             if (area === '合计') {
                 areaIcon = '💫'
@@ -1313,7 +1322,7 @@ function printAmountGroup(countGroup) {
             }
             const countPrintList = []
             const amountList = []
-            countGroup[area].forEach(countObj => {
+            countObjs.forEach(countObj => {
                 const { type, count } = countObj
                 const price = PRICE_TYPE_MAP[type]
                 // 数量和价格均大于0时打印
