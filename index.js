@@ -808,9 +808,9 @@ function getArea(jielong, findKeys) {
 
 // 匹配格式如：H区小妍Fanni🌟
 // const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口)|金荣达[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
-const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
+const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*(🐟李红|[\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
 // 匹配格式如：小妍 H区，Fanni🌟 H3
-const USER_NAME_AREA = /^\d+\.\s+((葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina..💭|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d](门岗)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/  // ([，, -—_]?([多少]饭|不要米饭))?
+const USER_NAME_AREA = /^\d+\.\s+((卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina..💭|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d](门岗)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/  // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
 const USER_CENAME_AREA = /^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
 // 匹配格式如：Fanni 小妍🌟H区
@@ -818,7 +818,7 @@ const USER_ECNAME_AREA = /^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\
 // 匹配格式如：Fanni 小FF妍🌟H区
 const USER_ECMIX_AREA = /^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/
 // 匹配其它格式：无园区，列举特别格式的姓名
-const USER_ESP_OTHER_NAME = /^\d+\.\s+(葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|喵喵张😝|🍋 易湘娇|尐霏|宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🍀 杨茜|_Carina..💭|🌱Carina|_Carina🌱|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
+const USER_ESP_OTHER_NAME = /^\d+\.\s+(卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|喵喵张😝|🍋 易湘娇|尐霏|宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🍀 杨茜|_Carina..💭|🌱Carina|_Carina🌱|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)/
 // const USER_ECMIX_OTHER_NAME = /^\d+\.\s+([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)/
 const USER_ECMIX_OTHER_NAME = /^\d+\.\s+(([\u4e00-\u9fa5]+[ \-—_~～+]*[A-Za-z]*|[A-Za-z]+[ \-—_~～+]+[A-Za-z]+|[A-Za-z]+[\-—_~～+]*[\u4e00-\u9fa5]*|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/
 
@@ -1122,7 +1122,7 @@ function sortByComplex(jielongList) {
  * @param {*} areaGroup 
  */
 function printAreaGroup(areaGroup) {
-    let result = '<div><strong>## 接龙分区</strong><br/><br/>'
+    let result = '<div><strong>## 接龙分区</strong><br><br>'
     for (const area in areaGroup) {
         const areaList = areaGroup[area]
         let jielongDisplay
@@ -1157,11 +1157,11 @@ function printAreaGroup(areaGroup) {
                     return `<strong style="color: green">${jielong}</strong>`
                 }
                 return jielong
-            }).join('<br/>')
+            }).join('<br>')
         } else {
             jielongDisplay = ''
         }
-        result += `<span>${area}</span>：<br/><div>${jielongDisplay}</div><br/>`
+        result += `<span>${area}</span>：<br><div>${jielongDisplay}</div><br>`
     }
     result += '</div>'
     document.querySelector('.jielong-area').innerHTML = result
@@ -1179,7 +1179,7 @@ function printComplexObj(complexObj) {
     }
     
     if (complexOutputs.length) {
-        // return `<span style="color: orange"><br/>${complexTotal}复合{${complexOutputs.join(' ')}}</span>`
+        // return `<span style="color: orange"><br>${complexTotal}复合{${complexOutputs.join(' ')}}</span>`
         return `<span style="color: orange">${complexTotal}复合{${complexOutputs.join(' ')}}</span>` //【】
     }
     return ''
@@ -1241,7 +1241,7 @@ function printCountList(area, countList) {
     const countDisplay = countList
         .map(printCountObj)
         .join(' ')
-    const result = `<div><strong>## ${area}统计</strong><br/><br/>${countDisplay}<br/><br/></div>`
+    const result = `<div><strong>## ${area}统计</strong><br><br>${countDisplay}<br><br></div>`
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
@@ -1274,7 +1274,7 @@ function printCountList2(area, countList) {
                 countDisplay += ')'
             }
         })
-    const result = `<div><strong>## ${area}统计</strong><br/><br/>${countDisplay}<br/><br/></div>`
+    const result = `<div><strong>## ${area}统计</strong><br><br>${countDisplay}<br><br></div>`
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
@@ -1283,7 +1283,7 @@ function printCountList2(area, countList) {
  * @param {*} countGroup 
  */
 function printCountGroup(countGroup) {
-    let result = '<div><strong>## 各区份数</strong><br/><br/>'
+    let result = '<div><strong>## 各区份数</strong><br><br>'
     const complexList = []
     for (const area in countGroup) {
         let areaIcon
@@ -1298,9 +1298,9 @@ function printCountGroup(countGroup) {
             }
         }
         const countDisplay = countGroup[area].map(printCountObj).join(' ')
-        result += `${areaIcon}${area}: ${countDisplay}<br/>`
+        result += `${areaIcon}${area}: ${countDisplay}<br>`
     }
-    result += `<br/>${complexList.join('<br/>')}<br/><br/></div>`
+    result += `<br>${complexList.join('<br>')}<br><br></div>`
     document.querySelector('.jielong-statistics').innerHTML = result
 }
 
@@ -1309,7 +1309,7 @@ function printCountGroup(countGroup) {
  * @param {*} countGroup 
  */
 function printAmountGroup(countGroup) {
-    let result = '<div><strong>## 各区金额</strong><br/><br/>'
+    let result = '<div><strong>## 各区金额</strong><br><br>'
     for (const area in countGroup) {
         const countObjs = countGroup[area]
         const [mealCount] = countObjs
@@ -1333,7 +1333,7 @@ function printAmountGroup(countGroup) {
             })
             const countDisplay = countPrintList.join(' ')
             const amountDisplay = `<strong style="color: green">共${amountList.reduce((a, b) => a + b, 0)}元</strong>`
-            result += `${areaIcon}${area}: ${countDisplay} ${amountDisplay}<br/>`
+            result += `${areaIcon}${area}: ${countDisplay} ${amountDisplay}<br>`
         }
     }
     result += '</div>'
@@ -1345,13 +1345,13 @@ function printAmountGroup(countGroup) {
  * @param {*} deliveryGroup 
  */
 function printDeliveryGroup(deliveryGroup) {
-    let result = `<div><strong>## 送餐消息</strong><br/><br/>7分钟到云谷<br/><br/>灰色本田～粤B89G18<br/><br/>`
-    // let result = `<div><strong>## 送餐消息</strong><br/><br/>7分钟到云谷<br/><br/>银色五菱～粤B598J7<br/><br/>`
+    let result = `<div><strong>## 送餐消息</strong><br><br>7分钟到云谷<br><br>灰色本田～粤B89G18<br><br>`
+    // let result = `<div><strong>## 送餐消息</strong><br><br>7分钟到云谷<br><br>银色五菱～粤B598J7<br><br>`
     const pathList = []
     const putList = []
     for (const area in deliveryGroup) {
         const { gate, put } = findAREAByName(area)
-        result += `✨${gate}：${deliveryGroup[area].join(' ')}<br/>`
+        result += `✨${gate}：${deliveryGroup[area].join(' ')}<br>`
         // 送餐路线仅展示有订餐的区
         if (deliveryGroup[area].length) {
             pathList.push(gate)
@@ -1360,7 +1360,7 @@ function printDeliveryGroup(deliveryGroup) {
             }
         }
     }
-    result += `<br/>💫路线：${pathList.join('～')}（${putList.join('、')}可放餐）</div>`
+    result += `<br>💫路线：${pathList.join('～')}（${putList.join('、')}可放餐）</div>`
     document.querySelector('.jielong-delivery').innerHTML = result
 }
 
