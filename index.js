@@ -231,37 +231,44 @@ const COND_REGEXPS = [
         search: MORE_RICE,
         output: '多饭',
         noReplace: true,
+        isPackage: true,
     },
     // {
     //     type: 'lessRiceMoreVeg',
     //     search: LESS_RICE_MORE_VEG,
     //     output: '少饭多菜',
+    //     isPackage: true,
     // },
     {
         type: 'lessLessRice',
         search: LESS_LESS_RICE,
         output: '少少饭',
+        isPackage: true,
     },
     {
         type: 'lessRice',
         search: LESS_RICE,
         output: '少饭',
+        isPackage: true,
     },
     {
         type: 'noRice',
         search: NO_RICE,
         output: '无饭',
+        isPackage: true,
     },
     {
         type: 'whiteRice',
         search: WHITE_RICE,
         output: '白饭',
+        isPackage: true,
     },
     {
         type: 'friedRice',
         search: FRIED_RICE,
         output: '炒饭',
         price: CHANGE_PRICE,
+        isPackage: true,
     },
     {
         type: 'singleRiverFlour',
@@ -274,30 +281,35 @@ const COND_REGEXPS = [
         search: RIVER_FLOUR,
         output: '炒河',
         price: CHANGE_PRICE,
+        isPackage: true,
     },
     {
         type: 'riceFlour',
         search: RICE_FLOUR,
         output: '炒粉',
         price: CHANGE_PRICE,
+        isPackage: true,
     },
     {
         type: 'noodles',
         search: NOODLES,
         output: '炒面',
         price: CHANGE_PRICE,
+        isPackage: true,
     },
     {
         type: 'changePumpkin',
         search: CHANGE_PUMPKIN,
         output: '换南瓜',
         price: CHANGE_PRICE,
+        isPackage: true,
     },
     {
         type: 'changePotato',
         search: CHANGE_POTATO,
         output: '换红薯',
         price: CHANGE_PRICE,
+        isPackage: true,
     },
     {
         type: 'addBaozi',
@@ -360,16 +372,19 @@ const COND_REGEXPS = [
         type: 'changeStaple',
         search: CHANGE_STAPLE,
         output: '换主食',
+        isPackage: true,
     },
     { 
         type: 'changeVeg',
         search: CHANGE_VEG,
         output: '换菜',
+        isPackage: true,
     },
     {
         type: 'selfBox',
         search: SELF_BOX,
         output: '饭盒',
+        isPackage: true,
     },
 ]
 
@@ -396,12 +411,18 @@ function getUserCount(jielongObj) {
 }
 
 function maxCount(conditions) {
+    const packTypes = COND_REGEXPS.filter(({ isPackage }) => isPackage).map(({ type }) => type)
     return conditions.reduce((maxValue, condition) => {
-        // 单点不算套餐份数
-        if (condition.type.startsWith('single')) {
+        const { type, count } = condition
+        // 单点不计套餐份数
+        // if (type.startsWith('single')) {
+        //     return maxValue
+        // }
+        // 当condition isPackage为true时记录套餐份数，如单点、加黑凉粉等不算套餐
+        if (type.indexOf(packTypes) === -1) {
             return maxValue
         }
-        return Math.max(maxValue, condition.count)
+        return Math.max(maxValue, count)
     }, -Infinity)
 }
 
@@ -1336,13 +1357,13 @@ function printAmountGroup(countGroup) {
             result += `${areaIcon}${area}: ${countDisplay} ${amountDisplay}<br>`
         }
     }
-    result += '</div>'
+    result += '<br></div>'
     document.querySelector('.jielong-amount').innerHTML = result
 }
 
 /**
  * 打印各区送餐消息
- * @param {*} deliveryGroup 
+ * @param {*} deliveryGroup
  */
 function printDeliveryGroup(deliveryGroup) {
     let result = `<div><strong>## 送餐消息</strong><br><br>7分钟到云谷<br><br>灰色本田～粤B89G18<br><br>`
