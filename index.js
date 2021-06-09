@@ -1,3 +1,75 @@
+const HEAD_TITLES = ["交易时间", "交易类型", "交易对方", "商品", "收/支", "金额(元)", "支付方式", "当前状态", "交易单号", "商户单号", "备注"]
+
+function parseCSVContent(data) {
+    var allRows = data.split(/\r?\n|\r/)
+    const headIndex = allRows.findIndex(row => row.startsWith('交易时间'))
+    const recordRows = allRows.slice(headIndex, allRows.length)
+    const array = []
+    const records = []
+    var table = '<table>'
+    for (var i = 0; i < recordRows.length; i++) {
+        const arr = []
+        const singleRow = recordRows[i].replace(/\t|\"/g, '')
+        var rowCells = singleRow.split(',')
+        
+        const record = {}
+        if (i === 0) {
+            table += '<thead>'
+            table += '<tr>'
+        } else {
+            table += '<tr>'
+        }
+        for (var j = 0; j < rowCells.length; j++) {
+            if (i === 0) {
+                table += '<th>'
+                table += rowCells[j]
+                table += '</th>'
+            } else {
+                table += '<td>'
+                table += rowCells[j]
+                table += '</td>'
+                record[HEAD_TITLES[j]] = rowCells[j]
+            }
+            arr.push(rowCells[j])
+        }
+        if (i === 0) {
+            table += '</tr>'
+            table += '</thead>'
+            table += '<tbody>'
+        } else {
+            table += '</tr>'
+        }
+        array.push(arr)
+        records.push(record)
+    }
+    table += '</tbody>'
+    table += '</table>'
+    document.querySelector('.container').innerHTML = table
+    const payRecords = records.filter(record => record["收/支"]==='收入' && ['二维码收款','转账','微信红包'].includes(record["交易类型"]))
+    console.log(payRecords.map(payRecord => ({'交易对方' : payRecord['交易对方'], '金额(元)' : payRecord['金额(元)'], '商品': payRecord['商品']})))
+    const totalAmount = payRecords.reduce((total, record) => Number(record["金额(元)"].slice(1)) + total, 0)
+    console.log(array, totalAmount)
+}
+
+function printFile(file) {
+    if (!file) {
+        alert('请选择微信支付账单')
+        return
+    }
+    const reader = new FileReader()
+    reader.onload = function (event) {
+        const result = event.target.result
+        parseCSVContent(result)
+    }
+    reader.readAsText(file)
+}
+
+document.getElementById('settle-button').onclick = function () {
+    const fileField = document.querySelector('input[type="file"]')
+    printFile(fileField.files[0])
+}
+
+
 const AREAS = [
     {
         name: '华为地铁A出口',
@@ -398,6 +470,7 @@ const PRICE_TYPE_MAP = COND_REGEXPS.reduce((priceTypeMap, { type, price }) => {
     }
     return priceTypeMap
 }, { [COUNT_REGEXP.type]: COUNT_REGEXP.price })
+console.log('CONDITION_TYPE_MAP, PRICE_TYPE_MAP', CONDITION_TYPE_MAP, PRICE_TYPE_MAP)
 
 function getUserCount(jielongObj) {
     let current = jielongObj
