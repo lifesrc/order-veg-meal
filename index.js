@@ -1,25 +1,23 @@
-const HEAD_TITLES = ["交易时间", "交易类型", "交易对方", "商品", "收/支", "金额(元)", "支付方式", "当前状态", "交易单号", "商户单号", "备注"]
+const HEAD_TITLES = ['交易时间', '交易类型', '交易对方', '商品', '收/支', '金额(元)', '支付方式', '当前状态', '交易单号', "商户单号", "备注"]
+const HEAD_PROPS = ['exchangeTime', 'exchangeType', 'exchangeUser', 'merchandise', 'incomeOrExpenses', 'amountDisplay', 'payType', 'status', 'exchangeNo', 'merchantNo', 'remark']
 
-function parseCSVContent(data) {
-    var allRows = data.split(/\r?\n|\r/)
+function parseCSVContent(csvFileContent) {
+    const allRows = csvFileContent.split(/\r?\n|\r/)
     const headIndex = allRows.findIndex(row => row.startsWith('交易时间'))
     const recordRows = allRows.slice(headIndex, allRows.length)
     const array = []
-    const records = []
-    var table = '<table>'
-    for (var i = 0; i < recordRows.length; i++) {
+    let table = '<table>'
+    for (let i = 0; i < recordRows.length; i++) {
         const arr = []
         const singleRow = recordRows[i].replace(/\t|\"/g, '')
-        var rowCells = singleRow.split(',')
-        
-        const record = {}
+        const rowCells = singleRow.split(',')
         if (i === 0) {
             table += '<thead>'
             table += '<tr>'
         } else {
             table += '<tr>'
         }
-        for (var j = 0; j < rowCells.length; j++) {
+        for (let j = 0; j < rowCells.length; j++) {
             if (i === 0) {
                 table += '<th>'
                 table += rowCells[j]
@@ -28,7 +26,6 @@ function parseCSVContent(data) {
                 table += '<td>'
                 table += rowCells[j]
                 table += '</td>'
-                record[HEAD_TITLES[j]] = rowCells[j]
             }
             arr.push(rowCells[j])
         }
@@ -40,16 +37,39 @@ function parseCSVContent(data) {
             table += '</tr>'
         }
         array.push(arr)
-        records.push(record)
     }
     table += '</tbody>'
     table += '</table>'
     document.querySelector('.container').innerHTML = table
-    const payRecords = records.filter(record => record["收/支"]==='收入' && ['二维码收款','转账','微信红包'].includes(record["交易类型"]))
-    console.log(payRecords.map(payRecord => ({'交易对方' : payRecord['交易对方'], '金额(元)' : payRecord['金额(元)'], '商品': payRecord['商品']})))
-    const totalAmount = payRecords.reduce((total, record) => Number(record["金额(元)"].slice(1)) + total, 0)
-    console.log(array, totalAmount)
+    console.log('csv array', array)
 }
+
+const PAY_TYPES = ['二维码收款','转账','微信红包']
+function parseRecords(csvFileContent) {
+    const allRows = csvFileContent.split(/\r?\n|\r/)
+    const headIndex = allRows.findIndex(row => row.startsWith('交易时间'))
+    const recordRows = allRows.slice(headIndex, allRows.length)
+    const records = []
+    for (let i = 1; i < recordRows.length; i++) { // 从第一行开始
+        const singleRow = recordRows[i].replace(/\t|\"/g, '')
+        const rowCells = singleRow.split(',')
+        const record = {}
+        for (let j = 0; j < rowCells.length; j++) {
+            record[HEAD_PROPS[j]] = rowCells[j]
+            if (HEAD_PROPS[j] === 'amountDisplay') {
+                record.amount = Number(rowCells[j].slice(1))
+            }
+        }
+        records.push(record)
+    }
+    const payRecords = records.filter(record => record.incomeOrExpenses === '收入' && PAY_TYPES.includes(record.exchangeType))
+    console.log(payRecords.map(payRecord => ({exchangeUser: payRecord.exchangeUser, amount: payRecord.amount, merchandise: payRecord.merchandise})))
+    const payAmount = payRecords.reduce((total, record) => record.amount + total, 0)
+    console.log('records, payRecords, payAmount', records, payRecords, payAmount)
+    return records
+}
+
+function isSettled() {}
 
 function printFile(file) {
     if (!file) {
@@ -59,7 +79,8 @@ function printFile(file) {
     const reader = new FileReader()
     reader.onload = function (event) {
         const result = event.target.result
-        parseCSVContent(result)
+        // parseCSVContent(result)
+        parseRecords(result)
     }
     reader.readAsText(file)
 }
@@ -937,7 +958,7 @@ function getName(jielong, area) {
         const result = regexps[i].exec(jielong)
         if (result && result[1]) {
             findName = result[1]
-            console.log(i, regexps[i], findName)
+            // console.log(i, regexps[i], findName)
             break
         }
     }
@@ -1474,6 +1495,7 @@ document.getElementById('button').onclick = function() {
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list, map } = parseJielong(jielongContent.split('\n'))
     console.log('parseJielong list, map: ', list, map)
+    window.jielongList = list
     const areaGroup = groupAreaAll(list, ['name', 'regex'])
     const deliveryGroup = deliveryAreaAll(areaGroup)
     const countGroup = countAreaAll(areaGroup)
@@ -1482,3 +1504,46 @@ document.getElementById('button').onclick = function() {
     printCountGroup(countGroup)
     printAmountGroup(countGroup)
 }
+
+document.querySelector('.jielong-input > textarea').value = `6.2 接龙数据：
+尖椒炒腐竹，秋葵炒木耳，清香芋头丝，清炒芥菜，杂粮饭
+
+已定餐要取消的请于10点50前通知店里，再取消接龙哈，谢谢！
+
+主食不支持换菜，一定要换请加价5元
+
+换菜备选：香干，糖醋莲藕，椒盐土豆块🥔 ，虎皮尖椒，豆腐，凉拌豆皮，凉拌豆芽，椒盐金针菇，椒盐茄盒等（套餐里目前支持换一种）
+
+主食备选：白饭，炒饭，炒米粉，炒河粉，炒面条，蒸红薯🍠 ，蒸南瓜，（白粥收1元餐盒费，换白饭免费，换其他主食加2元，单点主食8元每盒750毫升方盒）
+
+黑凉粉3元（450毫升圆碗）
+小菜1元：开胃萝卜，自制下饭菜（放饭盒里）
+
+目前送餐路线：云谷～E东～J南～F南～B东～D东～H西～微谷北（J区F区可放餐）
+
+1. Leon H区 少饭
+2. 索菲娅-云谷2栋
+3. 葫芦大侠_欢  H区  少饭
+4. 妮，E区东门，少饭少菜
+5. 真真-F区 少少饭
+6. WF🎵 云谷 少饭
+7. 廖乐玲 F区
+8. 刘展-J区 2份（1自备饭盒）
+9. 果篮 云谷
+10. 云谷11栋-葛原 少饭
+11. 果果lynn🌈 H区 少饭
+12. 。 云谷，米饭换红薯🍠
+13. 张涛 H1，少饭
+14. 果堃 H区 少饭1份
+15. 🍀 杨茜H区 2份，其中1份杂粮饭换白米饭+芋头丝换虎皮尖椒，另1份芥菜换虎皮尖椒
+16. Stacey H3，少饭
+17. 媛媛 H1，4份（芋头丝换虎皮尖椒），2份换主食：炒米粉、南瓜
+18. M h区 少饭 芥菜换金针菇
+19. 陈湘—云谷A座
+20. 云谷B座 11份.
+21. 你猜  E1 1份（芥菜换虎皮尖椒）
+22. 世静 E1 1份（炒腐竹换糖醋莲藕）
+23. 晓萍 E1份 尖椒换莲藕
+24. Fanni🌟 H区少饭
+25. 小芸 金荣达 腐竹换糖醋莲藕  杂粮饭换南瓜
+26. 申佳-D1`
