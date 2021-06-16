@@ -9,12 +9,27 @@
     font-size: 14px;
 } */
 
+.jielong-input {
+    width: 320px;
+    margin-right: 10px;
+}
+
 .jielong-input > textarea {
     width: 320px;
     height: 900px;
 }
 
-.jielong-group,
+.jielong-input > input {
+    margin: 5px 0 10px 0;
+}
+
+.jielong-input > .actions > button {
+    text-align: center;
+    width: 100px;
+    height: 40px;
+}
+
+.jielong-area,
 .jielong-output {
     width: 300px;
     margin: 0 10px;
@@ -24,13 +39,3 @@
 /* .jielong-delivery {
     margin-top: 25px;
 } */
-
-.actions {
-    margin: 20px;
-    text-align: center;
-}
-
-.actions > button {
-    width: 100px;
-    height: 40px;
-}

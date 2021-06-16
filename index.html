@@ -13,25 +13,16 @@
             <!-- <textarea placeholder="接龙分组" class="jielong"></textarea> -->
             <div class="jielong-input">
                 <textarea placeholder="请输入接龙"></textarea>
+                <input type="file" id="paidFile" name="paidFile" class="input-file" />
                 <div class="actions">
-                    <button id="button0">J区统计</button>
+                    <button id="button0">单区统计</button>
                     <button id="button">各区统计</button>
+                    <button id="settle-button">点击结算</button>
                 </div>
             </div>
-            <div class="jielong-group">
-                <div class="settle-accounts">
-                    <div>
-                        <strong>## 每日结算</strong>
-                        <br><br>
-                        <input type="file" id="payingFile" name="payingFile" />
-                        <br><br>
-                        <button id="settle-button">点击结算</button>
-                        <br><br>
-                    </div>
-                </div>
-                <div class="jielong-area"></div>
-            </div>
+            <div class="jielong-area"></div>
             <div class="jielong-output">
+                <div class="settle-result"></div>
                 <div class="jielong-amount"></div>
                 <div class="jielong-statistics"></div>
                 <div class="jielong-delivery"></div>

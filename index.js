@@ -1,96 +1,3 @@
-const HEAD_TITLES = ['交易时间', '交易类型', '交易对方', '商品', '收/支', '金额(元)', '支付方式', '当前状态', '交易单号', "商户单号", "备注"]
-const HEAD_PROPS = ['exchangeTime', 'exchangeType', 'exchangeUser', 'merchandise', 'incomeOrExpenses', 'amountDisplay', 'payType', 'status', 'exchangeNo', 'merchantNo', 'remark']
-
-function parseCSVContent(csvFileContent) {
-    const allRows = csvFileContent.split(/\r?\n|\r/)
-    const headIndex = allRows.findIndex(row => row.startsWith('交易时间'))
-    const recordRows = allRows.slice(headIndex, allRows.length)
-    const array = []
-    let table = '<table>'
-    for (let i = 0; i < recordRows.length; i++) {
-        const arr = []
-        const singleRow = recordRows[i].replace(/\t|\"/g, '')
-        const rowCells = singleRow.split(',')
-        if (i === 0) {
-            table += '<thead>'
-            table += '<tr>'
-        } else {
-            table += '<tr>'
-        }
-        for (let j = 0; j < rowCells.length; j++) {
-            if (i === 0) {
-                table += '<th>'
-                table += rowCells[j]
-                table += '</th>'
-            } else {
-                table += '<td>'
-                table += rowCells[j]
-                table += '</td>'
-            }
-            arr.push(rowCells[j])
-        }
-        if (i === 0) {
-            table += '</tr>'
-            table += '</thead>'
-            table += '<tbody>'
-        } else {
-            table += '</tr>'
-        }
-        array.push(arr)
-    }
-    table += '</tbody>'
-    table += '</table>'
-    document.querySelector('.container').innerHTML = table
-    console.log('csv array', array)
-}
-
-const PAY_TYPES = ['二维码收款','转账','微信红包']
-function parseRecords(csvFileContent) {
-    const allRows = csvFileContent.split(/\r?\n|\r/)
-    const headIndex = allRows.findIndex(row => row.startsWith('交易时间'))
-    const recordRows = allRows.slice(headIndex, allRows.length)
-    const records = []
-    for (let i = 1; i < recordRows.length; i++) { // 从第一行开始
-        const singleRow = recordRows[i].replace(/\t|\"/g, '')
-        const rowCells = singleRow.split(',')
-        const record = {}
-        for (let j = 0; j < rowCells.length; j++) {
-            record[HEAD_PROPS[j]] = rowCells[j]
-            if (HEAD_PROPS[j] === 'amountDisplay') {
-                record.amount = Number(rowCells[j].slice(1))
-            }
-        }
-        records.push(record)
-    }
-    const payRecords = records.filter(record => record.incomeOrExpenses === '收入' && PAY_TYPES.includes(record.exchangeType))
-    console.log(payRecords.map(payRecord => ({exchangeUser: payRecord.exchangeUser, amount: payRecord.amount, merchandise: payRecord.merchandise})))
-    const payAmount = payRecords.reduce((total, record) => record.amount + total, 0)
-    console.log('records, payRecords, payAmount', records, payRecords, payAmount)
-    return records
-}
-
-function isSettled() {}
-
-function printFile(file) {
-    if (!file) {
-        alert('请选择微信支付账单')
-        return
-    }
-    const reader = new FileReader()
-    reader.onload = function (event) {
-        const result = event.target.result
-        // parseCSVContent(result)
-        parseRecords(result)
-    }
-    reader.readAsText(file)
-}
-
-document.getElementById('settle-button').onclick = function () {
-    const fileField = document.querySelector('input[type="file"]')
-    printFile(fileField.files[0])
-}
-
-
 const AREAS = [
     {
         name: '华为地铁A出口',
@@ -504,16 +411,20 @@ function getUserCount(jielongObj) {
     return userTotal
 }
 
+function getPackTypes() {
+    return COND_REGEXPS.filter(({ isPackage }) => isPackage).map(({ type }) => type)
+}
+
 function maxCount(conditions) {
-    const packTypes = COND_REGEXPS.filter(({ isPackage }) => isPackage).map(({ type }) => type)
+    const packTypes = getPackTypes()
     return conditions.reduce((maxValue, condition) => {
         const { type, count } = condition
         // 单点不计套餐份数
         // if (type.startsWith('single')) {
         //     return maxValue
         // }
-        // 当condition isPackage为true时记录套餐份数，如单点、加黑凉粉等不算套餐
-        if (type.indexOf(packTypes) === -1) {
+        // 仅当condition isPackage为true时记录套餐份数，如单点、加黑凉粉等不算套餐
+        if (packTypes.indexOf(type) === -1) {
             return maxValue
         }
         return Math.max(maxValue, count)
@@ -594,20 +505,17 @@ function countByConditions(jielongList) {
                     complexConds.push(nextCond)
                     nextCond = nextCond.next
                 }
-                if (startCond.next) {
-                    complexCount += startCond.next.count || 0
-                }
-                const startCount = startCond.count
-                const complexOutput = complexConds
-                    .sort((a, b) => b.count - a.count)
-                    .map(({ type, count, word, output }) => {
-                        if (type === 'changeVeg') {
-                            return startCount === 1 ? word : `${count}${word}`
-                        }
-                        return startCount === 1 ? output : `${count}${output}`
-                    })
-                    .join('•')
-                return startCount === 1 ? `${startCount}${complexOutput}` : complexOutput
+                complexConds.sort((a, b) => b.count - a.count)
+                const firstCount = complexConds[0].count
+                complexCount += firstCount || 0
+                const complexOutput = complexConds.map(({ type, count, word, output }) => {
+                    if (type === 'changeVeg') {
+                        return firstCount === 1 ? word : `${count}${word}`
+                    }
+                    return firstCount === 1 ? output : `${count}${output}`
+                })
+                .join('•')
+                return firstCount === 1 ? `${firstCount}${complexOutput}` : complexOutput
             })
             complexObj[id] = {
                 count: complexCount,
@@ -660,23 +568,76 @@ function countByConditions(jielongList) {
  */
 function countByConditions2(jielongList) {
     const countConds = []
-    jielongList.forEach(({ factor, conditions }) => {
+    jielongList.forEach(({ id, count, factor, conditions }) => {
         if (factor === 0 || conditions.length === 0) {
             return
         }
-        const output = conditions.map(({ count, word }, index) => {
-            if (index > 0 && count === 1) {
-                return word
-            }
-            return `${count}${word}`
-        }).join('•')
-        countConds.push({
-            conditions,
-            output,
-        })
+        if (count * factor === 1) {
+            const output = conditions.map(({ count, word }, index) => {
+                if (index > 0 && count === 1) {
+                    return word
+                }
+                return `${count}${word}`
+            })
+            .join('•')
+            countConds.push({
+                conditions,
+                output,
+            })
+        } else if (hasComplex(conditions)) {
+            const complexOutput = getComplexOutput2(conditions)
+            countConds.push({
+                conditions,
+                output: complexOutput,
+            })
+        } else {
+            const output = conditions.map(({ count, word }) => `${count}${word}`).join(' ')
+            countConds.push({
+                conditions,
+                output,
+            })
+        }
     })
 
     return countConds
+}
+
+/**
+ * 带复合条件时输出，各园区分别统计
+ * @param {*} conditions 
+ * @returns 
+ */
+function getComplexOutput2(conditions) {
+    const plainConds = [] // 普通条件
+    const startConds = [] // 复合条件头指针
+    conditions.forEach(condition => {
+        if (!condition.prev) {
+            if (condition.next) {
+                startConds.push(condition)
+            } else {
+                plainConds.push(condition)
+            }
+        }
+    })
+    const complexOutputs = startConds.map(startCond => {
+        const complexConds = []
+        let nextCond = startCond
+        while (nextCond) {
+            complexConds.push(nextCond)
+            nextCond = nextCond.next
+        }
+        complexConds.sort((a, b) => b.count - a.count)
+        const firstCount = complexConds[0].count
+        return complexConds.map(({ count, word }, index) => {
+            if (index > 0 && count === 1 && firstCount === 1) {
+                return word
+            }
+            return `${count}${word}`
+        })
+        .join('•')
+    })
+    const plainOutputs = plainConds.map(({ count, word }) => `${count}${word}`)
+    return complexOutputs.concat(plainOutputs).join(' ')
 }
 
 /**
@@ -869,6 +830,18 @@ function parseJielong(jielongArray) {
         getComplexConds(jielongObj)
     }
 
+    function getAmount(jielongObj) {
+        const type = 'mealCount'
+        const { name, count, conditions } = jielongObj
+        const price = PRICE_TYPE_MAP[type] || 0
+        const amount = price * count + conditions.map(({ type, count }) => {
+            const price = PRICE_TYPE_MAP[type] || 0
+            return price * count
+        })
+        .reduce((total, paying) => total + paying, 0)
+        jielongObj.amount = amount
+    }
+
     const list = []
     const map = {}
     function setupJielong(jielong) {
@@ -885,6 +858,7 @@ function parseJielong(jielongArray) {
         const jielongObj = { id, jielong, rjielong, area, name, count, factor, conditions: [], isPaid }
         setupParent(jielongObj)
         setupConditions(jielongObj)
+        getAmount(jielongObj)
         list.push(jielongObj)
         map[id] = jielongObj
     }
@@ -1236,14 +1210,14 @@ function sortByComplex(jielongList) {
  * 打印接龙分区数据
  * @param {*} areaGroup 
  */
-function printAreaGroup(areaGroup) {
+function printAreaGroup(areaGroup, isSettling) {
     let result = '<div><strong>## 接龙分区</strong><br><br>'
     for (const area in areaGroup) {
         const areaList = areaGroup[area]
         let jielongDisplay
         if (areaList.length) {
             jielongDisplay = sortByComplex(sortByPaid(areaList)).map(jielongObj => {
-                const { jielong, count, isPaid, conditions, factor, parent } = jielongObj
+                const { jielong, count, isPaid, amount, isSettled, conditions, factor, parent } = jielongObj
                 if (factor === 0) {
                     if (CANCEL_CURRENT.test(jielong)) {
                         return `<strong style="color: red">${jielong}（不计数）</strong>`
@@ -1261,9 +1235,21 @@ function printAreaGroup(areaGroup) {
                     }
                     return `<strong style="color: red">${display}</strong>`
                 }
-                
+
+                if (isSettling) {
+                    let display = jielong
+                    if (amount !== undefined) {
+                        display += `（金额: ¥${amount}）`
+                    }
+                    if (isSettled) {
+                        // return `<span style="color: darkolivegreen">${display}</span>`
+                        return `<span style="color: green">${display}</span>`
+                    }
+                    return `<span style="color: orange">${display}</span>`
+                }
+
                 if (maxCount(conditions) > count) { // count === 1 && conditions.length > 1 && 
-                    return `<strong style="color: purple">${jielong}（条件份数超过订餐份数）</strong>`
+                    return `<strong style="color: purple">${jielong}（条件份数超过订餐份数，计${maxCount(conditions)}份）</strong>`
                 }
                 if (hasComplex(conditions)) {
                     return `<strong style="color: orange">${jielong}</strong>`
@@ -1401,18 +1387,19 @@ function printCountGroup(countGroup) {
     let result = '<div><strong>## 各区份数</strong><br><br>'
     const complexList = []
     for (const area in countGroup) {
+        const countList = countGroup[area]
         let areaIcon
         if (area === '合计') {
             areaIcon = '💫'
         } else {
             areaIcon = '✨'
-            const complexObj = countGroup[area].pop()
+            const complexObj = countList[countList.length - 1]
             if (Object.keys(complexObj).length > 1) {
                 const complexDisplay = printComplexObj(complexObj)
                 complexList.push(`🌟${area}: ${complexDisplay}`)
             }
         }
-        const countDisplay = countGroup[area].map(printCountObj).join(' ')
+        const countDisplay = countList.map(printCountObj).join(' ')
         result += `${areaIcon}${area}: ${countDisplay}<br>`
     }
     result += `<br>${complexList.join('<br>')}<br><br></div>`
@@ -1479,23 +1466,39 @@ function printDeliveryGroup(deliveryGroup) {
     document.querySelector('.jielong-delivery').innerHTML = result
 }
 
-document.getElementById('button0').onclick = function() {
+/**
+ * 单区统计
+ */
+document.querySelector('#button0').onclick = function() {
     const inputJielong = document.querySelector('.jielong-input > textarea').value
+    if (!inputJielong) {
+        alert('请输入接龙')
+        return
+    }
+    document.querySelector('.settle-result').innerHTML = ''
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list, map } = parseJielong(jielongContent.split('\n'))
     console.log('parseJielong list, map: ', list, map)
     // const countList = countByArea(list)
-    // printCountList('J区', countList)
+    // printCountList('各区', countList)
     const countList2 = countByArea2(list)
-    printCountList2('J区', countList2)
+    console.log('countByArea2: countList2', countList2)
+    printCountList2('单区', countList2)
 }
 
-document.getElementById('button').onclick = function() {
+/**
+ * 各区统计
+ */
+document.querySelector('#button').onclick = function() {
     const inputJielong = document.querySelector('.jielong-input > textarea').value
+    if (!inputJielong) {
+        alert('请输入接龙')
+        return
+    }
+    document.querySelector('.settle-result').innerHTML = ''
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list, map } = parseJielong(jielongContent.split('\n'))
     console.log('parseJielong list, map: ', list, map)
-    window.jielongList = list
     const areaGroup = groupAreaAll(list, ['name', 'regex'])
     const deliveryGroup = deliveryAreaAll(areaGroup)
     const countGroup = countAreaAll(areaGroup)
@@ -1505,45 +1508,190 @@ document.getElementById('button').onclick = function() {
     printAmountGroup(countGroup)
 }
 
-document.querySelector('.jielong-input > textarea').value = `6.2 接龙数据：
-尖椒炒腐竹，秋葵炒木耳，清香芋头丝，清炒芥菜，杂粮饭
+document.querySelector('#settle-button').onclick = async function () {
+    const inputJielong = document.querySelector('.jielong-input > textarea').value
+    if (!inputJielong) {
+        alert('请输入接龙')
+        return
+    }
+    const inputPaidFile = document.querySelector('input[type="file"]').files[0]
+    if (!inputPaidFile) {
+        alert('请选择微信支付账单')
+        return
+    }
+    const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
+    const { list } = parseJielong(jielongContent.split('\n'))
+    console.log('支付结算，parseJielong list:', list)
+    try {
+        const paidFileData = await readPaidFile(inputPaidFile)
+        if (list && list.length > 0) {
+            const settleResult = settleAccounts(list, paidFileData)
+            const areaGroup = groupAreaAll(list, ['name', 'regex'])
+            printAreaGroup(areaGroup, true)
+            printSettleResult(settleResult)
+        } else {
+            alert('接龙列表为空')
+        }
+    } catch (err) {
+        console.error(err)
+    }
+}
 
-已定餐要取消的请于10点50前通知店里，再取消接龙哈，谢谢！
+function printSettleResult({ jielongUserList, jielongPaidList, jielongNotPaidList, paidUserList, paidSettleList, paidNotSettleList }) {
+    document.querySelector('.jielong-amount').innerHTML = ''
+    document.querySelector('.jielong-statistics').innerHTML = ''
+    document.querySelector('.jielong-delivery').innerHTML = ''
+    document.querySelector('.settle-result').innerHTML = `
+<div>
+    <strong>## 每日结算</strong><br><br>
+    <div>💫接龙名单：${jielongUserList.map(userName => `<span style="color: #1f78d1">${userName}</span>`).join('，')}</div>
+    <div>💫接龙已付：${jielongPaidList.map(userName => `<span style="color: green">${userName}</span>`).join('，')}</div>
+    <div>💫接龙未付：${jielongNotPaidList.map(userName => `<strong style="color: orange">${userName}</strong>`).join('，')}</div><br>
+    <div>💫支付名单：${paidUserList.map(paidName => `<span style="color: #1f78d1">${paidName}</span>`).join('，')}</div>
+    <div>💫支付已核：${paidSettleList.map(userName => `<span style="color: green">${userName}</span>`).join('，')}</div>
+    <div>💫支付未核：${paidNotSettleList.map(userName => `<strong style="color: orange">${userName}</strong>`).join('，')}</div><br>
+</div>`
+}
 
-主食不支持换菜，一定要换请加价5元
+function settleAccounts(jielongList, paidFileData) {
+    // parseCSVContent(paidFileData)
+    const payRecords = parseRecords(paidFileData)
+    for (let i = 0; i < jielongList.length; i++) {
+        for (let j = 0; j < payRecords.length; j++) {
+            const jielongObj = jielongList[i]
+            const record = payRecords[j]
+            if (isSame(jielongObj.name, record.exchangeUser)) {
+                jielongObj.isSettled = true
+                jielongObj.payName = record.exchangeUser
+                record.isSettled = true
+                break
+            }
+        }
+    }
 
-换菜备选：香干，糖醋莲藕，椒盐土豆块🥔 ，虎皮尖椒，豆腐，凉拌豆皮，凉拌豆芽，椒盐金针菇，椒盐茄盒等（套餐里目前支持换一种）
+    const jielongUserList = []
+    const jielongPaidList = []
+    const jielongNotPaidList = []
+    jielongList.forEach(({ name, isSettled }) => {
+        jielongUserList.push(name)
+        if (isSettled) {
+            jielongPaidList.push(name)
+        } else {
+            jielongNotPaidList.push(name)
+        }
+    })
 
-主食备选：白饭，炒饭，炒米粉，炒河粉，炒面条，蒸红薯🍠 ，蒸南瓜，（白粥收1元餐盒费，换白饭免费，换其他主食加2元，单点主食8元每盒750毫升方盒）
+    const paidUserList = []
+    const paidSettleList = []
+    const paidNotSettleList = []
+    payRecords.filter(({ exchangeUser, isSettled }) => {
+        paidUserList.push(exchangeUser)
+        if (isSettled) {
+            paidSettleList.push(exchangeUser)
+        } else {
+            paidNotSettleList.push(exchangeUser)
+        }
+    })
 
-黑凉粉3元（450毫升圆碗）
-小菜1元：开胃萝卜，自制下饭菜（放饭盒里）
+    return { jielongUserList, jielongPaidList, jielongNotPaidList, paidUserList, paidSettleList, paidNotSettleList }
+}
 
-目前送餐路线：云谷～E东～J南～F南～B东～D东～H西～微谷北（J区F区可放餐）
+const HEAD_TITLES = ['交易时间', '交易类型', '交易对方', '商品', '收/支', '金额(元)', '支付方式', '当前状态', '交易单号', '商户单号', '备注']
+const HEAD_PROPS = ['exchangeTime', 'exchangeType', 'exchangeUser', 'merchandise', 'incomeOrExpenses', 'amountDisplay', 'payType', 'status', 'exchangeNo', 'merchantNo', 'remark']
+function parseCSVContent(paidFileData) {
+    const allRows = paidFileData.split(/\r?\n|\r/)
+    const headIndex = allRows.findIndex(row => row.startsWith('交易时间')) // 定位到表格Title行
+    const recordRows = allRows.slice(headIndex, allRows.length)
+    const array = []
+    let table = '<table>'
+    for (let i = 0; i < recordRows.length; i++) {
+        const arr = []
+        const singleRow = recordRows[i].replace(/\t|\"/g, '')
+        const rowCells = singleRow.split(',')
+        if (i === 0) {
+            table += '<thead>'
+            table += '<tr>'
+        } else {
+            table += '<tr>'
+        }
+        for (let j = 0; j < rowCells.length; j++) {
+            if (i === 0) {
+                table += '<th>'
+                table += rowCells[j]
+                table += '</th>'
+            } else {
+                table += '<td>'
+                table += rowCells[j]
+                table += '</td>'
+            }
+            arr.push(rowCells[j])
+        }
+        if (i === 0) {
+            table += '</tr>'
+            table += '</thead>'
+            table += '<tbody>'
+        } else {
+            table += '</tr>'
+        }
+        array.push(arr)
+    }
+    table += '</tbody>'
+    table += '</table>'
+    document.querySelector('.container').innerHTML = table
+    console.log('csv array', array)
+}
 
-1. Leon H区 少饭
-2. 索菲娅-云谷2栋
-3. 葫芦大侠_欢  H区  少饭
-4. 妮，E区东门，少饭少菜
-5. 真真-F区 少少饭
-6. WF🎵 云谷 少饭
-7. 廖乐玲 F区
-8. 刘展-J区 2份（1自备饭盒）
-9. 果篮 云谷
-10. 云谷11栋-葛原 少饭
-11. 果果lynn🌈 H区 少饭
-12. 。 云谷，米饭换红薯🍠
-13. 张涛 H1，少饭
-14. 果堃 H区 少饭1份
-15. 🍀 杨茜H区 2份，其中1份杂粮饭换白米饭+芋头丝换虎皮尖椒，另1份芥菜换虎皮尖椒
-16. Stacey H3，少饭
-17. 媛媛 H1，4份（芋头丝换虎皮尖椒），2份换主食：炒米粉、南瓜
-18. M h区 少饭 芥菜换金针菇
-19. 陈湘—云谷A座
-20. 云谷B座 11份.
-21. 你猜  E1 1份（芥菜换虎皮尖椒）
-22. 世静 E1 1份（炒腐竹换糖醋莲藕）
-23. 晓萍 E1份 尖椒换莲藕
-24. Fanni🌟 H区少饭
-25. 小芸 金荣达 腐竹换糖醋莲藕  杂粮饭换南瓜
-26. 申佳-D1`
+function isSame(userName, payName) {
+    return userName.indexOf(payName) > -1 || payName.indexOf(userName) > -1
+}
+
+const PAY_TYPES = ['二维码收款','转账','微信红包']
+function parseRecords(paidFileData) {
+    const allRows = paidFileData.split(/\r?\n|\r/)
+    const headIndex = allRows.findIndex(row => row.startsWith('交易时间'))
+    const recordRows = allRows.slice(headIndex, allRows.length)
+    const records = []
+    for (let i = 1; i < recordRows.length; i++) { // 从第一行开始
+        const singleRow = recordRows[i].replace(/\t|\"/g, '')
+        const rowCells = singleRow.split(',')
+        const record = {}
+        for (let j = 0; j < rowCells.length; j++) {
+            record[HEAD_PROPS[j]] = rowCells[j]
+            if (HEAD_PROPS[j] === 'amountDisplay') {
+                record.amount = Number(rowCells[j].slice(1))
+            }
+        }
+        records.push(record)
+    }
+    const payRecords = records.filter(record => PAY_TYPES.includes(record.exchangeType) && record.incomeOrExpenses === '收入')
+    console.log(payRecords.map(({ exchangeUser, amount, merchandise }) => ({ exchangeUser, amount, merchandise })))
+    const payAmount = payRecords.reduce((total, record) => record.amount + total, 0)
+    // console.log('records, payRecords, payAmount', records, payRecords, payAmount)
+    console.log('payRecords, payAmount', payRecords, payAmount)
+    return payRecords
+}
+
+function readPaidFile(inputPaidFile) {
+    const reader = new FileReader()
+    return new Promise((resolve, reject) => {
+        reader.onload = function (event) {
+            const paidFileData = event.target.result
+            // console.log('paidFileData', paidFileData)
+            resolve(paidFileData, event)
+        }
+        reader.onerror = function(event) {
+            console.error('Failed to read file! The event:\n\n', reader.error, event)
+            reader.abort() // (...does this do anything useful in an onerror handler?)
+            reject(reader.error, event)
+        }
+        reader.readAsText(inputPaidFile)
+    })
+}
+
+// 获取6.2接龙mock数据，写在下方，上方更好开发代码
+// async function getJielongExample() {
+//     const response = await fetch('jielong6.2.txt')
+//     const example = await response.txt()
+//     document.querySelector('.jielong-input > textarea').value = example
+// }
+// getJielongExample()
