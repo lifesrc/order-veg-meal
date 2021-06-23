@@ -1,5 +1,6 @@
 .container {
     display: flex;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
 /* .jielong {
@@ -23,10 +24,19 @@
     margin: 5px 0 10px 0;
 }
 
+.jielong-input > .actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .jielong-input > .actions > button {
-    text-align: center;
     width: 100px;
     height: 40px;
+}
+
+.jielong-input > .actions > button + button {
+    margin-left: 10px;
 }
 
 .jielong-area,
