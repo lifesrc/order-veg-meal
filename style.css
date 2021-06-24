@@ -20,7 +20,7 @@
     height: 900px;
 }
 
-.jielong-input > input {
+.jielong-input > input[type="file"] {
     margin: 5px 0 10px 0;
 }
 
@@ -44,6 +44,36 @@
     width: 300px;
     margin: 0 10px;
     font-size: 14px;
+}
+
+.jielong-output > .daily-settle span {
+    border-width: 1px;
+    border-color: transparent;
+    line-height: 24px;
+    cursor: default;
+}
+
+.jielong-output > .daily-settle span:hover {
+    color: #5cb6ff;
+}
+
+.jielong-output  > .daily-settle > .not-paid-list > .name-list > span:not(:first-child):hover,
+.jielong-output  > .daily-settle > .not-settle-list > .name-list > span:not(:first-child):hover {
+    cursor: pointer;
+}
+
+.jielong-output  > .daily-settle > .not-paid-list > .name-list > span.settling,
+.jielong-output  > .daily-settle > .not-settle-list > .name-list > span.settling {
+    border-color: orange;
+    border-style: dashed;
+    padding: 0 2px;
+}
+
+.jielong-output  > .daily-settle > .jielong-paid-list > .name-list > span.handle-settled,
+.jielong-output  > .daily-settle > .paid-settle-list > .name-list > span.handle-settled {
+    background-color: #CDD3CD;
+    border-style: solid;
+    padding: 0 2px;
 }
 
 /* .jielong-delivery {

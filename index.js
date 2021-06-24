@@ -1476,13 +1476,13 @@ function printDeliveryGroup(deliveryGroup) {
 /**
  * 单区统计
  */
-document.querySelector('#button0').onclick = function() {
+document.querySelector('#single-button').onclick = function() {
     const inputJielong = document.querySelector('.jielong-input > textarea').value
     if (!inputJielong) {
         alert('请输入接龙')
         return
     }
-    document.querySelector('.settle-result').innerHTML = ''
+    document.querySelector('.daily-settle').innerHTML = ''
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list, map } = parseJielong(jielongContent.split('\n'))
     console.log('parseJielong list, map: ', list, map)
@@ -1496,13 +1496,13 @@ document.querySelector('#button0').onclick = function() {
 /**
  * 各区统计
  */
-document.querySelector('#button').onclick = function() {
+document.querySelector('#all-button').onclick = function() {
     const inputJielong = document.querySelector('.jielong-input > textarea').value
     if (!inputJielong) {
         alert('请输入接龙')
         return
     }
-    document.querySelector('.settle-result').innerHTML = ''
+    document.querySelector('.daily-settle').innerHTML = ''
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list, map } = parseJielong(jielongContent.split('\n'))
     console.log('parseJielong list, map: ', list, map)
@@ -1535,7 +1535,7 @@ document.querySelector('#settle-button').onclick = async function () {
             const settleResult = settleAccounts(list, paidFileData)
             const areaGroup = groupAreaAll(list, ['name', 'regex'])
             printAreaGroup(areaGroup, true)
-            printSettleResult(settleResult)
+            printDailySettle(settleResult)
         } else {
             alert('接龙列表为空')
         }
@@ -1544,20 +1544,177 @@ document.querySelector('#settle-button').onclick = async function () {
     }
 }
 
-function printSettleResult({ jielongUserList, jielongPaidList, jielongNotPaidList, paidUserList, paidSettleList, paidNotSettleList }) {
+document.querySelector('.daily-settle').addEventListener('click', event => {
+    const el = event.target
+    const parent = el.parentNode
+    if (parent.className.includes('not-paid')) {
+        console.log('Click! not-paid span')
+        const index = el.getAttribute('data-index')
+        notPaidOnSelect(Number(index))
+    } else if (parent.className.includes('not-settle')) {
+        console.log('Click! not-settle span')
+        const index = el.getAttribute('data-index')
+        notSettleOnSelect(Number(index))
+    }
+
+    event.preventDefault()
+    event.stopPropagation()
+})
+
+function printDailySettle({
+    jielongUserList = [],
+    jielongPaidList = [],
+    jielongNotPaidList = [],
+    paidUserList = [],
+    paidSettleList = [],
+    paidNotSettleList = [],
+    notPaidIndex = -1,
+    notSettleIndex = -1,
+}) {
     document.querySelector('.jielong-amount').innerHTML = ''
     document.querySelector('.jielong-statistics').innerHTML = ''
     document.querySelector('.jielong-delivery').innerHTML = ''
-    document.querySelector('.settle-result').innerHTML = `
-<div>
-    <strong>## 每日结算</strong><br><br>
-    <div>💫接龙名单：${jielongUserList.map(userName => `<span style="color: #1f78d1">${userName}</span>`).join('，')}</div>
-    <div>💫接龙已付：${jielongPaidList.map(userName => `<span style="color: green">${userName}</span>`).join('，')}</div>
-    <div>💫接龙未付：${jielongNotPaidList.map(userName => `<strong style="color: orange">${userName}</strong>`).join('，')}</div><br>
-    <div>💫支付名单：${paidUserList.map(paidName => `<span style="color: #1f78d1">${paidName}</span>`).join('，')}</div>
-    <div>💫支付已核：${paidSettleList.map(userName => `<span style="color: green">${userName}</span>`).join('，')}</div>
-    <div>💫支付未核：${paidNotSettleList.map(userName => `<strong style="color: orange">${userName}</strong>`).join('，')}</div><br>
+    if (!document.querySelector('.daily-settle').innerHTML) {
+        document.querySelector('.daily-settle').innerHTML =
+`<strong>## 每日结算</strong><br><br>
+<div class="jielong-user-list">
+    <span><i class="el-icon-check"></i>接龙名单：</span>
+    <div class="name-list"></div>
+</div>
+<div class="jielong-paid-list">
+    <span><i class="el-icon-check"></i>接龙已付：</span>
+    <div class="name-list paid"></div>
+</div>
+<div class="not-paid-list">
+    <span><i class="el-icon-check"></i>接龙未付：</span>
+    <div class="name-list not-paid"></div>
+</div>
+<br>
+<div class="paid-user-list">
+    <span><i class="el-icon-check"></i>支付名单：</span>
+    <div class="name-list"></div>
+</div>
+<div class="paid-settle-list">
+    <span><i class="el-icon-check"></i>支付已核：</span>
+    <div class="name-list settled"></div>
+</div>
+<div class="not-settle-list">
+    <span><i class="el-icon-check"></i>支付未核：</span>
+    <div class="name-list not-settle"></div>
 </div>`
+    }
+    if (jielongUserList.length) {
+        document.querySelector('.daily-settle > .jielong-user-list > .name-list').innerHTML =
+        jielongUserList.map(jielongObj => `<span style="color: #1f78d1">${jielongObj.name}</span>`).join('，')
+    }
+    if (jielongPaidList.length) {
+        document.querySelector('.daily-settle > .jielong-paid-list > .name-list').innerHTML =
+        jielongPaidList.map(({ name, handSettled }) => {
+            let settledClass = ''
+            if (handSettled) {
+                settledClass = 'handle-settled'
+            }
+            return `<span class="${settledClass}" style="color: green">${name}</span>`
+        }).join('，')
+    }
+    if (jielongNotPaidList.length) {
+        document.querySelector('.daily-settle > .not-paid-list > .name-list').innerHTML =
+        jielongNotPaidList.map((jielongObj, index) => {
+            let settlingClass = ''
+            if (notPaidIndex === index) {
+                settlingClass = 'settling'
+            }
+            return `<span class="${settlingClass}" style="color: orange; font-weight: 500; cursor: pointer" data-index="${index}">${jielongObj.name}</span>`
+        }).join('，')
+    }
+    if (paidUserList.length) {
+        document.querySelector('.daily-settle > .paid-user-list > .name-list').innerHTML =
+        paidUserList.map(payRecord => `<span style="color: #1f78d1">${payRecord.exchangeUser}</span>`).join('，')
+    }
+    if (paidSettleList.length) {
+        document.querySelector('.daily-settle > .paid-settle-list > .name-list').innerHTML =
+        paidSettleList.map(({ exchangeUser, handSettled }) => {
+            let settledClass = ''
+            if (handSettled) {
+                settledClass = 'handle-settled'
+            }
+            return `<span class="${settledClass}" style="color: green">${exchangeUser}</span>`
+        }).join('，')
+    }
+    if (paidNotSettleList.length) {
+        document.querySelector('.daily-settle > .not-settle-list > .name-list').innerHTML =
+        paidNotSettleList.map((payRecord, index) => {
+            let settlingClass = ''
+            if (notSettleIndex === index) {
+                settlingClass = 'settling'
+            }
+            return `<span class="${settlingClass}" style="color: orange; font-weight: 500; cursor: pointer" data-index="${index}">${payRecord.exchangeUser}</span>`
+        }).join('，')
+    }
+}
+
+// undo todo history 加入 vuex store
+let notPaidIndex = -1
+let notSettleIndex = -1
+function notPaidOnSelect(index) {
+    const { jielongPaidList, jielongNotPaidList, paidSettleList, paidNotSettleList } = window.settleResult
+    if (notSettleIndex > -1) {
+        jielongNotPaidList[index].handSettled = true
+        paidNotSettleList[notSettleIndex].handSettled = true
+        jielongPaidList.push(jielongNotPaidList[index])
+        paidSettleList.push(paidNotSettleList[notSettleIndex])
+        jielongNotPaidList.splice(index, 1)
+        paidNotSettleList.splice(notSettleIndex, 1)
+        notPaidIndex = -1
+        notSettleIndex = -1
+        printDailySettle({
+            jielongPaidList, jielongNotPaidList,
+            paidSettleList, paidNotSettleList,
+            notPaidIndex, notSettleIndex,
+        })
+    } else if (notPaidIndex === index) {
+        notPaidIndex = -1
+        printDailySettle({
+            jielongNotPaidList,
+            notPaidIndex,
+        })
+    } else {
+        notPaidIndex = index
+        printDailySettle({
+            jielongNotPaidList,
+            notPaidIndex,
+        })
+    }
+}
+function notSettleOnSelect(index) {
+    const { jielongPaidList, jielongNotPaidList, paidSettleList, paidNotSettleList } = window.settleResult
+    if (notPaidIndex > -1) {
+        paidNotSettleList[index].handSettled = true
+        jielongNotPaidList[notPaidIndex].handSettled = true
+        paidSettleList.push(paidNotSettleList[index])
+        jielongPaidList.push(jielongNotPaidList[notPaidIndex])
+        paidNotSettleList.splice(index, 1)
+        jielongNotPaidList.splice(notPaidIndex, 1)
+        notSettleIndex = -1
+        notPaidIndex = -1
+        printDailySettle({
+            jielongPaidList, jielongNotPaidList, 
+            paidSettleList, paidNotSettleList,
+            notPaidIndex, notSettleIndex,
+        })
+    } else if (notSettleIndex === index) {
+        notSettleIndex = -1
+        printDailySettle({
+            paidNotSettleList,
+            notSettleIndex,
+        })
+    } else {
+        notSettleIndex = index
+        printDailySettle({
+            paidNotSettleList,
+            notSettleIndex,
+        })
+    }
 }
 
 function settleAccounts(jielongList, paidFileData) {
@@ -1566,11 +1723,11 @@ function settleAccounts(jielongList, paidFileData) {
     for (let i = 0; i < jielongList.length; i++) {
         for (let j = 0; j < payRecords.length; j++) {
             const jielongObj = jielongList[i]
-            const record = payRecords[j]
-            if (isSame(jielongObj.name, record.exchangeUser)) {
+            const payRecord = payRecords[j]
+            if (isSame(jielongObj.name, payRecord.exchangeUser)) {
                 jielongObj.isSettled = true
-                jielongObj.payName = record.exchangeUser
-                record.isSettled = true
+                jielongObj.payName = payRecord.exchangeUser
+                payRecord.isSettled = true
                 break
             }
         }
@@ -1579,28 +1736,30 @@ function settleAccounts(jielongList, paidFileData) {
     const jielongUserList = []
     const jielongPaidList = []
     const jielongNotPaidList = []
-    jielongList.forEach(({ name, isSettled }) => {
-        jielongUserList.push(name)
+    jielongList.forEach(jielongObj => {
+        const { isSettled } = jielongObj
+        jielongUserList.push(jielongObj)
         if (isSettled) {
-            jielongPaidList.push(name)
+            jielongPaidList.push(jielongObj)
         } else {
-            jielongNotPaidList.push(name)
+            jielongNotPaidList.push(jielongObj)
         }
     })
 
     const paidUserList = []
     const paidSettleList = []
     const paidNotSettleList = []
-    payRecords.filter(({ exchangeUser, isSettled }) => {
-        paidUserList.push(exchangeUser)
+    payRecords.filter(payRecord => {
+        const { isSettled } = payRecord
+        paidUserList.push(payRecord)
         if (isSettled) {
-            paidSettleList.push(exchangeUser)
+            paidSettleList.push(payRecord)
         } else {
-            paidNotSettleList.push(exchangeUser)
+            paidNotSettleList.push(payRecord)
         }
     })
 
-    return { jielongUserList, jielongPaidList, jielongNotPaidList, paidUserList, paidSettleList, paidNotSettleList }
+    return window.settleResult = { jielongUserList, jielongPaidList, jielongNotPaidList, paidUserList, paidSettleList, paidNotSettleList }
 }
 
 const HEAD_TITLES = ['交易时间', '交易类型', '交易对方', '商品', '收/支', '金额(元)', '支付方式', '当前状态', '交易单号', '商户单号', '备注']
