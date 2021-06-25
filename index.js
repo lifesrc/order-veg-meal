@@ -839,7 +839,7 @@ function parseJielong(jielongArray) {
 
     function getAmount(jielongObj) {
         const type = 'mealCount'
-        const { name, count, conditions } = jielongObj
+        const { count, conditions } = jielongObj
         const price = PRICE_TYPE_MAP[type] || 0
         const amount = price * count + conditions.map(({ type, count }) => {
             const price = PRICE_TYPE_MAP[type] || 0
@@ -867,7 +867,13 @@ function parseJielong(jielongArray) {
         setupConditions(jielongObj)
         getAmount(jielongObj)
         list.push(jielongObj)
-        map[id] = jielongObj
+        if (!map[id]) {
+            map[id] = jielongObj
+        } else if (ofType(map[id], 'Array')) {
+            map[id] = [...map[id], jielongObj]
+        } else {
+            map[id] = [map[id], jielongObj]
+        }
     }
 
     jielongArray.forEach(setupJielong)
@@ -1460,9 +1466,9 @@ function printDeliveryGroup(deliveryGroup) {
     const putList = []
     for (const area in deliveryGroup) {
         const { gate, put } = findAREAByName(area)
-        result += `✨${gate}：${deliveryGroup[area].join(' ')}<br>`
+        // result += `✨${gate}：${deliveryGroup[area].join(' ')}<br>`
         // result += `✨${gate}：${deliveryGroup[area].sort().join(' ')}<br>`
-        // result += `✨${gate}：${sortMixWords(deliveryGroup[area]).join(' ')}<br>`
+        result += `✨${gate}：${sortMixWords(deliveryGroup[area]).join(' ')}<br>`
         // 送餐路线仅展示有订餐的区
         if (deliveryGroup[area].length) {
             pathList.push(gate)
@@ -1548,12 +1554,11 @@ document.querySelector('#settle-button').onclick = async function () {
 
 document.querySelector('.daily-settle').addEventListener('click', event => {
     const el = event.target
-    const parent = el.parentNode
-    if (parent.className.includes('not-paid')) {
+    if (el.parentNode.parentNode.className.includes('not-paid-list')) {
         console.log('Click! not-paid span')
         const index = el.getAttribute('data-index')
         notPaidOnSelect(Number(index))
-    } else if (parent.className.includes('not-settle')) {
+    } else if (el.parentNode.parentNode.className.includes('not-settle-list')) {
         console.log('Click! not-settle span')
         const index = el.getAttribute('data-index')
         notSettleOnSelect(Number(index))
@@ -1564,12 +1569,12 @@ document.querySelector('.daily-settle').addEventListener('click', event => {
 })
 
 function printDailySettle({
-    jielongUserList = [],
-    jielongPaidList = [],
-    jielongNotPaidList = [],
-    paidUserList = [],
-    paidSettleList = [],
-    paidNotSettleList = [],
+    jielongUserList,
+    jielongPaidList,
+    jielongNotPaidList,
+    paidUserList,
+    paidSettleList,
+    paidNotSettleList,
     notPaidIndex = -1,
     notSettleIndex = -1,
 }) {
@@ -1582,20 +1587,20 @@ function printDailySettle({
 `<strong>## 每日结算</strong><br><br>
 <div class="not-paid-list">
     <span><i class="el-icon-question"></i>接龙未付：</span>
-    <div class="name-list not-paid"></div>
+    <div class="name-list"></div>
 </div>
 <div class="not-settle-list">
     <span><i class="el-icon-question"></i>支付未核：</span>
-    <div class="name-list not-settle"></div>
+    <div class="name-list"></div>
 </div>
 <br>
 <div class="jielong-paid-list">
     <span><i class="el-icon-check"></i>接龙已付：</span>
-    <div class="name-list paid"></div>
+    <div class="name-list"></div>
 </div>
 <div class="paid-settle-list">
     <span><i class="el-icon-check"></i>支付已核：</span>
-    <div class="name-list settled"></div>
+    <div class="name-list"></div>
 </div>
 <br>
 <div class="jielong-user-list">
@@ -1607,11 +1612,11 @@ function printDailySettle({
     <div class="name-list"></div>
 </div>`
     }
-    if (jielongUserList.length) {
+    if (jielongUserList) {
         document.querySelector('.daily-settle > .jielong-user-list > .name-list').innerHTML =
         jielongUserList.map(jielongObj => `<span style="color: #1f78d1">${jielongObj.name}</span>`).join('，')
     }
-    if (jielongPaidList.length) {
+    if (jielongPaidList) {
         document.querySelector('.daily-settle > .jielong-paid-list > .name-list').innerHTML =
         jielongPaidList.map(({ name, handSettled }) => {
             let settledClass = ''
@@ -1621,21 +1626,21 @@ function printDailySettle({
             return `<span class="${settledClass}" style="color: green">${name}</span>`
         }).join('，')
     }
-    if (jielongNotPaidList.length) {
+    if (jielongNotPaidList) {
         document.querySelector('.daily-settle > .not-paid-list > .name-list').innerHTML =
         jielongNotPaidList.map((jielongObj, index) => {
             let settlingClass = ''
             if (notPaidIndex === index) {
                 settlingClass = 'settling'
             }
-            return `<span class="${settlingClass}" style="color: orange; font-weight: 500; cursor: pointer" data-index="${index}">${jielongObj.name}</span>`
+            return `<span class="${settlingClass}" data-index="${index}">${jielongObj.name}</span>`
         }).join('，')
     }
-    if (paidUserList.length) {
+    if (paidUserList) {
         document.querySelector('.daily-settle > .paid-user-list > .name-list').innerHTML =
         paidUserList.map(payRecord => `<span style="color: #1f78d1">${payRecord.exchangeUser}</span>`).join('，')
     }
-    if (paidSettleList.length) {
+    if (paidSettleList) {
         document.querySelector('.daily-settle > .paid-settle-list > .name-list').innerHTML =
         paidSettleList.map(({ exchangeUser, handSettled }) => {
             let settledClass = ''
@@ -1645,24 +1650,24 @@ function printDailySettle({
             return `<span class="${settledClass}" style="color: green">${exchangeUser}</span>`
         }).join('，')
     }
-    if (paidNotSettleList.length) {
+    if (paidNotSettleList) {
         document.querySelector('.daily-settle > .not-settle-list > .name-list').innerHTML =
         paidNotSettleList.map((payRecord, index) => {
             let settlingClass = ''
             if (notSettleIndex === index) {
                 settlingClass = 'settling'
             }
-            return `<span class="${settlingClass}" style="color: orange; font-weight: 500; cursor: pointer" data-index="${index}">${payRecord.exchangeUser}</span>`
+            return `<span class="${settlingClass}" data-index="${index}">${payRecord.exchangeUser}</span>`
         }).join('，')
     }
 }
 
-// undo todo history 加入 vuex store
 let notPaidIndex = -1
 let notSettleIndex = -1
-function undoSettle() {
+// undo todo history 加入 vuex store?
+// function undoSettle() {
 
-}
+// }
 function notPaidOnSelect(index) {
     const { jielongPaidList, jielongNotPaidList, paidSettleList, paidNotSettleList } = window.settleResult
     if (notSettleIndex > -1) {
@@ -1859,6 +1864,10 @@ function readPaidFile(inputPaidFile) {
         }
         reader.readAsText(inputPaidFile)
     })
+}
+
+function ofType(variable, Type) {
+    return Object.prototype.toString.call(variable) === `[object ${Type}]`
 }
 
 function sortMixWords(words) {
