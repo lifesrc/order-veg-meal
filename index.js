@@ -1612,11 +1612,11 @@ function printDailySettle({
     <div class="name-list"></div>
 </div>`
     }
-    if (jielongUserList) {
+    if (ofType(jielongUserList, 'Array')) {
         document.querySelector('.daily-settle > .jielong-user-list > .name-list').innerHTML =
         jielongUserList.map(jielongObj => `<span style="color: #1f78d1">${jielongObj.name}</span>`).join('，')
     }
-    if (jielongPaidList) {
+    if (ofType(jielongPaidList, 'Array')) {
         document.querySelector('.daily-settle > .jielong-paid-list > .name-list').innerHTML =
         jielongPaidList.map(({ name, handSettled }) => {
             let settledClass = ''
@@ -1626,7 +1626,7 @@ function printDailySettle({
             return `<span class="${settledClass}" style="color: green">${name}</span>`
         }).join('，')
     }
-    if (jielongNotPaidList) {
+    if (ofType(jielongNotPaidList, 'Array')) {
         document.querySelector('.daily-settle > .not-paid-list > .name-list').innerHTML =
         jielongNotPaidList.map((jielongObj, index) => {
             let settlingClass = ''
@@ -1636,11 +1636,11 @@ function printDailySettle({
             return `<span class="${settlingClass}" data-index="${index}">${jielongObj.name}</span>`
         }).join('，')
     }
-    if (paidUserList) {
+    if (ofType(paidUserList, 'Array')) {
         document.querySelector('.daily-settle > .paid-user-list > .name-list').innerHTML =
         paidUserList.map(payRecord => `<span style="color: #1f78d1">${payRecord.exchangeUser}</span>`).join('，')
     }
-    if (paidSettleList) {
+    if (ofType(paidSettleList, 'Array')) {
         document.querySelector('.daily-settle > .paid-settle-list > .name-list').innerHTML =
         paidSettleList.map(({ exchangeUser, handSettled }) => {
             let settledClass = ''
@@ -1650,7 +1650,7 @@ function printDailySettle({
             return `<span class="${settledClass}" style="color: green">${exchangeUser}</span>`
         }).join('，')
     }
-    if (paidNotSettleList) {
+    if (ofType(paidNotSettleList, 'Array')) {
         document.querySelector('.daily-settle > .not-settle-list > .name-list').innerHTML =
         paidNotSettleList.map((payRecord, index) => {
             let settlingClass = ''
@@ -1740,14 +1740,15 @@ function settleAccounts(jielongList, paidFileData) {
                 jielongObj.isSettled = true
                 jielongObj.payName = payRecord.exchangeUser
                 payRecord.isSettled = true
+                payRecord.i = i // 保存接龙顺序索引，用于排序
                 break
             }
         }
     }
 
-    const jielongUserList = []
+    let jielongUserList = []
     const jielongPaidList = []
-    const jielongNotPaidList = []
+    let jielongNotPaidList = []
     jielongList.forEach(jielongObj => {
         const { isSettled } = jielongObj
         jielongUserList.push(jielongObj)
@@ -1758,9 +1759,9 @@ function settleAccounts(jielongList, paidFileData) {
         }
     })
 
-    const paidUserList = []
-    const paidSettleList = []
-    const paidNotSettleList = []
+    let paidUserList = []
+    let paidSettleList = []
+    let paidNotSettleList = []
     payRecords.filter(payRecord => {
         const { isSettled } = payRecord
         paidUserList.push(payRecord)
@@ -1771,7 +1772,26 @@ function settleAccounts(jielongList, paidFileData) {
         }
     })
 
-    return window.settleResult = { jielongUserList, jielongPaidList, jielongNotPaidList, paidUserList, paidSettleList, paidNotSettleList }
+    // 按照接龙顺序索引排序
+    paidSettleList = paidSettleList.sort((a, b) => {
+        if (a.i < b.i) {
+            return -1
+        }
+        if (a.i > b.i) {
+            return 1
+        }
+        return 0
+    })
+    
+    jielongUserList = sortByWords(jielongUserList, 'name')
+    paidUserList = sortByWords(paidUserList, 'exchangeUser')
+    jielongNotPaidList = sortByWords(jielongNotPaidList, 'name')
+    paidNotSettleList = sortByWords(paidNotSettleList, 'exchangeUser')
+
+    return window.settleResult = { 
+        jielongUserList, jielongPaidList, jielongNotPaidList, 
+        paidUserList, paidSettleList, paidNotSettleList,
+    }
 }
 
 const HEAD_TITLES = ['交易时间', '交易类型', '交易对方', '商品', '收/支', '金额(元)', '支付方式', '当前状态', '交易单号', '商户单号', '备注']
@@ -1870,6 +1890,12 @@ function ofType(variable, Type) {
     return Object.prototype.toString.call(variable) === `[object ${Type}]`
 }
 
+/**
+ * 中英文混排序，混合字符串排序
+ * 注：中文拼音首字母和英文字母混排序
+ * @param {*} words 
+ * @returns 
+ */
 function sortMixWords(words) {
     if (!window.cnchar) { // if cnchar library not available
         return words.sort()
@@ -1891,6 +1917,44 @@ function sortMixWords(words) {
         }
         return 0
     }).map(({ word }) => word)
+}
+
+/**
+ * 中英文混排序，对象关键字排序
+ * 注：中文拼音首字母和英文字母混排序
+ * @param {*} list 
+ * @param {*} key 
+ * @returns 
+ */
+function sortByWords(list, key) {
+    if (!window.cnchar) { // if cnchar library not available
+        return list.sort((a, b) => {
+            if (a[key] < b[key]) {
+                return -1
+            }
+            if (a[key] > b[key]) {
+                return 1
+            }
+            return 0
+        })
+    }
+    return list.map(item => {
+        const word = item[key]
+        if (/[\u4e00-\u9fa5]/.test(word)) {
+            item.pinyin = word.spell('first')
+        } else {
+            item.pinyin = word
+        }
+        return item
+    }).sort((a, b) => {
+        if (a.pinyin < b.pinyin) {
+            return -1
+        }
+        if (a.pinyin > b.pinyin) {
+            return 1
+        }
+        return 0
+    })
 }
 
 // const words = ['@苹🍎😄果', '@苹😄😄果', '苹🍎🍎果', '苹果', '@枇杷', '@ 枇杷', '香蕉', '梨子', '菠萝', '葡萄']

@@ -105,7 +105,7 @@
 
 .jielong-output > .daily-settle > .not-paid-list > .name-list > span:hover,
 .jielong-output > .daily-settle > .not-settle-list > .name-list > span:hover {
-    color: #5cb6ff;
+    /* color: #5cb6ff; */
     cursor: pointer;
 }
 
