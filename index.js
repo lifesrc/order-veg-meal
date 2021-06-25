@@ -1461,6 +1461,8 @@ function printDeliveryGroup(deliveryGroup) {
     for (const area in deliveryGroup) {
         const { gate, put } = findAREAByName(area)
         result += `✨${gate}：${deliveryGroup[area].join(' ')}<br>`
+        // result += `✨${gate}：${deliveryGroup[area].sort().join(' ')}<br>`
+        // result += `✨${gate}：${sortMixWords(deliveryGroup[area]).join(' ')}<br>`
         // 送餐路线仅展示有订餐的区
         if (deliveryGroup[area].length) {
             pathList.push(gate)
@@ -1857,6 +1859,32 @@ function readPaidFile(inputPaidFile) {
         reader.readAsText(inputPaidFile)
     })
 }
+
+function sortMixWords(words) {
+    if (!window.cnchar) { // if cnchar library not available
+        return words.sort()
+    }
+    return words.map(word => {
+        let pinyin
+        if (/[\u4e00-\u9fa5]/.test(word)) {
+            pinyin = word.spell('first')
+        } else {
+            pinyin = word
+        }
+        return { word, pinyin }
+    }).sort((a, b) => {
+        if (a.pinyin < b.pinyin) {
+            return -1
+        }
+        if (a.pinyin > b.pinyin) {
+            return 1
+        }
+        return 0
+    }).map(({ word }) => word)
+}
+
+// const words = ['@苹🍎😄果', '@苹😄😄果', '苹🍎🍎果', '苹果', '@枇杷', '@ 枇杷', '香蕉', '梨子', '菠萝', '葡萄']
+// console.log(sortMixWords(words))
 
 // 获取6.2接龙mock数据，写在下方，上方更好开发代码
 // async function getJielongExample() {
