@@ -1577,17 +1577,18 @@ function printDailySettle({
     document.querySelector('.jielong-statistics').innerHTML = ''
     document.querySelector('.jielong-delivery').innerHTML = ''
     if (!document.querySelector('.daily-settle').innerHTML) {
+        // <button onclick="undoSettle">撤销</button>
         document.querySelector('.daily-settle').innerHTML =
 `<strong>## 每日结算</strong><br><br>
 <div class="not-paid-list">
-    <span><i class="el-icon-check"></i>接龙未付：</span>
+    <span><i class="el-icon-question"></i>接龙未付：</span>
     <div class="name-list not-paid"></div>
 </div>
 <div class="not-settle-list">
-    <span><i class="el-icon-check"></i>支付未核：</span>
+    <span><i class="el-icon-question"></i>支付未核：</span>
     <div class="name-list not-settle"></div>
 </div>
-<br><button onclick="undoSettle">撤销</button>
+<br>
 <div class="jielong-paid-list">
     <span><i class="el-icon-check"></i>接龙已付：</span>
     <div class="name-list paid"></div>
@@ -1598,11 +1599,11 @@ function printDailySettle({
 </div>
 <br>
 <div class="jielong-user-list">
-    <span><i class="el-icon-check"></i>接龙名单：</span>
+    <span><i class="el-icon-s-order"></i>接龙名单：</span>
     <div class="name-list"></div>
 </div>
 <div class="paid-user-list">
-    <span><i class="el-icon-check"></i>支付名单：</span>
+    <span><i class="el-icon-s-order"></i>支付名单：</span>
     <div class="name-list"></div>
 </div>`
     }

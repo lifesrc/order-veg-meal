@@ -1,3 +1,44 @@
+/* https://cdn.jsdelivr.net/npm/element-ui@2.15.2/README.md */
+@font-face {
+    src: url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.woff) format("woff"),
+    url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.ttf) format("truetype");
+    font-family: element-icons;
+    font-weight: 400;
+    font-display: "auto";
+    font-style: normal;
+}
+
+[class*="el-icon-"],[class^=el-icon-] {
+    display: inline-block;
+    font-family: element-icons;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    color: #606266;
+    line-height: 1;
+    vertical-align: baseline;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+[class*="el-icon-"]:hover,[class^=el-icon-]:hover {
+    color: #5cb6ff;
+}
+
+.el-icon-check:before {
+    content: "\e6da";
+}
+.el-icon-close:before {
+    content: "\e6db";
+}
+.el-icon-question:before {
+    content: "\e7a4";
+}
+.el-icon-s-order:before {
+    content: "\e7be";
+}
+
 .container {
     display: flex;
     font-family: Avenir, Helvetica, Arial, sans-serif;
