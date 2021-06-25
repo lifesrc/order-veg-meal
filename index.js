@@ -1555,36 +1555,18 @@ document.querySelector('#settle-button').onclick = async function () {
 document.querySelector('.daily-settle').addEventListener('click', event => {
     const el = event.target
     if (el.parentNode.parentNode.className.includes('not-paid-list')) {
-        console.log('Click! not-paid span')
         const index = el.getAttribute('data-index')
-        notPaidOnSelect(Number(index))
+        notPaidOnSelect(Number(index), el)
     } else if (el.parentNode.parentNode.className.includes('not-settle-list')) {
-        console.log('Click! not-settle span')
         const index = el.getAttribute('data-index')
-        notSettleOnSelect(Number(index))
+        notSettleOnSelect(Number(index), el)
     }
 
     event.preventDefault()
     event.stopPropagation()
 })
 
-function printDailySettle({
-    jielongUserList,
-    jielongPaidList,
-    jielongNotPaidList,
-    paidUserList,
-    paidSettleList,
-    paidNotSettleList,
-    notPaidIndex = -1,
-    notSettleIndex = -1,
-}) {
-    document.querySelector('.jielong-amount').innerHTML = ''
-    document.querySelector('.jielong-statistics').innerHTML = ''
-    document.querySelector('.jielong-delivery').innerHTML = ''
-    if (!document.querySelector('.daily-settle').innerHTML) {
-        // <button onclick="undoSettle">撤销</button>
-        document.querySelector('.daily-settle').innerHTML =
-`<strong>## 每日结算</strong><br><br>
+const SETTLE_TEMPLATE = `<strong>## 每日结算</strong><br><br>
 <div class="not-paid-list">
     <span><i class="el-icon-question"></i>接龙未付：</span>
     <div class="name-list"></div>
@@ -1611,6 +1593,22 @@ function printDailySettle({
     <span><i class="el-icon-s-order"></i>支付名单：</span>
     <div class="name-list"></div>
 </div>`
+function printDailySettle({
+    jielongUserList,
+    jielongPaidList,
+    jielongNotPaidList,
+    paidUserList,
+    paidSettleList,
+    paidNotSettleList,
+    notPaidIndex = -1,
+    notSettleIndex = -1,
+}) {
+    document.querySelector('.jielong-amount').innerHTML = ''
+    document.querySelector('.jielong-statistics').innerHTML = ''
+    document.querySelector('.jielong-delivery').innerHTML = ''
+    if (!document.querySelector('.daily-settle').innerHTML) {
+        // <button onclick="undoSettle">撤销</button>
+        document.querySelector('.daily-settle').innerHTML = SETTLE_TEMPLATE
     }
     if (ofType(jielongUserList, 'Array')) {
         document.querySelector('.daily-settle > .jielong-user-list > .name-list').innerHTML =
@@ -1665,12 +1663,18 @@ function printDailySettle({
 let notPaidIndex = -1
 let notSettleIndex = -1
 // undo todo history 加入 vuex store?
-// function undoSettle() {
-
-// }
-function notPaidOnSelect(index) {
+// function undoSettle() {}
+function notPaidOnSelect(index, el) {
     const { jielongPaidList, jielongNotPaidList, paidSettleList, paidNotSettleList } = window.settleResult
     if (notSettleIndex > -1) {
+        // const classList = el.className.split(' ')
+        // if (classList.indexOf('settling') === -1) {
+        //     el.className += ' settling'
+        // }
+        printDailySettle({
+            jielongNotPaidList,
+            notPaidIndex: index,
+        })
         jielongNotPaidList[index].handSettled = true
         paidNotSettleList[notSettleIndex].handSettled = true
         jielongPaidList.push(jielongNotPaidList[index])
@@ -1679,11 +1683,14 @@ function notPaidOnSelect(index) {
         paidNotSettleList.splice(notSettleIndex, 1)
         notPaidIndex = -1
         notSettleIndex = -1
-        printDailySettle({
-            jielongPaidList, jielongNotPaidList,
-            paidSettleList, paidNotSettleList,
-            notPaidIndex, notSettleIndex,
-        })
+        const d = setTimeout(() => {
+            printDailySettle({
+                jielongPaidList, jielongNotPaidList,
+                paidSettleList, paidNotSettleList,
+                notPaidIndex, notSettleIndex,
+            })
+            clearTimeout(d)
+        }, 700)
     } else if (notPaidIndex === index) {
         notPaidIndex = -1
         printDailySettle({
@@ -1698,9 +1705,17 @@ function notPaidOnSelect(index) {
         })
     }
 }
-function notSettleOnSelect(index) {
+function notSettleOnSelect(index, el) {
     const { jielongPaidList, jielongNotPaidList, paidSettleList, paidNotSettleList } = window.settleResult
     if (notPaidIndex > -1) {
+        // const classList = el.className.split(' ')
+        // if (classList.indexOf('settling') === -1) {
+        //     el.className += ' settling'
+        // }
+        printDailySettle({
+            paidNotSettleList,
+            notSettleIndex: index,
+        })
         paidNotSettleList[index].handSettled = true
         jielongNotPaidList[notPaidIndex].handSettled = true
         paidSettleList.push(paidNotSettleList[index])
@@ -1709,11 +1724,14 @@ function notSettleOnSelect(index) {
         jielongNotPaidList.splice(notPaidIndex, 1)
         notSettleIndex = -1
         notPaidIndex = -1
-        printDailySettle({
-            jielongPaidList, jielongNotPaidList, 
-            paidSettleList, paidNotSettleList,
-            notPaidIndex, notSettleIndex,
-        })
+        const d = setTimeout(() => {
+            printDailySettle({
+                jielongPaidList, jielongNotPaidList, 
+                paidSettleList, paidNotSettleList,
+                notPaidIndex, notSettleIndex,
+            })
+            clearTimeout(d)
+        }, 700)
     } else if (notSettleIndex === index) {
         notSettleIndex = -1
         printDailySettle({
