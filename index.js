@@ -1896,6 +1896,7 @@ function readPaidFile(inputPaidFile) {
             resolve(paidFileData, event)
         }
         reader.onerror = function(event) {
+            alert('请重新选择账单文件!')
             console.error('Failed to read file! The event:\n\n', reader.error, event)
             reader.abort() // (...does this do anything useful in an onerror handler?)
             reject(reader.error, event)
