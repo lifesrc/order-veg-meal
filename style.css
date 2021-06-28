@@ -42,6 +42,7 @@
 .container {
     display: flex;
     font-family: Avenir, Helvetica, Arial, sans-serif;
+    overflow-x: auto;
 }
 
 /* .jielong {
@@ -69,6 +70,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-flow: wrap;
 }
 
 .jielong-input > .actions > button {
@@ -107,7 +109,18 @@
     font-size: 14px;;
 }
 
-.jielong-input > .actions > button + button {
+/* .jielong-input > .actions > button + button {
+    margin-left: 10px;
+} */
+
+.jielong-input > .actions > button {
+    margin: 5px;
+}
+
+.bill-list {
+    display: block;
+    text-align: left;
+    font-size: 14px;
     margin-left: 10px;
 }
 

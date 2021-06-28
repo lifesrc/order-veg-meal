@@ -1482,6 +1482,24 @@ function printDeliveryGroup(deliveryGroup) {
 }
 
 /**
+ * 显示账单列表区域
+ */
+function showBillList() {
+    document.querySelector('.jielong-area').style.display = 'none'
+    document.querySelector('.jielong-output').style.display = 'none'
+    document.querySelector('.bill-list').style.display = 'block'
+}
+
+/**
+ * 显示统计结算区域
+ */
+function showAreaOutput() {
+    document.querySelector('.jielong-area').style.display = 'block'
+    document.querySelector('.jielong-output').style.display = 'block'
+    document.querySelector('.bill-list').style.display = 'none'
+}
+
+/**
  * 单区统计
  */
 document.querySelector('#single-button').onclick = function() {
@@ -1490,6 +1508,7 @@ document.querySelector('#single-button').onclick = function() {
         alert('请输入接龙')
         return
     }
+    showAreaOutput()
     document.querySelector('.daily-settle').innerHTML = ''
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list, map } = parseJielong(jielongContent.split('\n'))
@@ -1510,6 +1529,7 @@ document.querySelector('#all-button').onclick = function() {
         alert('请输入接龙')
         return
     }
+    showAreaOutput()
     document.querySelector('.daily-settle').innerHTML = ''
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list, map } = parseJielong(jielongContent.split('\n'))
@@ -1523,6 +1543,31 @@ document.querySelector('#all-button').onclick = function() {
     printAmountGroup(countGroup)
 }
 
+document.querySelector('#bill-button').onclick = async function () {
+    const inputPaidFile = document.querySelector('input[type="file"]').files[0]
+    if (!inputPaidFile) {
+        alert('请选择微信支付账单')
+        return
+    }
+    const inputJielong = document.querySelector('.jielong-input > textarea').value
+    if (!inputJielong) {
+        alert('请输入接龙')
+        return
+    }
+    showBillList()
+    try {
+        const paidFileData = await readPaidFile(inputPaidFile)
+        parseCSVContent(paidFileData)
+    } catch (err) {
+        console.error(err)
+    }
+    const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
+    const jielongOutput = jielongContent.split('\n').filter(lineContent => {
+        return getId(lineContent)
+    }).join('\n')
+    document.querySelector('.jielong-input > textarea').value = jielongOutput
+}
+
 document.querySelector('#settle-button').onclick = async function () {
     const inputJielong = document.querySelector('.jielong-input > textarea').value
     if (!inputJielong) {
@@ -1534,6 +1579,7 @@ document.querySelector('#settle-button').onclick = async function () {
         alert('请选择微信支付账单')
         return
     }
+    showAreaOutput()
     const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
     const { list } = parseJielong(jielongContent.split('\n'))
     console.log('支付结算，parseJielong list:', list)
@@ -1636,7 +1682,7 @@ function printDailySettle({
     }
     if (ofType(paidUserList, 'Array')) {
         document.querySelector('.daily-settle > .paid-user-list > .name-list').innerHTML =
-        paidUserList.map(payRecord => `<span style="color: #1f78d1">${payRecord.exchangeUser}</span>`).join('，')
+        paidUserList.map(paidRecord => `<span style="color: #1f78d1">${paidRecord.exchangeUser}</span>`).join('，')
     }
     if (ofType(paidSettleList, 'Array')) {
         document.querySelector('.daily-settle > .paid-settle-list > .name-list').innerHTML =
@@ -1650,12 +1696,12 @@ function printDailySettle({
     }
     if (ofType(paidNotSettleList, 'Array')) {
         document.querySelector('.daily-settle > .not-settle-list > .name-list').innerHTML =
-        paidNotSettleList.map((payRecord, index) => {
+        paidNotSettleList.map((paidRecord, index) => {
             let settlingClass = ''
             if (notSettleIndex === index) {
                 settlingClass = 'settling'
             }
-            return `<span class="${settlingClass}" data-index="${index}">${payRecord.exchangeUser}</span>`
+            return `<span class="${settlingClass}" data-index="${index}">${paidRecord.exchangeUser}</span>`
         }).join('，')
     }
 }
@@ -1675,10 +1721,18 @@ function notPaidOnSelect(index, el) {
             jielongNotPaidList,
             notPaidIndex: index,
         })
-        jielongNotPaidList[index].handSettled = true
-        paidNotSettleList[notSettleIndex].handSettled = true
-        jielongPaidList.push(jielongNotPaidList[index])
-        paidSettleList.push(paidNotSettleList[notSettleIndex])
+        const jielongObj = jielongNotPaidList[index]
+        const paidRecord = paidNotSettleList[notSettleIndex]
+        const matchOutput = `接龙名：${jielongObj.name}，支付名：${paidRecord.exchangeUser}，应付金额：¥${jielongObj.amount}，已支付金额：¥${paidRecord.amount}`
+        console.log(matchOutput)
+        if (jielongObj.amount !== paidRecord.amount) {
+            alert(`${matchOutput}，金额不匹配`)
+            return
+        }
+        jielongObj.handSettled = true
+        paidRecord.handSettled = true
+        jielongPaidList.push(jielongObj)
+        paidSettleList.push(paidRecord)
         jielongNotPaidList.splice(index, 1)
         paidNotSettleList.splice(notSettleIndex, 1)
         notPaidIndex = -1
@@ -1716,6 +1770,15 @@ function notSettleOnSelect(index, el) {
             paidNotSettleList,
             notSettleIndex: index,
         })
+        const jielongObj = paidNotSettleList[index]
+        const paidRecord = jielongNotPaidList[notPaidIndex]
+        const matchOutput = `接龙名：${jielongObj.name}，支付名：${paidRecord.exchangeUser}，应付金额：¥${jielongObj.amount}，已支付金额：¥${paidRecord.amount}`
+        console.log(matchOutput)
+        if (jielongObj.amount !== paidRecord.amount) {
+            alert(`${matchOutput}，金额不匹配`)
+            return
+        }
+
         paidNotSettleList[index].handSettled = true
         jielongNotPaidList[notPaidIndex].handSettled = true
         paidSettleList.push(paidNotSettleList[index])
@@ -1748,17 +1811,16 @@ function notSettleOnSelect(index, el) {
 }
 
 function settleAccounts(jielongList, paidFileData) {
-    // parseCSVContent(paidFileData)
-    const payRecords = parseRecords(paidFileData)
+    const paidRecords = parseRecords(paidFileData)
     for (let i = 0; i < jielongList.length; i++) {
-        for (let j = 0; j < payRecords.length; j++) {
+        for (let j = 0; j < paidRecords.length; j++) {
             const jielongObj = jielongList[i]
-            const payRecord = payRecords[j]
-            if (isSame(jielongObj.name, payRecord.exchangeUser)) {
+            const paidRecord = paidRecords[j]
+            if (isSame(jielongObj.name, paidRecord.exchangeUser)) {
                 jielongObj.isSettled = true
-                jielongObj.payName = payRecord.exchangeUser
-                payRecord.isSettled = true
-                payRecord.i = i // 保存接龙顺序索引，用于排序
+                jielongObj.payName = paidRecord.exchangeUser
+                paidRecord.isSettled = true
+                paidRecord.i = i // 保存接龙顺序索引，用于排序
                 break
             }
         }
@@ -1780,13 +1842,13 @@ function settleAccounts(jielongList, paidFileData) {
     let paidUserList = []
     let paidSettleList = []
     let paidNotSettleList = []
-    payRecords.filter(payRecord => {
-        const { isSettled } = payRecord
-        paidUserList.push(payRecord)
+    paidRecords.filter(paidRecord => {
+        const { isSettled } = paidRecord
+        paidUserList.push(paidRecord)
         if (isSettled) {
-            paidSettleList.push(payRecord)
+            paidSettleList.push(paidRecord)
         } else {
-            paidNotSettleList.push(payRecord)
+            paidNotSettleList.push(paidRecord)
         }
     })
 
@@ -1814,33 +1876,86 @@ function settleAccounts(jielongList, paidFileData) {
 
 const HEAD_TITLES = ['交易时间', '交易类型', '交易对方', '商品', '收/支', '金额(元)', '支付方式', '当前状态', '交易单号', '商户单号', '备注']
 const HEAD_PROPS = ['exchangeTime', 'exchangeType', 'exchangeUser', 'merchandise', 'incomeOrExpenses', 'amountDisplay', 'payType', 'status', 'exchangeNo', 'merchantNo', 'remark']
+const PAY_TYPES = ['二维码收款','转账','微信红包']
 function parseCSVContent(paidFileData) {
-    const allRows = paidFileData.split(/\r?\n|\r/)
+    const allRows = paidFileData.split(/\r?\n|\r/).filter(line => line)
     const headIndex = allRows.findIndex(row => row.startsWith('交易时间')) // 定位到表格Title行
     const recordRows = allRows.slice(headIndex, allRows.length)
     const array = []
-    let table = '<table>'
+    let rIndex = 1
     for (let i = 0; i < recordRows.length; i++) {
-        const arr = []
         const singleRow = recordRows[i].replace(/\t|\"/g, '')
-        const rowCells = singleRow.split(',')
+        const rowCells = singleRow.split(',').slice(0, 6)
+        if (i === 0 || (PAY_TYPES.includes(rowCells[1]) && rowCells[4] === '收入')) {
+            const arr = []
+            arr[1] = rowCells[2] // 交易对方
+            arr[2] = rowCells[5] // 金额(元)
+            arr[3] = rowCells[1] // 交易类型
+            arr[4] = rowCells[3] // 商品
+            arr[5] = rowCells[0] // 交易时间
+            // arr[6] = rowCells[4] // 收/支
+            array.push(arr)
+        }
+    }
+    array.sort((a, b) => {
+        if (a[5] === '交易时间') {
+            return -1
+        }
+        if (b[5] === '交易时间') {
+            return 1
+        }
+        if (a[5] < b[5]) {
+            return -1
+        }
+        if (a[5] > b[5]) {
+            return 1
+        }
+        return 0
+    }).forEach((arr, index) => arr[0] = index === 0 ? '序' : index) //序号
+    // array.sort((a, b) => {
+    //     if (a[2] === '交易类型') {
+    //         return -1
+    //     }
+    //     if (b[2] === '交易类型') {
+    //         return 1
+    //     }
+    //     if (a[2] < b[2]) {
+    //         return -1
+    //     }
+    //     if (a[2] > b[2]) {
+    //         return 1
+    //     }
+    //     return 0
+    // })
+    console.log('csv array', array)
+
+    let table = '<table border="1">'
+    for (let i = 0; i < array.length; i++) {
         if (i === 0) {
             table += '<thead>'
             table += '<tr>'
         } else {
             table += '<tr>'
         }
-        for (let j = 0; j < rowCells.length; j++) {
+        const arr = array[i]
+        for (let j = 0; j < arr.length; j++) {
             if (i === 0) {
-                table += '<th>'
-                table += rowCells[j]
+                if (j === 1) {
+                    table += '<th style="width: 100px;">'
+                } else if (j === 4) {
+                    table += '<th style="width: 150px;">'
+                } else if (j === 5) {
+                    table += '<th style="width: 140px;">'
+                } else {
+                    table += '<th>'
+                }
+                table += arr[j]
                 table += '</th>'
             } else {
                 table += '<td>'
-                table += rowCells[j]
+                table += arr[j]
                 table += '</td>'
             }
-            arr.push(rowCells[j])
         }
         if (i === 0) {
             table += '</tr>'
@@ -1849,19 +1964,16 @@ function parseCSVContent(paidFileData) {
         } else {
             table += '</tr>'
         }
-        array.push(arr)
     }
     table += '</tbody>'
     table += '</table>'
-    document.querySelector('.container').innerHTML = table
-    console.log('csv array', array)
+    document.querySelector('.bill-list').innerHTML = table
 }
 
 function isSame(userName, payName) {
     return userName.indexOf(payName) > -1 || payName.indexOf(userName) > -1
 }
 
-const PAY_TYPES = ['二维码收款','转账','微信红包']
 function parseRecords(paidFileData) {
     const allRows = paidFileData.split(/\r?\n|\r/)
     const headIndex = allRows.findIndex(row => row.startsWith('交易时间'))
@@ -1879,12 +1991,12 @@ function parseRecords(paidFileData) {
         }
         records.push(record)
     }
-    const payRecords = records.filter(record => PAY_TYPES.includes(record.exchangeType) && record.incomeOrExpenses === '收入')
-    console.log(payRecords.map(({ exchangeUser, amount, merchandise }) => ({ exchangeUser, amount, merchandise })))
-    const payAmount = payRecords.reduce((total, record) => record.amount + total, 0)
-    // console.log('records, payRecords, payAmount', records, payRecords, payAmount)
-    console.log('payRecords, payAmount', payRecords, payAmount)
-    return payRecords
+    const paidRecords = records.filter(record => PAY_TYPES.includes(record.exchangeType) && record.incomeOrExpenses === '收入')
+    console.log(paidRecords.map(({ exchangeUser, amount, merchandise }) => ({ exchangeUser, amount, merchandise })))
+    const payAmount = paidRecords.reduce((total, record) => record.amount + total, 0)
+    // console.log('records, paidRecords, payAmount', records, paidRecords, payAmount)
+    console.log('paidRecords, payAmount', paidRecords, payAmount)
+    return paidRecords
 }
 
 function readPaidFile(inputPaidFile) {
