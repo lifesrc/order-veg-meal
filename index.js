@@ -20,6 +20,7 @@ const AREAS = [
         gate: '金荣达',
         regex: /金[荣蓉]达/,
         word: '金荣达',
+        put: true,
         takers: [],
         hiddenIfNone: true,
     },
@@ -28,13 +29,7 @@ const AREAS = [
         gate: 'E东',
         regex: /[Ee][区东\d]/,
         word: 'E',
-        takers: [],
-    },
-    {
-        name: 'G区',
-        gate: 'G东',
-        regex: /[Gg][区东\d]/,
-        word: 'G',
+        put: true,
         takers: [],
     },
     {
@@ -43,10 +38,7 @@ const AREAS = [
         regex: /[Jj][区西\d]/,
         word: 'J',
         put: true,
-        // takers: ['张斌-J区', '佳忠J区 多饭'],
-        // takers: ['佳忠J区 多饭'],
-        // takers: ['张斌-J区'],
-        // takers: ['何浩-J区-少饭'],
+        // takers: ['刘展-J区'],
         takers: [],
     },
     {
@@ -78,7 +70,8 @@ const AREAS = [
         name: 'D区',
         gate: 'D东',
         regex: /[Dd][区东\d]/,
-        word: 'D东',
+        word: 'D',
+        put: true,
         takers: [],
     },
     {
@@ -86,6 +79,7 @@ const AREAS = [
         gate: 'H西',
         regex: /[Hh][区西\d]/,
         word: 'H',
+        put: true,
         takers: [],
     },
     {
@@ -102,6 +96,13 @@ const AREAS = [
         word: 'K',
         takers: [],
         hiddenIfNone: true,
+    },
+    {
+        name: 'G区',
+        gate: 'G东',
+        regex: /[Gg][区东\d]/,
+        word: 'G',
+        takers: [],
     },
 ]
 const OTHER = {
