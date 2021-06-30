@@ -575,7 +575,7 @@ function countByConditions(jielongList) {
  */
 function countByConditions2(jielongList) {
     const countConds = []
-    jielongList.forEach(({ id, count, factor, conditions }) => {
+    jielongList.forEach(({ count, factor, conditions }) => {
         if (factor === 0 || conditions.length === 0) {
             return
         }
@@ -1034,7 +1034,7 @@ function getChangeVegConds(COND_REGEXP, rjielong, jielongObj) {
     const matchWords = []
     let fromIndex = 0
     let result
-    while ((result = searchRegex.exec(rjielong))) {
+    while (result = searchRegex.exec(rjielong)) {
         const matched = result[0]
         if (!matched) {
             continue
@@ -1081,7 +1081,7 @@ function getPlainConds(COND_REGEXP, rjielong, jielongObj) {
     const matchWords = []
     let fromIndex = 0
     let result
-    while ((result = searchRegex.exec(rjielong))) {
+    while (result = searchRegex.exec(rjielong)) {
         const matched = result[0]
         // 检查接龙目标词后一位置是否有换字，有则放弃此次匹配
         if (!matched || /[换換]/.test(rjielong[result.index + matched.length])) {
@@ -1219,6 +1219,18 @@ function sortByComplex(jielongList) {
     return [...complexList, ...noComplexList]
 }
 
+function sortById(jielongList) {
+    return jielongList.sort((a, b) => {
+        if (Number(a.id) < Number(b.id)) {
+            return -1
+        }
+        if (Number(a.id) > Number(b.id)) {
+            return 1
+        }
+        return 0
+    })
+}
+
 /**
  * 打印接龙分区数据
  * @param {*} areaGroup 
@@ -1229,7 +1241,8 @@ function printAreaGroup(areaGroup, isSettling) {
         const areaList = areaGroup[area]
         let jielongDisplay
         if (areaList.length) {
-            jielongDisplay = sortByComplex(sortByPaid(areaList)).map(jielongObj => {
+            // jielongDisplay = sortByComplex(sortByPaid(areaList)).map(jielongObj => {
+            jielongDisplay = areaList.map(jielongObj => {
                 const { jielong, count, isPaid, amount, isSettled, conditions, factor, parent } = jielongObj
                 if (factor === 0) {
                     if (CANCEL_CURRENT.test(jielong)) {
@@ -1466,9 +1479,9 @@ function printDeliveryGroup(deliveryGroup) {
     const putList = []
     for (const area in deliveryGroup) {
         const { gate, put } = findAREAByName(area)
-        // result += `✨${gate}：${deliveryGroup[area].join(' ')}<br>`
+        result += `✨${gate}：${deliveryGroup[area].join(' ')}<br>`
         // result += `✨${gate}：${deliveryGroup[area].sort().join(' ')}<br>`
-        result += `✨${gate}：${sortMixWords(deliveryGroup[area]).join(' ')}<br>`
+        // result += `✨${gate}：${sortByMixWords(deliveryGroup[area]).join(' ')}<br>`
         // 送餐路线仅展示有订餐的区
         if (deliveryGroup[area].length) {
             pathList.push(gate)
@@ -2026,7 +2039,7 @@ function ofType(variable, Type) {
  * @param {*} words 
  * @returns 
  */
-function sortMixWords(words) {
+function sortByMixWords(words) {
     if (!window.cnchar) { // if cnchar library not available
         return words.sort()
     }
@@ -2088,7 +2101,7 @@ function sortByWords(list, key) {
 }
 
 // const words = ['@苹🍎😄果', '@苹😄😄果', '苹🍎🍎果', '苹果', '@枇杷', '@ 枇杷', '香蕉', '梨子', '菠萝', '葡萄']
-// console.log(sortMixWords(words))
+// console.log(sortByMixWords(words))
 
 // 获取6.2接龙mock数据，写在下方，上方更好开发代码
 // async function getJielongExample() {
