@@ -1,5 +1,6 @@
 /* https://cdn.jsdelivr.net/npm/element-ui@2.15.2/README.md */
 @font-face {
+    /* src: url(./fonts/element-icons.woff) format("woff"), url(./fonts/element-icons.ttf) format("truetype"); */
     src: url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.woff) format("woff"),
     url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.ttf) format("truetype");
     font-family: element-icons;
@@ -8,7 +9,7 @@
     font-style: normal;
 }
 
-[class*="el-icon-"],[class^=el-icon-] {
+[class*="el-icon-"], [class^=el-icon-] {
     display: inline-block;
     font-family: element-icons;
     font-style: normal;
@@ -22,7 +23,7 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* [class*="el-icon-"]:hover,[class^=el-icon-]:hover {
+/* [class*="el-icon-"]:hover, [class^=el-icon-]:hover {
     color: #5cb6ff;
 } */
 
@@ -106,7 +107,7 @@
     background-color: transparent;
     border: 1px solid #69a5f2;
     border-radius: 2px;
-    font-size: 14px;;
+    font-size: 14px;
 }
 
 /* .jielong-input > .actions > button + button {
@@ -138,9 +139,6 @@
     cursor: pointer;
 }
 
-/* .jielong-output > .daily-settle .namelist > span:hover {
-    color: #5cb6ff;
-} */
 .jielong-output > .daily-settle > .not-paid-list > .name-list > span,
 .jielong-output > .daily-settle > .not-settle-list > .name-list > span {
     font-weight: 500;

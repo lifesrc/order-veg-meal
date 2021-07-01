@@ -1191,6 +1191,18 @@ function hasComplex(conditions) {
     return conditions.some(condition => condition.isComplex)
 }
 
+function sortById(jielongList) {
+    return jielongList.sort((a, b) => {
+        if (Number(a.id) < Number(b.id)) {
+            return -1
+        }
+        if (Number(a.id) > Number(b.id)) {
+            return 1
+        }
+        return 0
+    })
+}
+
 function sortByPaid(jielongList) {
     const paid = []
     const noPaid = []
@@ -1218,18 +1230,6 @@ function sortByComplex(jielongList) {
     })
 
     return [...complexList, ...noComplexList]
-}
-
-function sortById(jielongList) {
-    return jielongList.sort((a, b) => {
-        if (Number(a.id) < Number(b.id)) {
-            return -1
-        }
-        if (Number(a.id) > Number(b.id)) {
-            return 1
-        }
-        return 0
-    })
 }
 
 /**
@@ -1528,7 +1528,7 @@ document.querySelector('#single-button').onclick = function() {
     const { list, map } = parseJielong(jielongContent.split('\n'))
     console.log('parseJielong list, map: ', list, map)
     // const countList = countByArea(list)
-    // printCountList('各区', countList)
+    // printCountList('单区', countList)
     const countList2 = countByArea2(list)
     console.log('countByArea2: countList2', countList2)
     printCountList2('单区', countList2)
@@ -1720,10 +1720,25 @@ function printDailySettle({
     }
 }
 
-let notPaidIndex = -1
-let notSettleIndex = -1
+// ====todo====
+function renderName({ index, name, adder, remover }) {
+    return `<span style="font-weight: 500; color: orange" onclick="${adder}(this, ${index}, ${name})">${name}</span>`
+}
 // undo todo history 加入 vuex store?
 // function undoSettle() {}
+// ====todo====
+
+function checkAmount(jielongObj, paidRecord) {
+    const matchOutput = `接龙名：${jielongObj.name}，应付金额：¥${jielongObj.amount}\n支付名：${paidRecord.exchangeUser}，已付金额：¥${paidRecord.amount}`
+    console.log(matchOutput)
+    if (jielongObj.amount !== paidRecord.amount) {
+        return `💰金额不匹配！\n${matchOutput}`
+    }
+    return ''
+}
+
+let notPaidIndex = -1
+let notSettleIndex = -1
 function notPaidOnSelect(index, el) {
     const { jielongPaidList, jielongNotPaidList, paidSettleList, paidNotSettleList } = window.settleResult
     if (notSettleIndex > -1) {
@@ -1737,10 +1752,17 @@ function notPaidOnSelect(index, el) {
         })
         const jielongObj = jielongNotPaidList[index]
         const paidRecord = paidNotSettleList[notSettleIndex]
-        const matchOutput = `接龙名：${jielongObj.name}，支付名：${paidRecord.exchangeUser}，应付金额：¥${jielongObj.amount}，已支付金额：¥${paidRecord.amount}`
-        console.log(matchOutput)
-        if (jielongObj.amount !== paidRecord.amount) {
-            alert(`${matchOutput}，金额不匹配`)
+        let checkedMsg
+        if (checkedMsg = checkAmount(jielongObj, paidRecord)) {
+            const d = setTimeout(() => {
+                alert(checkedMsg)
+                notPaidIndex = -1
+                printDailySettle({
+                    jielongNotPaidList,
+                    notPaidIndex,
+                })
+                clearTimeout(d)
+            }, 700)
             return
         }
         jielongObj.handSettled = true
@@ -1773,6 +1795,7 @@ function notPaidOnSelect(index, el) {
         })
     }
 }
+
 function notSettleOnSelect(index, el) {
     const { jielongPaidList, jielongNotPaidList, paidSettleList, paidNotSettleList } = window.settleResult
     if (notPaidIndex > -1) {
@@ -1784,15 +1807,21 @@ function notSettleOnSelect(index, el) {
             paidNotSettleList,
             notSettleIndex: index,
         })
-        const jielongObj = paidNotSettleList[index]
-        const paidRecord = jielongNotPaidList[notPaidIndex]
-        const matchOutput = `接龙名：${jielongObj.name}，支付名：${paidRecord.exchangeUser}，应付金额：¥${jielongObj.amount}，已支付金额：¥${paidRecord.amount}`
-        console.log(matchOutput)
-        if (jielongObj.amount !== paidRecord.amount) {
-            alert(`${matchOutput}，金额不匹配`)
+        const jielongObj = jielongNotPaidList[notPaidIndex]
+        const paidRecord = paidNotSettleList[index]
+        let checkedMsg
+        if (checkedMsg = checkAmount(jielongObj, paidRecord)) {
+            const d = setTimeout(() => {
+                alert(checkedMsg)
+                notSettleIndex = -1
+                printDailySettle({
+                    paidNotSettleList,
+                    notSettleIndex,
+                })
+                clearTimeout(d)
+            }, 700)
             return
         }
-
         paidNotSettleList[index].handSettled = true
         jielongNotPaidList[notPaidIndex].handSettled = true
         paidSettleList.push(paidNotSettleList[index])
@@ -1803,7 +1832,7 @@ function notSettleOnSelect(index, el) {
         notPaidIndex = -1
         const d = setTimeout(() => {
             printDailySettle({
-                jielongPaidList, jielongNotPaidList, 
+                jielongPaidList, jielongNotPaidList,
                 paidSettleList, paidNotSettleList,
                 notPaidIndex, notSettleIndex,
             })
@@ -1882,8 +1911,8 @@ function settleAccounts(jielongList, paidFileData) {
     jielongNotPaidList = sortByWords(jielongNotPaidList, 'name')
     paidNotSettleList = sortByWords(paidNotSettleList, 'exchangeUser')
 
-    return window.settleResult = { 
-        jielongUserList, jielongPaidList, jielongNotPaidList, 
+    return window.settleResult = {
+        jielongUserList, jielongPaidList, jielongNotPaidList,
         paidUserList, paidSettleList, paidNotSettleList,
     }
 }
@@ -1954,11 +1983,11 @@ function parseCSVContent(paidFileData) {
         for (let j = 0; j < arr.length; j++) {
             if (i === 0) {
                 if (j === 1) {
-                    table += '<th style="width: 100px;">'
+                    table += '<th style="width: 100px">'
                 } else if (j === 4) {
-                    table += '<th style="width: 150px;">'
+                    table += '<th style="width: 150px">'
                 } else if (j === 5) {
-                    table += '<th style="width: 140px;">'
+                    table += '<th style="width: 140px">'
                 } else {
                     table += '<th>'
                 }
