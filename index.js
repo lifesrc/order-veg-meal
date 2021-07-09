@@ -2077,7 +2077,7 @@ function parseCSVContent(paidFileData) {
 			arr[4] = rowCells[1] // 交易类型
 			arr[5] = rowCells[3] // 商品
 			arr[6] = rowCells[0] // 交易时间
-			arr[7] = rowCells[4] // 收/支
+			// arr[7] = rowCells[4] // 收/支
 			array.push(arr)
 		}
 	}
@@ -2118,7 +2118,7 @@ function parseCSVContent(paidFileData) {
 
 function renderBillTable(array) {
 	// let table = '<table border="1">'
-	let table = '<table border="1" style="width: 640px">'
+	let table = '<table border="1" style="width: 680px">'
 	for (let i = 0; i < array.length; i++) {
 		const arr = array[i]
 		if (i === 0) {
@@ -2131,11 +2131,11 @@ function renderBillTable(array) {
 		for (let j = 0; j < arr.length; j++) {
 			if (i === 0) {
 				if (j === 2) {
-					table += '<th style="width: 100px">'
+					table += '<th style="width: 115px">'
 				} else if (j === 5) {
-					table += '<th style="width: 150px">'
+					table += '<th style="width: 170px">'
 				} else if (j === 6) {
-					table += '<th style="width: 140px">'
+					table += '<th style="width: 155px">'
 				} else {
 					table += '<th>'
 				}
