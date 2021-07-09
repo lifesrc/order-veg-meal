@@ -1,0 +1,84 @@
+{
+	"eslint.options": {
+		"configFile": ".eslintrc.js"
+	},
+	"window.title": "${activeEditorMedium}${separator}${rootName}",
+  "editor.codeActionsOnSave": { // 自动修复
+    "source.fixAll.eslint": true
+  },
+  "editor.formatOnSave": true,
+  "editor.fontSize": 13,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": true,
+  "editor.accessibilitySupport": "on",
+  "editor.rulers": [120],
+  "editor.insertSpaces": false,
+  "[yaml]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "editor.autoIndent": "advanced"
+  }, // 在对象或数组最后一个元素后面是否加逗号（在ES5中加尾逗号）
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[less]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "octref.vetur"
+  },
+  // 添加 vue 支持
+  "eslint.validate": [
+    // "html",
+    "javascript",
+    "vue"
+  ],
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmDelete": false,
+  "window.zoomLevel": 0,
+  "workbench.editor.enablePreview": false,
+  "emmet.includeLanguages": {"javascript": "javascriptreact"},
+  "search.exclude": {
+      "**/.happypack": true
+  },
+  "git.enableSmartCommit": true,
+
+  /*  prettier的配置 */
+  "prettier.printWidth": 120, // 超过最大值换行
+  "prettier.tabWidth": 2, // 缩进字节数
+  "prettier.useTabs": true, // 缩进不使用tab，使用空格
+  "prettier.semi": false, // 句尾添加分号
+  "prettier.singleQuote": true, // 使用单引号代替双引号
+  "prettier.proseWrap": "preserve", // 默认值。因为使用了一些折行敏感型的渲染器（如GitHub comment）而按照markdown文本样式进行折行
+  "prettier.arrowParens": "avoid", //  (x) => {} 箭头函数参数只有一个时是否要有小括号。avoid：省略括号
+  "prettier.bracketSpacing": true, // 在对象，数组括号与文字之间加空格 "{ foo: bar }"
+  "prettier.endOfLine": "auto", // 结尾是 \n \r \n\r auto
+  // "prettier.eslintIntegration": true, //不让prettier使用eslint的代码格式进行校验
+  "prettier.htmlWhitespaceSensitivity": "ignore",
+  "prettier.ignorePath": ".prettierignore", // 不使用prettier格式化的文件填写在项目的.prettierignore文件中
+  "prettier.jsxBracketSameLine": false, // 在jsx中把'>' 是否单独放一行
+  "prettier.jsxSingleQuote": false, // 在jsx中使用单引号代替双引号
+  "prettier.requireConfig": false, // Require a 'prettierconfig' to format prettier
+  "prettier.trailingComma": "all", // 在对象或数组最后一个元素后面是否加逗号（在ES5中加尾逗号）
+
+  "diffEditor.ignoreTrimWhitespace": false,
+  "settingsSync.ignoredSettings": [],
+  "typescript.validate.enable": false,
+  "javascript.validate.enable": false,
+  "typescript.check.npmIsInstalled": false,
+
+  "vetur.format.defaultFormatterOptions": {
+    "prettyhtml": {
+      "printWidth": 120, // No line exceeds 120 characters
+      "singleQuote": false, // Prefer double quotes over single quotes
+    }
+  },
+  "files.insertFinalNewline": true,
+  "vetur.format.options.useTabs": true,
+}

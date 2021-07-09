@@ -1,168 +1,169 @@
 /* https://cdn.jsdelivr.net/npm/element-ui@2.15.2/README.md */
 @font-face {
-    /* src: url(./fonts/element-icons.woff) format("woff"), url(./fonts/element-icons.ttf) format("truetype"); */
-    src: url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.woff) format("woff"),
-    url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.ttf) format("truetype");
-    font-family: element-icons;
-    font-weight: 400;
-    font-display: "auto";
-    font-style: normal;
+	/* src: url(./fonts/element-icons.woff) format("woff"), url(./fonts/element-icons.ttf) format("truetype"); */
+	src: url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.woff) format('woff'),
+		url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.ttf) format('truetype');
+	font-family: element-icons;
+	font-weight: 400;
+	font-display: 'auto';
+	font-style: normal;
 }
 
-[class*="el-icon-"], [class^=el-icon-] {
-    display: inline-block;
-    font-family: element-icons;
-    font-style: normal;
-    font-weight: 400;
-    font-variant: normal;
-    text-transform: none;
-    color: #606266;
-    line-height: 1;
-    vertical-align: baseline;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+[class*='el-icon-'],
+[class^='el-icon-'] {
+	display: inline-block;
+	font-family: element-icons;
+	font-style: normal;
+	font-weight: 400;
+	font-variant: normal;
+	text-transform: none;
+	color: #606266;
+	line-height: 1;
+	vertical-align: baseline;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
-/* [class*="el-icon-"]:hover, [class^=el-icon-]:hover {
-    color: #5cb6ff;
+/* [class*='el-icon-']:hover,
+[class^='el-icon-']:hover {
+  color: #5cb6ff;
 } */
 
 .el-icon-check:before {
-    content: "\e6da";
+	content: '\e6da';
 }
 .el-icon-close:before {
-    content: "\e6db";
+	content: '\e6db';
 }
 .el-icon-question:before {
-    content: "\e7a4";
+	content: '\e7a4';
 }
 .el-icon-s-order:before {
-    content: "\e7be";
+	content: '\e7be';
 }
 
 .container {
-    display: flex;
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    overflow-x: auto;
+	display: flex;
+	font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
 /* .jielong {
-    width: 300px;
-    height: 900px;
-    margin: 0 10px;
-    font-size: 14px;
+  width: 300px;
+  height: 900px;
+  margin: 0 10px;
+  font-size: 14px;
 } */
 
 .jielong-input {
-    width: 320px;
-    margin-right: 10px;
+	width: 320px;
+	margin-right: 10px;
 }
 
 .jielong-input > textarea {
-    width: 320px;
-    height: 900px;
+	width: 320px;
+	height: 900px;
 }
 
-.jielong-input > input[type="file"] {
-    margin: 5px 0 10px 0;
+.jielong-input > input[type='file'] {
+	margin: 5px 0 10px 0;
 }
 
 .jielong-input > .actions {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-flow: wrap;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-flow: wrap;
 }
 
 .jielong-input > .actions > button {
-    width: 100px;
-    height: 40px;
-    padding: 0;
-    background-color: transparent;
-    background-image: linear-gradient(0deg, rgba(65, 172, 218, 0.8), rgba(45, 103, 173, 0.8));
-    border: 1px solid #69a5f2;
-    border-radius: 2px;
-    color: #fff;
-    cursor: pointer;
+	width: 100px;
+	height: 40px;
+	padding: 0;
+	background-color: transparent;
+	background-image: linear-gradient(0deg, rgba(65, 172, 218, 0.8), rgba(45, 103, 173, 0.8));
+	border: 1px solid #69a5f2;
+	border-radius: 2px;
+	color: #fff;
+	cursor: pointer;
 }
 
 .jielong-input > .actions > button:hover {
-    color: #5bcfe7;
-    border-color: #5bcfe7;
-    background-image: linear-gradient(0deg, rgba(52, 137, 173, 0.7) 3%, rgba(33, 76, 128, 0.7) 100%);
+	color: #5bcfe7;
+	border-color: #5bcfe7;
+	background-image: linear-gradient(0deg, rgba(52, 137, 173, 0.7) 3%, rgba(33, 76, 128, 0.7) 100%);
 }
 
 .jielong-input > .actions > button:focus {
-    color: #5ad1eb;
-    border-color: #5ad1eb;
-    background-image: linear-gradient(0deg, rgba(52, 137, 173, 0.7) 3%, rgba(33, 76, 128, 0.7) 100%);
+	color: #5ad1eb;
+	border-color: #5ad1eb;
+	background-image: linear-gradient(0deg, rgba(52, 137, 173, 0.7) 3%, rgba(33, 76, 128, 0.7) 100%);
 }
 
 .jielong-input > .actions > button > span {
-    display: inline-block;
-    width: 92px;
-    height: 32px;
-    line-height: 32px;
-    color: #ffffff;
-    background-color: transparent;
-    border: 1px solid #69a5f2;
-    border-radius: 2px;
-    font-size: 14px;
+	display: inline-block;
+	width: 92px;
+	height: 32px;
+	line-height: 32px;
+	color: #ffffff;
+	background-color: transparent;
+	border: 1px solid #69a5f2;
+	border-radius: 2px;
+	font-size: 14px;
 }
 
 /* .jielong-input > .actions > button + button {
-    margin-left: 10px;
+  margin-left: 10px;
 } */
 
 .jielong-input > .actions > button {
-    margin: 5px;
+	margin: 5px;
 }
 
 .bill-list {
-    display: block;
-    text-align: left;
-    font-size: 14px;
-    margin-left: 10px;
+	display: block;
+	text-align: left;
+	font-size: 14px;
+	margin-left: 10px;
 }
 
 .jielong-area,
 .jielong-output {
-    width: 300px;
-    margin: 0 10px;
-    font-size: 14px;
+	width: 300px;
+	margin: 0 10px;
+	font-size: 14px;
 }
 
 .jielong-output > .daily-settle .name-list > span {
-    padding: 0 2px;
-    border: 1px dashed transparent;
-    line-height: 24px;
-    cursor: pointer;
+	padding: 0 2px;
+	border: 1px dashed transparent;
+	line-height: 24px;
+	cursor: pointer;
 }
 
 .jielong-output > .daily-settle > .not-paid-list > .name-list > span,
 .jielong-output > .daily-settle > .not-settle-list > .name-list > span {
-    font-weight: 500;
-    color: orange;
-    cursor: pointer;
+	font-weight: 500;
+	color: orange;
+	cursor: pointer;
 }
 
 /* .jielong-output > .daily-settle > .not-paid-list > .name-list > span:hover,
 .jielong-output > .daily-settle > .not-settle-list > .name-list > span:hover {
-    color: #5cb6ff;
+  color: #5cb6ff;
 } */
 
 .jielong-output > .daily-settle > .not-paid-list > .name-list > span.settling,
 .jielong-output > .daily-settle > .not-settle-list > .name-list > span.settling {
-    border-color: orange;
+	border-color: orange;
 }
 
 .jielong-output > .daily-settle > .jielong-paid-list > .name-list > span.handle-settled,
 .jielong-output > .daily-settle > .paid-settle-list > .name-list > span.handle-settled {
-    background-color: #cdd3cd;
-    border-style: solid;
-    border-color: #cdd3cd;
+	background-color: #cdd3cd;
+	border-style: solid;
+	border-color: #cdd3cd;
 }
 
 /* .jielong-delivery {
-    margin-top: 25px;
+  margin-top: 25px;
 } */

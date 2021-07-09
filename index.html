@@ -1,37 +1,37 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <title>CodePen - Veg Meal Sequence</title>
-        <link rel="apple-touch-icon" type="image/png" href="images/codepen.webp" />
-        <link rel="shortcut icon" type="image/x-icon" href="images/codepen.ico" />
-        <link rel="mask-icon" href="images/logo.svg" color="#111" />
-        <link rel="stylesheet" href="style.css" />
-    </head>
-    <body translate="no">
-        <div class="container">
-            <!-- <textarea placeholder="接龙分组" class="jielong"></textarea> -->
-            <div class="jielong-input">
-                <textarea placeholder="请输入接龙"></textarea>
-                <input type="file" id="paid-file" name="paidFile" class="input-file" style="display: none;" />
-                <div class="actions">
-                    <button id="single-button"><span>单区统计</span></button>
-                    <button id="all-button"><span>各区统计</span></button>
-                    <button id="bill-button" style="display: none;"><span>核对账单</span></button>
-                    <button id="settle-button" style="display: none;"><span>点击结算</span></button>
-                </div>
-            </div>
-            <div class="jielong-area"></div>
-            <div class="jielong-output">
-                <div class="daily-settle" style="display: none;"></div>
-                <div class="jielong-amount"></div>
-                <div class="jielong-statistics"></div>
-                <div class="jielong-delivery"></div>
-            </div>
-            <div class="bill-list" style="display: none;"></div>
-        </div>
-        <script src="https://cdn.jsdelivr.net/npm/cnchar/cnchar.min.js"></script>
-        <script src="chn2number.js"></script>
-        <script src="index.js"></script>
-    </body>
+	<head>
+		<meta charset="UTF-8" />
+		<title>CodePen - Veg Meal Sequence</title>
+		<link rel="apple-touch-icon" type="image/png" href="images/codepen.webp" />
+		<link rel="shortcut icon" type="image/x-icon" href="images/codepen.ico" />
+		<link rel="mask-icon" href="images/logo.svg" color="#111" />
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body translate="no">
+		<div class="container">
+			<!-- <textarea placeholder="接龙分组" class="jielong"></textarea> -->
+			<div class="jielong-input">
+				<textarea placeholder="请输入接龙"></textarea>
+				<input type="file" id="paid-file" name="paidFile" class="input-file" />
+				<div class="actions">
+					<button id="single-button"><span>单区统计</span></button>
+					<button id="all-button"><span>各区统计</span></button>
+					<button id="bill-button"><span>核对账单</span></button>
+					<button id="settle-button"><span>每日结算</span></button>
+				</div>
+			</div>
+			<div class="jielong-area"></div>
+			<div class="jielong-output">
+				<div class="daily-settle"></div>
+				<div class="jielong-amount"></div>
+				<div class="jielong-statistics"></div>
+				<div class="jielong-delivery"></div>
+			</div>
+			<div class="bill-list"></div>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/cnchar/cnchar.min.js"></script>
+		<script src="chn2number.js"></script>
+		<script src="index.js"></script>
+	</body>
 </html>
