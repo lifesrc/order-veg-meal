@@ -42,24 +42,31 @@
 	content: '\e7be';
 }
 
+html,
+body {
+	font-size: 100%;
+	margin: 5px 0;
+}
+
 .container {
 	display: flex;
 	font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
 /* .jielong {
-  width: 300px;
+  width: 310px;
   height: 900px;
   margin: 0 10px;
 } */
 
 .jielong-input {
 	width: 320px;
+	margin-left: 5px;
 	margin-right: 10px;
 }
 
 .jielong-input > textarea {
-	width: 320px;
+	width: 310px;
 	height: 900px;
 	font-size: 16px;
 }
@@ -119,16 +126,12 @@
 	margin: 5px;
 }
 
-.bill-list {
-	display: block;
-	margin-left: 10px;
-	text-align: left;
-}
-
 .jielong-area,
 .jielong-output {
-	width: 300px;
-	margin: 0 10px;
+	flex: 1;
+	width: 310px;
+	margin-left: 5px;
+	margin-right: 5px;
 }
 
 .jielong-output > .daily-settle .name-list > span {
@@ -155,11 +158,16 @@
 	border-color: orange;
 }
 
-.jielong-output > .daily-settle > .jielong-paid-list > .name-list > span.handle-settled,
+.jielong-output > .daily-settle > .paid-check-list > .name-list > span.handle-settled,
 .jielong-output > .daily-settle > .paid-settle-list > .name-list > span.handle-settled {
 	background-color: #cdd3cd;
 	border-style: solid;
 	border-color: #cdd3cd;
+}
+
+.paid-check-list {
+	margin-left: 5px;
+	text-align: left;
 }
 
 /* .jielong-delivery {

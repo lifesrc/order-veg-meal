@@ -19,7 +19,7 @@
     "editor.autoIndent": "advanced"
   }, // 在对象或数组最后一个元素后面是否加逗号（在ES5中加尾逗号）
   "[html]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "vscode.html-language-features"
   },
   "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -68,7 +68,6 @@
   "prettier.trailingComma": "all", // 在对象或数组最后一个元素后面是否加逗号（在ES5中加尾逗号）
 
   "diffEditor.ignoreTrimWhitespace": false,
-  "settingsSync.ignoredSettings": [],
   "typescript.validate.enable": false,
   "javascript.validate.enable": false,
   "typescript.check.npmIsInstalled": false,
