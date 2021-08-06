@@ -964,10 +964,10 @@ function getArea(jielong, findKeys) {
 /* eslint-disable no-misleading-character-class */
 // const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口)|金荣达[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
 const USER_AREA_ECMIX =
-	/^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*(🐟李红|[\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
+	/^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*(🐟李红|[\u4e00-\u9fa5]+[ \-—_~～+]+[A-Za-z]*|[\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
 // 匹配格式如：小妍 H区，Fanni🌟 H3
 const USER_NAME_AREA =
-	/^\d+\.\s+((懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina..💭|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d](门岗)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u // ([，, -—_]?([多少]饭|不要米饭))?
+	/^\d+\.\s+((Linli.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina..💭|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d](门岗)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
 const USER_CENAME_AREA =
 	/^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u
@@ -979,7 +979,7 @@ const USER_ECMIX_AREA =
 	/^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u
 // 匹配其它格式：无园区，列举特别格式的姓名
 const USER_ESP_OTHER_NAME =
-	/^\d+\.\s+((懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|喵喵张😝|🍋 易湘娇|尐霏|宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🍀 杨茜|_Carina..💭|🌱Carina|_Carina🌱|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)[ \-—_~～+]*[A-Ma-m]?)/u
+	/^\d+\.\s+((Linli.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|喵喵张😝|🍋 易湘娇|尐霏|宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🍀 杨茜|_Carina..💭|🌱Carina|_Carina🌱|🌻Xue、|🍭オゥシュゥ🍭|春春——E区 少饭|sᴛᴀʀʀʏ.|D区门岗-赵金亮)[ \-—_~～+]*[A-Ma-m]?)/u
 // const USER_ECMIX_OTHER_NAME = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)[ \-—_~～+]*[A-Ma-m]?)/u
 const USER_ECMIX_OTHER_NAME =
 	/^\d+\.\s+(([\u4e00-\u9fa5]+[ \-—_~～+]*[A-Za-z]*|[A-Za-z]+[ \-—_~～+]+[A-Za-z]+|[A-Za-z]+[ \-—_~～+]*[\u4e00-\u9fa5]*|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*[A-Ma-m]?)/u
@@ -1575,10 +1575,10 @@ function printDeliveryGroup(deliveryGroup) {
 /**
  * 显示账单列表区域
  */
-function showBillList() {
+function showPaidList() {
 	document.querySelector('.jielong-area').style.display = 'none'
 	document.querySelector('.jielong-output').style.display = 'none'
-	document.querySelector('.bill-list').style.display = 'block'
+	document.querySelector('.benefic-list').style.display = 'block'
 }
 
 /**
@@ -1587,7 +1587,7 @@ function showBillList() {
 function showAreaOutput() {
 	document.querySelector('.jielong-area').style.display = 'block'
 	document.querySelector('.jielong-output').style.display = 'block'
-	document.querySelector('.bill-list').style.display = 'none'
+	document.querySelector('.benefic-list').style.display = 'none'
 }
 
 /**
@@ -1634,7 +1634,7 @@ document.querySelector('#all-button').onclick = function handleAll() {
 	printAmountGroup(countGroup)
 }
 
-document.querySelector('#bill-button').onclick = async function onSettleBill() {
+document.querySelector('#check-button').onclick = async function handleCheck() {
 	const inputPaidFile = document.querySelector('input[type="file"]').files[0]
 	if (!inputPaidFile) {
 		alert('请选择微信支付账单')
@@ -1645,22 +1645,39 @@ document.querySelector('#bill-button').onclick = async function onSettleBill() {
 		alert('请输入接龙')
 		return
 	}
-	showBillList()
+	showPaidList()
 	try {
+		const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
+		const jielongOutput = jielongContent
+			.split('\n')
+			.filter(lineContent => {
+				return getId(lineContent)
+			})
+			.join('\n')
+		document.querySelector('.jielong-input > textarea').value = jielongOutput
+
+		// 计算收款总金额和table
 		const paidFileData = await readPaidFile(inputPaidFile)
-		const billList = (window.billList = parseCSVContent(paidFileData))
-		renderBillTable(billList)
+		const paidCheckList = (window.paidCheckList = parseCSVContent(paidFileData))
+		console.log('paidCheckList', paidCheckList)
+		const table = renderPaidTable(paidCheckList)
+		const paidAmount = countPaidAmount(paidCheckList)
+		const checkedList = paidCheckList.filter((arr, index) => index > 0 && arr[0])
+		const checkedAmount = countCheckedAmount(checkedList)
+		// 计算接龙总金额
+		const { list, map } = parseJielong(jielongContent.split('\n'))
+		console.log('parseJielong list, map: ', list, map)
+		const countList = countByArea(list)
+		const jielongAmount = (window.jielongAmount = countJielongAmount(countList))
+		console.log('jielongAmount', jielongAmount)
+		document.querySelector('.check-amount').innerHTML = `
+		<span style="color: orange; font-size: 13px">💰应收款：¥${jielongAmount}元；</span>
+		<span style="color: green; font-size: 14px">已收款：¥${paidAmount}元；</span>
+		<span style="color: #69a5f2; font-size: 15px">已核对：¥${checkedAmount}元。</span>`
+		document.querySelector('.paid-table').innerHTML = table
 	} catch (err) {
 		console.error(err)
 	}
-	const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
-	const jielongOutput = jielongContent
-		.split('\n')
-		.filter(lineContent => {
-			return getId(lineContent)
-		})
-		.join('\n')
-	document.querySelector('.jielong-input > textarea').value = jielongOutput
 }
 
 document.querySelector('#settle-button').onclick = async function onSettleAccounts() {
@@ -2077,7 +2094,7 @@ function parseCSVContent(paidFileData) {
 			arr[4] = rowCells[1] // 交易类型
 			arr[5] = rowCells[3] // 商品
 			arr[6] = rowCells[0] // 交易时间
-			// arr[7] = rowCells[4] // 收/支
+			arr[7] = rowCells[4] // 收/支
 			array.push(arr)
 		}
 	}
@@ -2096,7 +2113,7 @@ function parseCSVContent(paidFileData) {
 		}
 		return 0
 	})
-	array.forEach((arr, index) => (arr[1] = index === 0 ? '序' : index))
+	array.forEach((arr, index) => (arr[1] = index === 0 ? '序' : index)) // 序号
 	// array.sort((a, b) => {
 	//     if (a[4] === '交易类型') {
 	//         return -1
@@ -2116,9 +2133,9 @@ function parseCSVContent(paidFileData) {
 	return array
 }
 
-function renderBillTable(array) {
+function renderPaidTable(array) {
 	// let table = '<table border="1">'
-	let table = '<table border="1" style="width: 680px">'
+	let table = '<table border="1" style="width: 720px">'
 	for (let i = 0; i < array.length; i++) {
 		const arr = array[i]
 		if (i === 0) {
@@ -2131,7 +2148,11 @@ function renderBillTable(array) {
 		for (let j = 0; j < arr.length; j++) {
 			if (i === 0) {
 				if (j === 2) {
-					table += '<th style="width: 115px">'
+					table += '<th style="width: 112px">'
+				} else if (j === 3) {
+					table += '<th style="width: 66px">'
+				} else if (j === 4) {
+					table += '<th style="width: 86px">'
 				} else if (j === 5) {
 					table += '<th style="width: 170px">'
 				} else if (j === 6) {
@@ -2165,32 +2186,73 @@ function renderBillTable(array) {
 	}
 	table += '</tbody>'
 	table += '</table>'
-	document.querySelector('.bill-list').innerHTML = table
+	return table
 }
 
-document.querySelector('.bill-list').addEventListener('click', event => {
+function countPaidAmount(array) {
+	let paidAmount = 0
+	for (let i = 1; i < array.length; i++) {
+		const arr = array[i]
+		paidAmount += Number(arr[3].slice(1))
+	}
+	return paidAmount
+}
+
+function countCheckedAmount(checkedList) {
+	return checkedList.reduce((total, arr) => total + Number(arr[3].slice(1)), 0)
+}
+
+function countJielongAmount(countObjs) {
+	const amountList = []
+	countObjs.forEach(countObj => {
+		const { type, count } = countObj
+		const price = PRICE_TYPE_MAP[type]
+		// 数量和价格均大于0时打印
+		if (count > 0 && price > 0) {
+			amountList.push(price * count)
+		}
+	})
+	return amountList.reduce((a, b) => a + b, 0)
+}
+
+document.querySelector('.benefic-list').addEventListener('click', event => {
 	const el = event.target
 	if (el.type === 'checkbox') {
 		if (el.parentNode.tagName === 'TH') {
-			window.billList.forEach(arr => (arr[0] = el.checked))
-			renderBillTable(window.billList)
+			window.paidCheckList.forEach(arr => (arr[0] = el.checked))
+			const paidAmount = countPaidAmount(window.paidCheckList)
+			const checkedList = window.paidCheckList.filter((arr, index) => index > 0 && arr[0])
+			const checkedAmount = countCheckedAmount(checkedList)
+			const table = renderPaidTable(window.paidCheckList)
+			document.querySelector('.check-amount').innerHTML = `
+			<span style="color: orange; font-size: 13px">💰应收款：¥${window.jielongAmount}元；</span>
+			<span style="color: green; font-size: 14px">已收款：¥${paidAmount}元；</span>
+			<span style="color: #69a5f2; font-size: 15px">已核对：¥${checkedAmount}元。</span>`
+			document.querySelector('.paid-table').innerHTML = table
 		} else if (el.parentNode.tagName === 'TD') {
 			// 找到目标行数组，存checkbox状态
-			const arr = window.billList.find(arr => arr[1] === Number(el.value))
+			const arr = window.paidCheckList.find(arr => arr[1] === Number(el.value))
 			arr[0] = el.checked
-			const checkList = window.billList.filter(arr => arr[0])
+			const paidAmount = countPaidAmount(window.paidCheckList)
+			const checkedList = window.paidCheckList.filter((arr, index) => index > 0 && arr[0])
+			const checkedAmount = countCheckedAmount(checkedList)
+			document.querySelector('.check-amount').innerHTML = `
+			<span style="color: orange; font-size: 13px">💰应收款：¥${window.jielongAmount}元；</span>
+			<span style="color: green; font-size: 14px">已收款：¥${paidAmount}元；</span>
+			<span style="color: #69a5f2; font-size: 15px">已核对：¥${checkedAmount}元。</span>`
+
 			const allCheckbox = document.querySelector('input[value="序"]')
-			if (el.checked && checkList.length === 1) {
+			if (el.checked && checkedList.length === 1) {
 				allCheckbox.indeterminate = true
 			}
-			if (!el.checked && checkList.length === window.billList.length - 1) {
+			if (!el.checked && checkedList.length === window.paidCheckList.length - 2) {
 				allCheckbox.indeterminate = true
 				allCheckbox.checked = false
 			}
-			if (!el.checked && checkList.length === 0) {
+			if (!el.checked && checkedList.length === 0) {
 				allCheckbox.indeterminate = false
 			}
-			if (el.checked && checkList.length === window.billList.length) {
+			if (el.checked && checkedList.length === window.paidCheckList.length - 1) {
 				allCheckbox.indeterminate = false
 				allCheckbox.checked = true
 			}

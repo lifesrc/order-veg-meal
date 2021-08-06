@@ -1,6 +1,6 @@
 /* https://cdn.jsdelivr.net/npm/element-ui@2.15.2/README.md */
 @font-face {
-	/* src: url(./fonts/element-icons.woff) format("woff"), url(./fonts/element-icons.ttf) format("truetype"); */
+	/* src: url(./fonts/element-icons.woff) format('woff'), url(./fonts/element-icons.ttf) format('truetype'); */
 	src: url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.woff) format('woff'),
 		url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.ttf) format('truetype');
 	font-family: element-icons;
@@ -42,26 +42,35 @@
 	content: '\e7be';
 }
 
+html,
+body {
+	font-size: 100%;
+	margin: 5px 0;
+}
+
 .container {
 	display: flex;
 	font-family: Avenir, Helvetica, Arial, sans-serif;
+	color: #2c3e50;
 }
 
 /* .jielong {
-  width: 300px;
+  width: 310px;
   height: 900px;
   margin: 0 10px;
 } */
 
 .jielong-input {
 	width: 320px;
+	margin-left: 5px;
 	margin-right: 10px;
 }
 
 .jielong-input > textarea {
-	width: 320px;
+	width: 310px;
 	height: 900px;
 	font-size: 16px;
+	color: #2c3e50;
 }
 
 .jielong-input > input[type='file'] {
@@ -70,9 +79,9 @@
 
 .jielong-input > .actions {
 	display: flex;
-	flex-flow: wrap;
 	justify-content: center;
 	align-items: center;
+	flex-flow: wrap;
 }
 
 .jielong-input > .actions > button {
@@ -119,16 +128,12 @@
 	margin: 5px;
 }
 
-.bill-list {
-	display: block;
-	margin-left: 10px;
-	text-align: left;
-}
-
 .jielong-area,
 .jielong-output {
-	width: 300px;
-	margin: 0 10px;
+	flex: 1;
+	width: 310px;
+	margin-left: 5px;
+	margin-right: 5px;
 }
 
 .jielong-output > .daily-settle .name-list > span {
