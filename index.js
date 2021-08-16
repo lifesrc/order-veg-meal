@@ -8,6 +8,23 @@ const AREAS = [
 		hiddenIfNone: true,
 	},
 	{
+		name: 'H区',
+		gate: 'H西',
+		regex: /[Hh][区西\d]/,
+		word: 'H',
+		put: true,
+		takers: [],
+	},
+	{
+		name: 'J区',
+		gate: 'J西',
+		regex: /[Jj][区西\d]/,
+		word: 'J',
+		put: true,
+		// takers: ['刘展-J区'],
+		takers: [],
+	},
+	{
 		name: '云谷',
 		gate: '云谷',
 		regex: /云谷(\d?[A-Da-d])?座?/,
@@ -33,15 +50,6 @@ const AREAS = [
 		takers: [],
 	},
 	{
-		name: 'J区',
-		gate: 'J西',
-		regex: /[Jj][区西\d]/,
-		word: 'J',
-		put: true,
-		// takers: ['刘展-J区'],
-		takers: [],
-	},
-	{
 		name: 'F区',
 		gate: 'F南',
 		regex: /[Ff][区南\d]/,
@@ -57,6 +65,13 @@ const AREAS = [
 		put: true,
 		takers: [],
 		hiddenIfNone: true,
+	},
+	{
+		name: 'G区',
+		gate: 'G东',
+		regex: /[Gg][区东\d]/,
+		word: 'G',
+		takers: [],
 	},
 	{
 		name: 'B区',
@@ -75,14 +90,6 @@ const AREAS = [
 		takers: [],
 	},
 	{
-		name: 'H区',
-		gate: 'H西',
-		regex: /[Hh][区西\d]/,
-		word: 'H',
-		put: true,
-		takers: [],
-	},
-	{
 		name: '微谷',
 		gate: '微谷北',
 		regex: /微谷(\d?[A-Da-d])?座?/,
@@ -96,13 +103,6 @@ const AREAS = [
 		word: 'K',
 		takers: [],
 		hiddenIfNone: true,
-	},
-	{
-		name: 'G区',
-		gate: 'G东',
-		regex: /[Gg][区东\d]/,
-		word: 'G',
-		takers: [],
 	},
 ]
 const OTHER = {
