@@ -1,8 +1,8 @@
-/* https://cdn.jsdelivr.net/npm/element-ui@2.15.2/README.md */
+/* https://cdn.jsdelivr.net/npm/element-ui/README.md */
 @font-face {
 	/* src: url(./fonts/element-icons.woff) format('woff'), url(./fonts/element-icons.ttf) format('truetype'); */
-	src: url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.woff) format('woff'),
-		url(https://unpkg.com/element-ui@2.15.2/lib/theme-chalk/fonts/element-icons.ttf) format('truetype');
+	src: url(https://cdn.jsdelivr.net/npm/element-ui/lib/theme-chalk/fonts/element-icons.woff) format('woff'),
+		url(https://cdn.jsdelivr.net/npm/element-ui/lib/theme-chalk/fonts/element-icons.ttf) format('truetype');
 	font-family: element-icons;
 	font-weight: 400;
 	font-display: 'auto';
@@ -42,15 +42,35 @@
 	content: '\e7be';
 }
 
+[v-cloak] {
+	display: none;
+}
+
 html,
 body {
 	font-size: 100%;
 	margin: 5px 0;
 }
 
+/* 滚动条 */
+::-webkit-scrollbar {
+	width: 5px;
+	height: 5px;
+	background-color: transparent;
+	border-radius: 3px;
+}
+::-webkit-scrollbar-thumb {
+	background-color: rgba(151, 169, 204, 0.5);
+	border-radius: 3px;
+}
+::-webkit-scrollbar-corner {
+	background-color: transparent;
+}
+
 .container {
 	display: flex;
-	font-family: Avenir, Helvetica, Arial, sans-serif;
+	font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial,
+		sans-serif;
 	color: #2c3e50;
 }
 
@@ -60,7 +80,8 @@ body {
   margin: 0 10px;
 } */
 
-.jielong-input {
+.jielong-input,
+.jielong-checkgroup {
 	width: 320px;
 	margin-left: 5px;
 	margin-right: 10px;
@@ -69,6 +90,8 @@ body {
 .jielong-input > textarea {
 	width: 310px;
 	height: 900px;
+	font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial,
+		sans-serif;
 	font-size: 16px;
 	color: #2c3e50;
 }
@@ -170,3 +193,27 @@ body {
 /* .jielong-delivery {
   margin-top: 25px;
 } */
+
+/* Vue + Element版本 */
+.el-table .el-table__body-wrapper .el-table__body tr > td.table__column--blue {
+	font-weight: bold;
+	color: #69a5f2;
+}
+
+.el-table .el-table__body-wrapper .el-table__body tr > td.table__column--green {
+	font-weight: bold;
+	color: green;
+}
+
+.checked-list .el-checkbox.is-bordered {
+	width: 320px;
+	height: auto;
+}
+
+.checked-list .el-checkbox .el-checkbox__label {
+	white-space: normal;
+}
+
+.checked-list > div {
+	margin: 5px 0;
+}
