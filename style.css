@@ -195,14 +195,19 @@ body {
 } */
 
 /* Vue + Element版本 */
-.el-table .el-table__body-wrapper .el-table__body tr > td.table__column--blue {
+.el-table .el-table__body-wrapper .el-table__body tr > td.table__column--black {
 	font-weight: bold;
-	color: #69a5f2;
+	color: #606266;
 }
 
 .el-table .el-table__body-wrapper .el-table__body tr > td.table__column--green {
 	font-weight: bold;
 	color: green;
+}
+
+.el-table .el-table__body-wrapper .el-table__body tr > td.table__column--blue {
+	font-weight: bold;
+	color: #69a5f2;
 }
 
 .checked-list .el-checkbox.is-bordered {

@@ -1081,7 +1081,7 @@ function getCount(jielong) {
 }
 
 const chnNumInVegName = {
-	三: ['鲜', '杯杏鲍菇'],
+	三: ['鲜', '色', '色蔬', '杯杏鲍菇'],
 	四: ['季豆', '棱豆'],
 	九: ['芽', '层塔'],
 }
@@ -1670,7 +1670,7 @@ document.querySelector('#check-button').onclick = async function handleCheck() {
 		const countList = countByArea(list)
 		const jielongAmount = (window.jielongAmount = countJielongAmount(countList))
 		console.log('jielongAmount', jielongAmount)
-		document.querySelector('.check-amount').innerHTML = `
+		document.querySelector('.amount-total').innerHTML = `
 		<span style="color: orange; font-size: 13px">💰应收款：¥${jielongAmount}元；</span>
 		<span style="color: green; font-size: 14px">已收款：¥${paidAmount}元；</span>
 		<span style="color: #69a5f2; font-size: 15px">已核对：¥${checkedAmount}元。</span>`
@@ -2055,7 +2055,7 @@ const HEAD_TITLES = [
 	'交易时间',
 	'交易类型',
 	'交易对方',
-	'商品',
+	'收款备注(接龙名称)',
 	'收/支',
 	'金额(元)',
 	'支付方式',
@@ -2092,7 +2092,7 @@ function parseCSVContent(paidFileData) {
 			arr[2] = rowCells[2] // 交易对方
 			arr[3] = rowCells[5] // 金额(元)
 			arr[4] = rowCells[1] // 交易类型
-			arr[5] = rowCells[3] // 商品
+			arr[5] = rowCells[3] // 收款备注(接龙名称)
 			arr[6] = rowCells[0] // 交易时间
 			arr[7] = rowCells[4] // 收/支
 			array.push(arr)
@@ -2224,7 +2224,7 @@ document.querySelector('.benefic-list').addEventListener('click', event => {
 			const checkedList = window.paidCheckList.filter((arr, index) => index > 0 && arr[0])
 			const checkedAmount = countCheckedAmount(checkedList)
 			const table = renderPaidTable(window.paidCheckList)
-			document.querySelector('.check-amount').innerHTML = `
+			document.querySelector('.amount-total').innerHTML = `
 			<span style="color: orange; font-size: 13px">💰应收款：¥${window.jielongAmount}元；</span>
 			<span style="color: green; font-size: 14px">已收款：¥${paidAmount}元；</span>
 			<span style="color: #69a5f2; font-size: 15px">已核对：¥${checkedAmount}元。</span>`
@@ -2236,7 +2236,7 @@ document.querySelector('.benefic-list').addEventListener('click', event => {
 			const paidAmount = countPaidAmount(window.paidCheckList)
 			const checkedList = window.paidCheckList.filter((arr, index) => index > 0 && arr[0])
 			const checkedAmount = countCheckedAmount(checkedList)
-			document.querySelector('.check-amount').innerHTML = `
+			document.querySelector('.amount-total').innerHTML = `
 			<span style="color: orange; font-size: 13px">💰应收款：¥${window.jielongAmount}元；</span>
 			<span style="color: green; font-size: 14px">已收款：¥${paidAmount}元；</span>
 			<span style="color: #69a5f2; font-size: 15px">已核对：¥${checkedAmount}元。</span>`

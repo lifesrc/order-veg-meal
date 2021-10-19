@@ -1028,7 +1028,7 @@ function getCount(jielong) {
 }
 
 const chnNumInVegName = {
-	三: ['鲜', '杯杏鲍菇'],
+	三: ['鲜', '色', '色蔬', '杯杏鲍菇'],
 	四: ['季豆', '棱豆'],
 	九: ['芽', '层塔'],
 }
@@ -1537,11 +1537,13 @@ async function handleCheck() {
 			if (amount !== undefined) {
 				label += ` (金额: ¥${amount})`
 			}
+			const jump = false
 			return {
 				label,
 				value: id,
-				jielongName: `${id}. ${name}(¥${amount})`,
-				jump: false,
+				jielongName: `${id}. ${name}`,
+				amount,
+				jump,
 			}
 		})
 		vm.options = options
@@ -1606,7 +1608,7 @@ const HEAD_TITLES = [
 	'交易时间',
 	'交易类型',
 	'交易对方',
-	'商品明细',
+	'收款备注(接龙名称)',
 	'收/支',
 	'金额(元)',
 	'支付方式',
@@ -1825,20 +1827,33 @@ function currentSelectionWatch({ difference, flag }) {
 	const checkedList = vm.checkedList
 	if (flag) {
 		const checkSelectDiff = []
+		const checkedMsgList = []
 		for (let i = 0, j = 0; i < options.length && j < difference.length; i++) {
 			const option = options[i]
 			if (option.jump) {
 				continue
 			}
 			const checkId = option.value
-			const jielongName = option.jielongName
 			const foundIndex = checkedList.indexOf(checkId)
 			if (foundIndex === -1) {
 				checkedList.push(checkId)
-				const selectId = difference[j++].id
+				const diff = difference[j++]
+				const selectId = diff.id
 				// checkedList.splice(foundIndex, 0, checkId)
-				checkSelectDiff.push({ checkId, selectId, jielongName })
+				checkSelectDiff.push({ checkId, selectId, jielongName: `${option.jielongName}(¥${option.amount})` })
+				if (option.amount !== diff.amount) {
+					const checkedMsg = `<span>💰金额不匹配！接龙名：${option.jielongName}，应收款：¥${option.amount}；支付名：${diff.exchangeUser}，已收款：¥${diff.amount}</span>`
+					checkedMsgList.push(checkedMsg)
+				}
 			}
+		}
+		if (checkedMsgList.length) {
+			this.$message({
+				type: 'warning',
+				showClose: true,
+				dangerouslyUseHTMLString: true,
+				message: checkedMsgList.join('<br />'),
+			})
 		}
 		vm.$emit('check-select', checkSelectDiff, flag)
 	} else {
@@ -1897,7 +1912,7 @@ Vue.component('paid-table', {
 				{ label: '交易对方', prop: 'exchangeUser', width: 116 },
 				{ label: '金额(元)', prop: 'amountDisplay', width: 76 },
 				{ label: '交易类型', prop: 'exchangeType', width: 94 },
-				{ label: '商品明细', prop: 'merchandise', width: 170 },
+				{ label: '收款备注(接龙名称)', prop: 'merchandise', width: 170 },
 				{ label: '交易时间', prop: 'exchangeTime', width: 155 },
 				{ label: '收/支', prop: 'incomeOrExpenses', width: 60 },
 			],
@@ -1916,10 +1931,13 @@ Vue.component('paid-table', {
 		handleHeadClick,
 		getColumnClass(index) {
 			if (index === 2) {
-				return 'table__column--blue'
+				return 'table__column--black'
 			}
 			if (index === 3) {
 				return 'table__column--green'
+			}
+			if (index === 5) {
+				return 'table__column--blue'
 			}
 			return ''
 		},
@@ -2041,6 +2059,7 @@ const vueApp = new Vue({
 					continue
 				}
 				const foundIndex = checkedList.indexOf(option.value)
+				// 未勾选option(-1)，标记为跳过
 				if (foundIndex === -1) {
 					option.jump = true
 					break
