@@ -813,12 +813,19 @@ function parseJielong(jielongArray) {
 	return { list, map }
 }
 
+const idPrefixMap = {}
 function getId(jielong) {
 	if (!jielong || !ID_REGEX.test(jielong)) {
 		return null
 	}
 	const idMatched = ID_REGEX.exec(jielong)
-	return idMatched[1]
+	const id = idMatched[1]
+	if (idPrefixMap[id] === undefined) {
+		idPrefixMap[id] = 0
+	} else {
+		idPrefixMap[id]++
+	}
+	return idPrefixMap[id] > 0 ? `${idPrefixMap[id]}-${id}` : id
 }
 
 function getArea(jielong, findKeys) {
@@ -848,7 +855,7 @@ const USER_AREA_ECMIX =
 	/^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*(🐟李红|[\u4e00-\u9fa5]+[ \-—_~～+]+[A-Za-z]*|[\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
 // 匹配格式如：小妍 H区，Fanni🌟 H3
 const USER_NAME_AREA =
-	/^\d+\.\s+((Uwangzuge🦌|🐈 一周|教练焦雅琴-华为|At.|Linli.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina..💭|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d](门岗)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u // ([，, -—_]?([多少]饭|不要米饭))?
+	/^\d+\.\s+((皮卡丘\*梅|Uwangzuge🦌|🐈 一周|教练焦雅琴-华为|At.|Linli.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina..💭|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d](门岗)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
 const USER_CENAME_AREA =
 	/^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u
@@ -1532,27 +1539,30 @@ async function handleCheck() {
 		// 计算接龙总金额
 		const { list, map } = parseJielong(jielongContent.split('\n'))
 		console.log('parseJielong list, map: ', list, map)
-		const options = list.map(({ id, name, jielong, amount }, index) => {
-			let label = jielong
-			if (amount !== undefined) {
-				label += ` (金额: ¥${amount})`
-			}
-			const jump = false
-			return {
-				label,
-				value: id,
-				jielongName: `${id}. ${name}`,
-				amount,
-				jump,
+		const options = []
+		list.forEach(({ id, name, jielong, amount, factor }, index) => {
+			if (factor > 0) {
+				let label = jielong
+				if (amount !== undefined) {
+					label += ` (金额: ¥${amount})`
+				}
+				const jump = false
+				options.push({
+					label,
+					value: id,
+					jielongName: `${id}. ${name}`,
+					amount,
+					jump,
+				})
 			}
 		})
 		vm.options = options
 		vm.showJielongInput = false
 		vm.showJielongChecked = true
 		console.log('options', options)
+		// 计算接龙应收款和支付已收款，并对应人数统计
 		const countList = countByArea(list)
 		const jielongAmount = countJielongAmount(countList)
-		// 计算收款总金额和table
 		const paidFileData = await readPaidFile(inputPaidFile)
 		vm.tableData = parsePaidRecords(paidFileData)
 		const paidAmount = countPaidAmount(vm.tableData)
@@ -1561,6 +1571,8 @@ async function handleCheck() {
 			jielongAmount,
 			paidAmount,
 			checkedAmount,
+			jielongCount: vm.options.length,
+			paidCount: vm.tableData.length,
 			checkedCount: vm.selection.length,
 		}
 	} catch (err) {
@@ -1608,7 +1620,7 @@ const HEAD_TITLES = [
 	'交易时间',
 	'交易类型',
 	'交易对方',
-	'收款备注(接龙名称)',
+	'备注留言/接龙名称',
 	'收/支',
 	'金额(元)',
 	'支付方式',
@@ -1895,6 +1907,14 @@ Vue.component('amount-total', {
 			type: Number,
 			default: 0,
 		},
+		jielongCount: {
+			type: Number,
+			default: 0,
+		},
+		paidCount: {
+			type: Number,
+			default: 0,
+		},
 		checkedCount: {
 			type: Number,
 			default: 0,
@@ -1911,8 +1931,8 @@ Vue.component('paid-table', {
 				{ label: '序', type: 'index', width: 40 },
 				{ label: '交易对方', prop: 'exchangeUser', width: 116 },
 				{ label: '金额(元)', prop: 'amountDisplay', width: 76 },
+				{ label: '备注留言/接龙名称', prop: 'merchandise', width: 170 },
 				{ label: '交易类型', prop: 'exchangeType', width: 94 },
-				{ label: '收款备注(接龙名称)', prop: 'merchandise', width: 170 },
 				{ label: '交易时间', prop: 'exchangeTime', width: 155 },
 				{ label: '收/支', prop: 'incomeOrExpenses', width: 60 },
 			],
@@ -1936,7 +1956,7 @@ Vue.component('paid-table', {
 			if (index === 3) {
 				return 'table__column--green'
 			}
-			if (index === 5) {
+			if (index === 4) {
 				return 'table__column--blue'
 			}
 			return ''

@@ -35,9 +35,9 @@
 	<script type="text/x-template" id="amount-total-template">
 		<div class="amount-total">
 			<span>💰</span>
-			<span style="color: orange; font-size: 13px">应收款：¥{{jielongAmount}}；</span>
-			<span style="color: green; font-size: 14px">已收款：¥{{paidAmount}}；</span>
-			<span style="color: #69a5f2; font-size: 15px">已核对：{{checkedCount}}位共计¥{{checkedAmount}}。</span>
+			<span style="color: orange; font-size: 13px">应收款：¥{{jielongAmount}}({{jielongCount}}位)；</span>
+			<span style="color: green; font-size: 14px">已收款：¥{{paidAmount}}({{paidCount}}位)；</span>
+			<span style="color: #69a5f2; font-size: 15px">已核对：¥{{checkedAmount}}({{checkedCount}}位)。</span>
 		</div>
 	</script>
 	<script type="text/x-template" id="jielong-checkgroup-template">
@@ -59,7 +59,9 @@
 	</script>
 	<div id="app" class="container" v-cloak>
 		<div class="jielong-input" v-if="showJielongInput">
-			<strong>## 输入接龙</strong><br /><br />
+			<div style="margin-bottom: 20px;">
+				<strong style="font-size: 16px">## 输入接龙</strong>
+			</div>
 			<textarea placeholder="请输入接龙" v-model="inputJielong"></textarea>
 			<input type="file" id="paid-file" name="paidFile" class="input-file" accept=".csv"
 				@change="e => this.files = e.target.files" />
@@ -75,16 +77,26 @@
 			<div class="jielong-delivery" v-html="jielong.deliveryHTML"></div>
 		</div>
 		<div class="jielong-checkgroup" v-if="showJielongChecked">
-			<strong>## 接龙费用</strong>
-			<el-button type="primary" size="mini" @click="jumpNext">跳过</el-button>
-			<br /><br />
+			<div style="margin-bottom: 25px; display: flex; justify-content: space-between;">
+				<strong style="font-size: 16px">## 接龙费用</strong>
+				<el-button-group>
+					<el-button size="mini" icon="el-icon-arrow-left" @click="window.location.reload()">首页
+					</el-button>
+					<el-button type="primary" size="mini" @click="jumpNext">
+						<span>跳过</span>
+						<i class="el-icon-arrow-right"></i>
+					</el-button>
+				</el-button-group>
+			</div>
 			<jielong-checkgroup ref="jielongCheckgroup" :options="options" :current-selection="currentSelection"
 				:check-select-list="checkSelectList" @checkgroup-change="handleCheckedChange" @check-select="handleCheckSelect">
 			</jielong-checkgroup>
 		</div>
 		<div class="benefic-list" v-if="showBeneficList">
-			<strong>## 收款账单</strong><br />
-			<amount-total v-bind="totalAmount"></amount-total>
+			<div style="margin-bottom: 5px;">
+				<strong style="font-size: 16px">## 收款账单</strong>
+				<amount-total v-bind="totalAmount"></amount-total>
+			</div>
 			<paid-table :table-data="tableData" @selection-change="handleSelectionChange"></paid-table>
 		</div>
 	</div>
@@ -131,13 +143,40 @@
 17. 媛媛 H1，4份（芋头丝换虎皮尖椒），2份换主食：炒米粉、南瓜
 18. M h区 少饭 芥菜换金针菇
 19. 陈湘—云谷A座
-20. 云谷B座 11份.
+20. 云谷B座 11份. 取消
 21. 你猜  E1 1份（芥菜换虎皮尖椒）
 22. 世静 E1 1份（炒腐竹换糖醋莲藕）
 23. 晓萍 E1份 尖椒换莲藕
 24. Fanni🌟 H区少饭
 25. 小芸 金荣达 腐竹换糖醋莲藕  杂粮饭换南瓜
-26. 申佳-D1`
+26. 申佳-D1
+
+尖椒炒腐竹，秋葵炒木耳，清香芋头丝，清炒芥菜，杂粮饭
+
+已定餐要取消的请于10点50前通知店里，再取消接龙哈，谢谢！
+
+主食不支持换菜，一定要换请加价5元
+
+换菜备选：香干，糖醋莲藕，椒盐土豆块🥔 ，虎皮尖椒，豆腐，凉拌豆皮，凉拌豆芽，椒盐金针菇，椒盐茄盒等（套餐里目前支持换一种）
+
+主食备选：白饭，炒饭，炒米粉，炒河粉，炒面条，蒸红薯🍠 ，蒸南瓜，（白粥收1元餐盒费，换白饭免费，换其他主食加2元，单点主食8元每盒750毫升方盒）
+
+黑凉粉3元（450毫升圆碗）
+小菜1元：开胃萝卜，自制下饭菜（放饭盒里）
+
+目前送餐路线：云谷～E东～J南～F南～B东～D东～H西～微谷北（J区F区可放餐）
+
+1. 云谷美猴王1份
+2. 张鑫-云谷 少饭
+3. 土豆豆 云谷 少饭
+4. Aa 云谷，少饭少菜
+5. 吴杏 云谷 少少饭
+6. sisy云谷 少饭
+7. 天天大王 云谷 换南瓜 沙拉
+8. 肖慧-云谷 1自备饭盒
+9. 云华 云谷 沙拉
+10. 剑客-云谷 少饭
+11. 施淼淼 云谷 青瓜换茄盒`
 	</script>
 	<script src="el-index.js"></script>
 </body>
