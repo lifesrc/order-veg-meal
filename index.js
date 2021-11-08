@@ -1997,7 +1997,7 @@ function settleAccounts(jielongList, paidFileData) {
 			const paidRecord = paidRecords[j]
 			if (isSame(jielongObj.name, paidRecord.exchangeUser)) {
 				jielongObj.isSettled = true
-				jielongObj.payName = paidRecord.exchangeUser
+				jielongObj.paidName = paidRecord.exchangeUser
 				paidRecord.isSettled = true
 				paidRecord.i = i // 保存接龙顺序索引，用于排序
 				break
@@ -2268,8 +2268,8 @@ document.querySelector('.benefic-list').addEventListener('click', event => {
 	event.stopPropagation()
 })
 
-function isSame(userName, payName) {
-	return userName.indexOf(payName) > -1 || payName.indexOf(userName) > -1
+function isSame(userName, paidName) {
+	return userName.indexOf(paidName) > -1 || paidName.indexOf(userName) > -1
 }
 
 function parseRecords(paidFileData) {

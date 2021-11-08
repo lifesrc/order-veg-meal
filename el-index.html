@@ -17,7 +17,7 @@
 		<el-table
 			ref="paidTable"
 			:data="tableData"
-			@selection-change="selection => $emit('selection-change', selection)"
+			@selection-change="handleTableSelection"
 			@header-click="handleHeadClick"
 			@row-click="handleRowClick"
 			highlight-current-row
@@ -97,7 +97,7 @@
 				<strong style="font-size: 16px">## 收款账单</strong>
 				<amount-total v-bind="totalAmount"></amount-total>
 			</div>
-			<paid-table :table-data="tableData" @selection-change="handleSelectionChange"></paid-table>
+			<paid-table ref="paidTable" :table-data="tableData" @selection-change="handleSelectionChange"></paid-table>
 		</div>
 	</div>
 
