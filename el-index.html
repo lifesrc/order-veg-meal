@@ -17,7 +17,7 @@
 		<el-table
 			ref="paidTable"
 			:data="tableData"
-			@selection-change="handleTableSelection"
+			@selection-change="selection => $emit('selection-change', selection)"
 			@header-click="handleHeadClick"
 			@row-click="handleRowClick"
 			highlight-current-row
@@ -32,12 +32,21 @@
 			></el-table-column>
 		</el-table>
 	</script>
-	<script type="text/x-template" id="amount-total-template">
-		<div class="amount-total">
-			<span>💰</span>
-			<span style="color: orange; font-size: 13px">应收款：¥{{jielongAmount}}({{jielongCount}}位)；</span>
-			<span style="color: green; font-size: 14px">已收款：¥{{paidAmount}}({{paidCount}}位)；</span>
-			<span style="color: #69a5f2; font-size: 15px">已核对：¥{{checkedAmount}}({{checkedCount}}位)。</span>
+	<script type="text/x-template" id="amount-counter-template">
+		<div class="amount-counter">
+			<div>
+				<span>💰</span>
+				<span style="color: orange; font-size: 13px">应收款：¥{{jielongAmount}}({{jielongCount}}位)；</span>
+				<span style="color: green; font-size: 14px">已收款：¥{{paidAmount}}({{paidCount}}位)；</span>
+				<span style="color: #69a5f2; font-size: 15px">已核对：¥{{checkedAmount}}({{checkedCount}}位)。</span>
+			</div>
+			<!-- inactive-color="#ff4949" -->
+			<el-switch
+				v-model="autoMatching"
+				active-color="#13ce66"
+				:active-text="autoMatchDisplay"
+			>
+			</el-switch>
 		</div>
 	</script>
 	<script type="text/x-template" id="jielong-checkgroup-template">
@@ -58,7 +67,7 @@
 		</el-checkbox-group>
 	</script>
 	<div id="app" class="container" v-cloak>
-		<div class="jielong-input" v-if="showJielongInput">
+		<div class="jielong-input" v-if="showJielongInput" v-cloak>
 			<div style="margin-bottom: 20px;">
 				<strong style="font-size: 16px">## 输入接龙</strong>
 			</div>
@@ -70,17 +79,18 @@
 				<button id="check-button" @click="handleCheck"><span>核对账单</span></button>
 			</div>
 		</div>
-		<div class="jielong-area" v-if="showJielongArea" v-html="jielong.areaHTML"></div>
-		<div class="jielong-output" v-if="showJielongOutput">
+		<div class="jielong-area" v-if="showJielongArea" v-html="jielong.areaHTML" v-cloak></div>
+		<div class="jielong-output" v-if="showJielongOutput" v-cloak>
 			<div class="jielong-amount" v-html="jielong.amountHTML"></div>
 			<div class="jielong-statistics" v-html="jielong.statisticsHTML"></div>
 			<div class="jielong-delivery" v-html="jielong.deliveryHTML"></div>
 		</div>
-		<div class="jielong-checkgroup" v-if="showJielongChecked">
+		<div class="jielong-checkgroup" v-if="showJielongChecked" v-cloak>
 			<div style="margin-bottom: 25px; display: flex; justify-content: space-between;">
 				<strong style="font-size: 16px">## 接龙费用</strong>
 				<el-button-group>
-					<el-button size="mini" icon="el-icon-arrow-left" @click="window.location.reload()">首页
+					<el-button size="mini" icon="el-icon-arrow-left" @click="window.location.reload()">
+						<span>首页</span>
 					</el-button>
 					<el-button type="primary" size="mini" @click="jumpNext">
 						<span>跳过</span>
@@ -92,12 +102,12 @@
 				:check-select-list="checkSelectList" @checkgroup-change="handleCheckedChange" @check-select="handleCheckSelect">
 			</jielong-checkgroup>
 		</div>
-		<div class="benefic-list" v-if="showBeneficList">
+		<div class="benefic-list" v-if="showBeneficList" v-cloak>
 			<div style="margin-bottom: 5px;">
 				<strong style="font-size: 16px">## 收款账单</strong>
-				<amount-total v-bind="totalAmount"></amount-total>
+				<amount-counter ref="amountCounter" v-bind="totalAmount"></amount-counter>
 			</div>
-			<paid-table ref="paidTable" :table-data="tableData" @selection-change="handleSelectionChange"></paid-table>
+			<paid-table ref="currentTable" :table-data="tableData" @selection-change="handleSelectionChange"></paid-table>
 		</div>
 	</div>
 

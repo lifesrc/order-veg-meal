@@ -222,3 +222,12 @@ body {
 .checked-list > div {
 	margin: 5px 0;
 }
+
+.amount-counter {
+	display: flex;
+	align-items: center;
+}
+
+.amount-counter .el-switch > .el-switch__label.is-active {
+	color: #13ce66;
+}

@@ -852,7 +852,7 @@ function getArea(jielong, findKeys) {
 /* eslint-disable no-misleading-character-class */
 // const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口)|金荣达[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
 const USER_AREA_ECMIX =
-	/^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*(🐟李红|[\u4e00-\u9fa5]+[ \-—_~～+]+[A-Za-z]*|[\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
+	/^\d+\.\s+(([A-Ma-m][区东西南北\d](门岗)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*(🐟李红|，幸福花开|[\u4e00-\u9fa5]+[ \-—_~～+]+[A-Za-z]*|[\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
 // 匹配格式如：小妍 H区，Fanni🌟 H3
 const USER_NAME_AREA =
 	/^\d+\.\s+((隆愿～桂香|皮卡丘\*梅|Uwangzuge🦌|🐈 一周|教练焦雅琴-华为|At.|Linli.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina..💭|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d](门岗)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u // ([，, -—_]?([多少]饭|不要米饭))?
@@ -1576,41 +1576,43 @@ async function handleCheck() {
 			paidCount: vm.tableData.length,
 			checkedCount: vm.selection.length,
 		}
-
-		vm.$nextTick(() => {
-			const selection = []
-			for (let i = 0; i < vm.options.length; i++) {
-				for (let j = 0; j < vm.tableData.length; j++) {
-					const option = vm.options[i]
-					const row = vm.tableData[j]
-					if (isSame(option.name, row.exchangeUser)) {
-						selection.push(row)
-						break
-					}
-				}
-			}
-			handleCheckGroupChange(vm, selection)
-		})
+		if (vm.$refs.amountCounter.autoMatching) {
+			vm.$nextTick(() => {
+				handleAutoMatch(vm)
+			})
+		}
 	} catch (err) {
 		console.error(err)
 	}
+}
+
+function handleAutoMatch(vm) {
+	const selection = []
+	const checked = []
+	vm.selectionChangeDisabled = true // 禁用 selection-change handler
+	for (let i = 0; i < vm.options.length; i++) {
+		for (let j = 0; j < vm.tableData.length; j++) {
+			const option = vm.options[i]
+			const row = vm.tableData[j]
+			if (isSame(option.name, row.exchangeUser)) {
+				checked.push(option)
+				selection.push(row)
+				vm.$refs.currentTable.handleRowClick(row, true)
+				break
+			}
+		}
+	}
+	vm.selectionChangeDisabled = false
+	handleCheckGroupChange(vm, selection, checked)
 }
 
 function isSame(userName, paidName) {
 	return userName.indexOf(paidName) > -1 || paidName.indexOf(userName) > -1
 }
 
-function handleCheckGroupChange(vm, selection) {
-	const [first] = selection
-	first.total = selection.length
-	selection.forEach(row => {
-		vm.$refs.paidTable.handleRowClick(row, true)
-	})
-	const difference = selection
-	const flag = true
+function handleCheckGroupChange(vm, selection, checked) {
 	vm.selection = selection
-	vm.currentSelection = { difference, flag }
-
+	vm.currentSelection = { difference: selection, flag: true, checked }
 	const paidAmount = countPaidAmount(vm.tableData)
 	const checkedAmount = countCheckedAmount(selection)
 	vm.totalAmount = {
@@ -1821,15 +1823,10 @@ function sortByWords(list, key) {
 }
 
 function handleSelectionChange(selection) {
-	const [first] = selection
-	if (first.total !== undefined) {
-		if (first.total !== selection.length) {
-			return
-		}
-		delete first.total
-	}
-	debugger
 	const vm = this
+	if (vm.selectionChangeDisabled) {
+		return
+	}
 	let difference, flag
 	if (selection.length > vm.selection.length) {
 		// eslint-disable-next-line no-undef
@@ -1842,7 +1839,6 @@ function handleSelectionChange(selection) {
 	}
 	vm.selection = selection
 	vm.currentSelection = { difference, flag }
-
 	const paidAmount = countPaidAmount(vm.tableData)
 	const checkedAmount = countCheckedAmount(selection)
 	vm.totalAmount = {
@@ -1886,21 +1882,17 @@ function handleRowClick(row, selected) {
 	}
 }
 
-function currentSelectionWatch({ difference, flag }) {
+function currentSelectionWatch({ difference, flag, checked }) {
 	const vm = this
 	const options = vm.options
 	const checkedList = vm.checkedList
 	if (flag) {
 		const checkSelectDiff = []
 		const checkedMsgList = []
-		for (let i = 0, j = 0; i < options.length && j < difference.length; i++) {
-			const option = options[i]
-			if (option.jump) {
-				continue
-			}
-			const checkId = option.value
-			const foundIndex = checkedList.indexOf(checkId)
-			if (foundIndex === -1) {
+		if (checked && checked.length) {
+			for (let i = 0, j = 0; i < checked.length && j < difference.length; i++) {
+				const option = checked[i]
+				const checkId = option.value
 				checkedList.push(checkId)
 				const diff = difference[j++]
 				const selectId = diff.id
@@ -1909,6 +1901,26 @@ function currentSelectionWatch({ difference, flag }) {
 				if (option.amount !== diff.amount) {
 					const checkedMsg = `<span>💰金额不匹配！接龙名：${option.jielongName}，应收款：¥${option.amount}；支付名：${diff.exchangeUser}，已收款：¥${diff.amount}</span>`
 					checkedMsgList.push(checkedMsg)
+				}
+			}
+		} else {
+			for (let i = 0, j = 0; i < options.length && j < difference.length; i++) {
+				const option = options[i]
+				if (option.jump) {
+					continue
+				}
+				const checkId = option.value
+				const foundIndex = checkedList.indexOf(checkId)
+				if (foundIndex === -1) {
+					checkedList.push(checkId)
+					const diff = difference[j++]
+					const selectId = diff.id
+					// checkedList.splice(foundIndex, 0, checkId)
+					checkSelectDiff.push({ checkId, selectId, jielongName: `${option.jielongName}(¥${option.amount})` })
+					if (option.amount !== diff.amount) {
+						const checkedMsg = `<span>💰金额不匹配！接龙名：${option.jielongName}，应收款：¥${option.amount}；支付名：${diff.exchangeUser}，已收款：¥${diff.amount}</span>`
+						checkedMsgList.push(checkedMsg)
+					}
 				}
 			}
 		}
@@ -1945,8 +1957,8 @@ const Vue = window.Vue
 const ElementUI = window.ELEMENT
 console.log('ElementUI', ElementUI)
 
-Vue.component('amount-total', {
-	template: '#amount-total-template',
+Vue.component('amount-counter', {
+	template: '#amount-counter-template',
 	props: {
 		jielongAmount: {
 			type: Number,
@@ -1973,6 +1985,25 @@ Vue.component('amount-total', {
 			default: 0,
 		},
 	},
+	data() {
+		const autoMatching = window.localStorage.getItem('autoMatching')
+		return {
+			autoMatching: autoMatching !== 'NO',
+		}
+	},
+	computed: {
+		autoMatchDisplay() {
+			return this.autoMatching ? '自动匹配' : '常规匹配'
+		},
+	},
+	watch: {
+		autoMatching(value) {
+			if (value) {
+				handleAutoMatch(this.$parent)
+			}
+			window.localStorage.setItem('autoMatching', value ? 'YES' : 'NO')
+		},
+	},
 })
 
 Vue.component('paid-table', {
@@ -1984,7 +2015,7 @@ Vue.component('paid-table', {
 				{ label: '序', type: 'index', width: 40 },
 				{ label: '交易对方', prop: 'exchangeUser', width: 116 },
 				{ label: '金额(元)', prop: 'amountDisplay', width: 76 },
-				{ label: '备注留言/接龙名称', prop: 'merchandise', width: 170 },
+				{ label: '备注留言|接龙名称', prop: 'merchandise', width: 170 },
 				{ label: '交易类型', prop: 'exchangeType', width: 94 },
 				{ label: '交易时间', prop: 'exchangeTime', width: 155 },
 				{ label: '收/支', prop: 'incomeOrExpenses', width: 60 },
@@ -2000,8 +2031,8 @@ Vue.component('paid-table', {
 		},
 	},
 	methods: {
-		handleRowClick,
 		handleHeadClick,
+		handleRowClick,
 		getColumnClass(index) {
 			if (index === 2) {
 				return 'table__column--black'
@@ -2013,11 +2044,6 @@ Vue.component('paid-table', {
 				return 'table__column--blue'
 			}
 			return ''
-		},
-		handleTableSelection(selection) {
-			if (selection.length === 15) {
-				this.$emit('selection-change', selection)
-			}
 		},
 	},
 })
@@ -2042,6 +2068,7 @@ Vue.component('jielong-checkgroup', {
 				return {
 					difference: [],
 					flag: false,
+					checked: [],
 				}
 			},
 		},
