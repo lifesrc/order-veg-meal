@@ -16,6 +16,13 @@ const AREAS = [
 		takers: [],
 	},
 	{
+		name: 'G区',
+		gate: 'G东',
+		regex: /[Gg][区东\d]/,
+		word: 'G',
+		takers: [],
+	},
+	{
 		name: 'K区',
 		gate: 'K区',
 		regex: /[Kk][区东\d]/,
@@ -63,13 +70,6 @@ const AREAS = [
 		regex: /[Ff][区南\d]/,
 		word: 'F',
 		put: true,
-		takers: [],
-	},
-	{
-		name: 'G区',
-		gate: 'G东',
-		regex: /[Gg][区东\d]/,
-		word: 'G',
 		takers: [],
 	},
 	{
