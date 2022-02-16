@@ -245,8 +245,8 @@ const CHANGE_STAPLE =
 const CHANGE_VEG =
 	/(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?|都是)?([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換改]|都要)|不(需?要|用)|[换換免无飞走去])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
-const MEAL_PRICE = 16 // 素套餐单价
-const SINGLE_PRICE = 8 // 单点炒饭粉面单价
+const MEAL_PRICE = 18 // 素套餐单价
+const SINGLE_PRICE = 9 // 单点炒饭粉面单价
 const JELLY_PRICE = 3 // 黑凉粉单价
 const CHANGE_PRICE = 2 // 换主食单价
 const ADD_PRICE = 1 // 加小食单价
