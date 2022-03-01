@@ -16,13 +16,6 @@ const AREAS = [
 		takers: [],
 	},
 	{
-		name: 'G区',
-		gate: 'G东',
-		regex: /[Gg][区东\d]/,
-		word: 'G',
-		takers: [],
-	},
-	{
 		name: 'K区',
 		gate: 'K区',
 		regex: /[Kk][区东\d]/,
@@ -32,8 +25,8 @@ const AREAS = [
 	},
 	{
 		name: 'J区',
-		gate: 'J西',
-		regex: /[Jj][区西\d]/,
+		gate: 'J南',
+		regex: /[Jj][区南\d]/,
 		word: 'J',
 		put: true,
 		// takers: ['刘展-J区'],
@@ -70,6 +63,13 @@ const AREAS = [
 		regex: /[Ff][区南\d]/,
 		word: 'F',
 		put: true,
+		takers: [],
+	},
+	{
+		name: 'G区',
+		gate: 'G东',
+		regex: /[Gg][区东\d]/,
+		word: 'G',
 		takers: [],
 	},
 	{
@@ -855,7 +855,7 @@ const USER_AREA_ECMIX =
 	/^\d+\.\s+(([A-Ma-m][区东西南北\d]((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*(易先苼°|ㅤㅤ赵伟|🐟李红|，幸福花开|[\u4e00-\u9fa5]+[ \-—_~～+]+[A-Za-z]*|[\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
 // 匹配格式如：小妍 H区，Fanni🌟 H3
 const USER_NAME_AREA =
-	/^\d+\.\s+(૮・ᴥ・ა|Lydia 🐳|(ପ赵大腿儿ଓ|J.C. |eLiauK（J\.X\.Y）|Emma~~ |黄焖Jimmy饭|Hannah🦁|ㅤㅤ赵伟|Ivy\(Feng Xiaoling） |Xu.|liиz|404 Not Found|小明•王 ，|隆愿～桂香|皮卡丘\*梅|Uwangzuge🦌|🐈 一周|教练焦雅琴-华为|At.|Linli.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬🐯|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina..💭|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d]((P\d)?(门岗)?|东门)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u // ([，, -—_]?([多少]饭|不要米饭))?
+	/^\d+\.\s+(ぃ半梦半醒半疯癫|🌈燕儿飞🌈|王艳（晚11点睡）|૮・ᴥ・ა|Lydia 🐳|(ପ赵大腿儿ଓ|J.C. |eLiauK（J\.X\.Y）|Emma~~ |黄焖Jimmy饭|Hannah🦁|ㅤㅤ赵伟|Ivy\(Feng Xiaoling） |Xu.|liиz|404 Not Found|小明•王 ，|隆愿～桂香|皮卡丘\*梅|Uwangzuge🦌|🐈 一周|教练焦雅琴-华为|At.|Linli.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬🐯|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina..💭|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m][区东西南北\d]((P\d)?(门岗)?|东门)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
 const USER_CENAME_AREA =
 	/^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m][区东西南北\d]((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u
