@@ -1,20 +1,20 @@
 # order-veg-meal
 
-## 订素餐项目
+## 华为订素餐项目
 
 - 初衷：让更多人更方便选择素食 ☘🍀🌱🌾🌽🥬🍎 希望为推广素食略尽绵薄之力 ✨
 - 愿景：借助互联网的力量推广素食。项目属于公益性质，欢迎有兴趣的小伙伴加入 💫
 
 ## 程序入口
 
-- 核心代码: index.html index.js chn2number style.css
-- codepen:
-- 运行试一试: https://codepen.io/messfairy/full/qBOKzqW
-  （拷贝接龙到输入框，点击各区统计即可得运行结果）
-- 线上源码编辑: https://codepen.io/messfairy/pen/qBOKzqW
-  （提示登录则输入用户名/密码，公共账号: lifesrc/lifesrc123)
-  CODING 开放平台：
-  https://messfairy-01.coding.net/p/order-veg-meal/d/order-veg-meal/git
+- 功能介绍：为素餐群店方提供了以下功能：各区统计（接龙分区、各区份数、各区金额、送餐路线），单区统计，核对账单（接龙、账单手动或自动匹配）。
+- 功能预览: https://codepen.io/messfairy/full/qBOKzqW；主功能试用步骤：
+  拷贝微信接龙、点击各区统计，即可统计分区、各区金额、送餐路线；
+  拷贝微信接龙、选取当日微信账单、点击核对账单，即可统计接龙费用和收款账单，支持“用户接龙-账单”自动匹配和手动匹配。
+- 线上源码:
+  github: https://codepen.io/messfairy/pen/qBOKzqW（提示登录则输入用户名/密码，公共账号: lifesrc/lifesrc123)
+  CODING 开放平台：https://messfairy-01.coding.net/p/order-veg-meal/d/order-veg-meal/git
+- 核心代码: el-index.html el-index.js index.html index.js chn2number style.css
 
 ```javascript
 // 错误的正则，eval之后丢失了\反引号
