@@ -187,6 +187,7 @@ function groupAreaAll(jielongLeft, findKeys) {
 }
 
 const ID_REGEX = /^(\d+)\.\s+/
+const PRICE_REGEX = /套餐价格(\d+)元/
 const SEPARATE_REGEX = /[\s;；,，、:：]/
 // const CANCEL_OMIT_REGEX = /[\s;；,，、\)）](取消|CANCEL|\-) *$/i
 const CANCEL_CURRENT = /[\s;；,，、\)）](取消|CANCEL)/i
@@ -245,7 +246,7 @@ const CHANGE_STAPLE =
 const CHANGE_VEG =
 	/(^|[^A-Ma-m])(((\d+)|([零一二两三四五六七八九十百千万亿]+))[份分个]?|都是)?([多少]菜|([\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+([换換改]|都要)|不(需?要|用)|[换換免无飞走去])[\u4e00-\u4e13\u4e15-\u4efc\u4efe-\u6361\u6363-\u63da\u63dc-\u9fa5]+)/g
 
-const MEAL_PRICE = 18 // 素套餐单价
+const MEAL_PRICE = 18 // 素套餐默认单价
 const SINGLE_PRICE = 9 // 单点炒饭粉面单价
 const JELLY_PRICE = 3 // 黑凉粉单价
 const CHANGE_PRICE = 2 // 换主食单价
@@ -1499,7 +1500,11 @@ function handleAll() {
 		return
 	}
 	showAreaOutput(vm)
-	const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
+
+	const jIndex = inputJielong.indexOf('1. ')
+	const matched = PRICE_REGEX.exec(inputJielong.slice(0, jIndex))
+	PRICE_TYPE_MAP.mealCount = matched[1]
+	const jielongContent = inputJielong.slice(jIndex)
 	const { list, map } = parseJielong(jielongContent.split('\n'))
 	console.log('parseJielong list, map: ', list, map)
 	const areaGroup = groupAreaAll(list, ['name', 'regex'])
@@ -1528,7 +1533,10 @@ async function handleCheck() {
 	}
 	showPaidList(vm)
 	try {
-		const jielongContent = inputJielong.slice(inputJielong.indexOf('1. '))
+		const jIndex = inputJielong.indexOf('1. ')
+		const matched = PRICE_REGEX.exec(inputJielong.slice(0, jIndex))
+		PRICE_TYPE_MAP.mealCount = matched[1]
+		const jielongContent = inputJielong.slice(jIndex)
 		// const jielongOutput = jielongContent
 		// 	.split('\n')
 		// 	.filter(lineContent => {
