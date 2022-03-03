@@ -74,6 +74,10 @@
 			<textarea placeholder="请输入接龙" v-model="inputJielong"></textarea>
 			<input type="file" id="paid-file" name="paidFile" class="input-file" accept=".csv"
 				@change="e => this.files = e.target.files" />
+			<div style="display: none;">
+				<span>账单文件(云存储)</span>
+				<textarea v-model="inputFileUri" style="width: 310px;" disabled></textarea>
+			</div>
 			<div class="actions">
 				<button id="all-button" @click="handleAll"><span>各区统计</span></button>
 				<button id="check-button" @click="handleCheck"><span>核对账单</span></button>
