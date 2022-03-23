@@ -35,7 +35,7 @@ const AREAS = [
 	{
 		name: '云谷',
 		gate: '云谷',
-		regex: /云谷(\d?[A-Da-d])?座?/,
+		regex: /云谷(\d?[A-Da-d])?座?|\d栋[A-Da-d]座?/,
 		word: '云',
 		put: true,
 		takers: [],
@@ -68,7 +68,7 @@ const AREAS = [
 	{
 		name: 'G区',
 		gate: 'G东',
-		regex: /[Gg][区东\d]/,
+		regex: /[GＧg][区东\d]/,
 		word: 'G',
 		takers: [],
 	},
@@ -187,6 +187,7 @@ function groupAreaAll(jielongLeft, findKeys) {
 }
 
 const ID_REGEX = /^(\d+)\.\s+/
+const PHONE_REGEXP = /[1-9]\d{10}/
 const PRICE_REGEX = /套餐价格(\d+)元/
 const SEPARATE_REGEX = /[\s;；,，、:：]/
 // const CANCEL_OMIT_REGEX = /[\s;；,，、\)）](取消|CANCEL|\-) *$/i
@@ -513,7 +514,7 @@ function countByConditions(jielongList) {
 		})
 
 		if (count * factor === 1) {
-			if (conditions.length > 1) {
+			if (conditions.length) {
 				const complexCount = count * factor
 				const complexOutput = conditions
 					.sort((a, b) => b.count - a.count)
@@ -786,6 +787,7 @@ function parseJielong(jielongArray) {
 
 	const list = []
 	const map = {}
+	idPrefixMap = {}
 	function setupJielong(jielong) {
 		const oid = getOriginId(jielong)
 		if (!oid) {
@@ -796,7 +798,7 @@ function parseJielong(jielongArray) {
 		const area = getArea(jielong, ['name', 'regex'])
 		const name = getName(jielong, area)
 		const factor = getFactor(jielong)
-		const rjielong = jielong.replace(ID_REGEX, '').replace(name, '')
+		const rjielong = jielong.replace(ID_REGEX, '').replace(name, '').replace(PHONE_REGEXP, '')
 		const count = getCount(rjielong)
 		const isPaid = MEAL_PAID.test(rjielong)
 		const jielongObj = { id, idPrefix, jielong, rjielong, area, name, count, factor, conditions: [], isPaid }
@@ -838,17 +840,17 @@ function getId(jielong) {
 	return idPrefix + oid
 }
 
-const idPrefixMap = {}
+let idPrefixMap = {}
 function setIDPrefix(oid) {
 	if (idPrefixMap[oid] === undefined) {
-		idPrefixMap[oid] = 0
+		idPrefixMap[oid] = 1
 	} else {
 		idPrefixMap[oid]++
 	}
 }
 function getIDPrefix(oid) {
 	const prefix = idPrefixMap[oid]
-	return prefix > 0 ? `${prefix}-` : ''
+	return prefix > 1 ? `${prefix}-` : ''
 }
 
 function getArea(jielong, findKeys) {
@@ -873,24 +875,24 @@ function getArea(jielong, findKeys) {
 
 // 匹配格式如：H区小妍Fanni🌟
 /* eslint-disable no-misleading-character-class */
-// const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m]([区东西南北]|\d{1,2})((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口)|金荣达[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
+// const USER_AREA_ECMIX = /^\d+\.\s+(([A-Ma-m]([区东西南北]|\d{1,2})((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|\d栋[A-Da-d]座?|华为(地铁)?站?[Aa]出口)|金荣达[ \-—_~～+]*([\u4e00-\u9fa5A-Za-z]+|\d+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
 const USER_AREA_ECMIX =
-	/^\d+\.\s+(([A-Ma-m]([区东西南北]|\d{1,2})((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*(易先苼°|ㅤㅤ赵伟|🐟李红|，幸福花开|[\u4e00-\u9fa5]+[ \-—_~～+]+[A-Za-z]*|[\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
+	/^\d+\.\s+(([A-Ma-m]([区东西南北]|\d{1,2})((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|\d栋[A-Da-d]座?|华为(地铁)?站?[Aa]出口|金荣达)[ \-—_~～+]*(易先苼°|🐟李红|，幸福花开|[\u4e00-\u9fa5]+[ \-—_~～+]+[A-Za-z]*|[\u4e00-\u9fa5A-Za-z]+|$)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*)/u
 // 匹配格式如：小妍 H区，Fanni🌟 H3
 const USER_NAME_AREA =
-	/^\d+\.\s+((🌟💗知彤💗🌟|小狗烩饭🥘|🐱Vikey\.Zhang🍭|1coin|K\.Q|ぃ半梦半醒半疯癫|🌈燕儿飞🌈|王艳（晚11点睡）|૮・ᴥ・ა|Lydia 🐳|ପ赵大腿儿ଓ|J\.C\. |eLiauK（J\.X\.Y）|Emma~~ |黄焖Jimmy饭|Hannah🦁|ㅤㅤ赵伟|Ivy\(Feng Xiaoling） |Xu\.|liиz|404 Not Found|小明•王 ，|隆愿～桂香|皮卡丘\*梅|Uwangzuge🦌|🐈 一周|教练焦雅琴-华为|At\.|Linli\.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬🐯|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina\.\.💭|sᴛᴀʀʀʏ\.|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-m]([区东西南北]|\d{1,2})((P\d)?(门岗)?|东门)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u // ([，, -—_]?([多少]饭|不要米饭))?
+	/^\d+\.\s+((gm2022|Zhao\.1900|🌟💗知彤💗🌟|小狗烩饭🥘|🐱Vikey\.Zhang🍭|1coin|K\.Q|ぃ半梦半醒半疯癫|🌈燕儿飞🌈|王艳（晚11点睡）|૮・ᴥ・ა|Lydia 🐳|ପ赵大腿儿ଓ|J\.C\. |eLiauK（J\.X\.Y）|Emma~~ |黄焖Jimmy饭|Hannah🦁|Ivy\(Feng Xiaoling） |Xu\.|liиz|404 Not Found|小明•王 ，|隆愿～桂香|皮卡丘\*梅|Uwangzuge🦌|🐈 一周|教练焦雅琴-华为|At\.|Linli\.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬🐯|🍭オゥシュゥ🍭|喵喵张😝|🍋 易湘娇|尐霏|🍀 杨茜|\^点点滴滴\^|_Carina\.\.💭|sᴛᴀʀʀʏ\.|L~i~n|Cindy。|Nancy。|641℃|[\u4e00-\u9fa5]+|[A-Z a-z]+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦🍼● ོ་]*[ \-—_~～+,，]*([A-Ma-mＧ]([区东西南北](-\d{1,2}|-C)?|\d{1,2})((P\d)?(门岗)?|东门)?|云谷一栋B座|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|\d栋[A-Da-d]座?|华为(地铁)?站?[Aa]出口|金荣达))/u // ([，, -—_]?([多少]饭|不要米饭))?
 // 匹配格式如：小妍 Fanni🌟H区
 const USER_CENAME_AREA =
-	/^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m]([区东西南北]|\d{1,2})((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u
+	/^\d+\.\s+(([\u4e00-\u9fa5]+ *([A-Z a-z]*|\d*))[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m]([区东西南北]|\d{1,2})((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|\d栋[A-Da-d]座?|华为(地铁)?站?[Aa]出口|金荣达))/u
 // 匹配格式如：Fanni 小妍🌟H区
 const USER_ECNAME_AREA =
-	/^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m]([区东西南北]|\d{1,2})((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u
+	/^\d+\.\s+(([A-Za-z]+(\([A-Z a-z●–]+\))? *[\u4e00-\u9fa5]*)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m]([区东西南北]|\d{1,2})((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|\d栋[A-Da-d]座?|华为(地铁)?站?[Aa]出口|金荣达))/u
 // 匹配格式如：Fanni 小FF妍🌟H区
 const USER_ECMIX_AREA =
-	/^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m]([区东西南北]|\d{1,2})((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|华为(地铁)?站?[Aa]出口|金荣达))/u
+	/^\d+\.\s+(([\u4e00-\u9fa5A-Z a-z]+|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*([A-Ma-m]([区东西南北]|\d{1,2})((P5)?门岗|东门)?|云谷\s*\d+栋|[云微]谷(\d?[A-Da-d])?座?|\d栋[A-Da-d]座?|华为(地铁)?站?[Aa]出口|金荣达))/u
 // 匹配其它格式：无园区，列举特别格式的姓名
 const USER_ESP_OTHER_NAME =
-	/^\d+\.\s+((LSJ-李盛杰 -百草园北门|小蝈 百草园北门|Wz-百草园西南门门岗|Xu.-华创云轩B座大堂|🌟💗知彤💗🌟|皮卡丘\*梅|卢光栩|张胖-呈祥花园|百草园西门-虞|1coin|K\.Q|ぃ半梦半醒半疯癫|🌈燕儿飞🌈|王艳（晚11点睡）|૮・ᴥ・ა|eLiauK（J\.X\.Y）|ㅤㅤ翠花|Uwangzuge🦌|ㅤㅤ|ㅤㅤ赵伟|Linli\.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬🐯|喵喵张😝|🍋 易湘娇|尐霏|宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🍀 杨茜|_Carina\.\.💭|🌱Carina|_Carina🌱|🌻Xue、|🍭オゥシュゥ🍭|sᴛᴀʀʀʏ\.)[ \-—_~～+]*(天安云谷|[A-Ma-m])?)/u
+	/^\d+\.\s+((LeLe “Ｇ区- C”|LSJ-李盛杰 -百草园北门|小蝈 百草园北门|Wz-百草园西南门门岗|Xu.-华创云轩B座大堂|🌟💗知彤💗🌟|皮卡丘\*梅|卢光栩|张胖-呈祥花园|百草园西门-虞|1coin|K\.Q|ぃ半梦半醒半疯癫|🌈燕儿飞🌈|王艳（晚11点睡）|૮・ᴥ・ა|eLiauK（J\.X\.Y）|ㅤㅤ翠花|Uwangzuge🦌|ㅤㅤ|Linli\.z|馮青菊（Lynette）🍜|痴迷、淡然|懒喵喵╮|倩倩Amoe💛|玲火火🔥|卷猫猫🐱|葫芦大侠_欢|。|WF🎵|@宋宋|ଳ|Uwangzuge🥨|💋YG_廖✨🌟|🌙 Moonlion|🍀Mʚ💋ɞ🍬🐯|喵喵张😝|🍋 易湘娇|尐霏|宝妹儿~|维 维|danna ²⁰²⁰|Cindy。|Nancy。|🍀 杨茜|_Carina\.\.💭|🌱Carina|_Carina🌱|🌻Xue、|🍭オゥシュゥ🍭|sᴛᴀʀʀʏ\.)[ \-—_~～+]*(天安云谷|[A-Ma-m])?)/u
 // const USER_ECMIX_OTHER_NAME = /^\d+\.\s+(([\u4e00-\u9fa5]+ *[A-Za-z]*|[A-Za-z]+ *[\u4e00-\u9fa5]*|\d+)[ \-—_~～+]*[A-Ma-m]?)/u
 const USER_ECMIX_OTHER_NAME =
 	/^\d+\.\s+(([\u4e00-\u9fa5]+[ \-—_~～+]*[A-Za-z]*|[A-Za-z]+[ \-—_~～+]+[A-Za-z]+|[A-Za-z]+[ \-—_~～+]*[\u4e00-\u9fa5]*|\d+)[🌱🍀🍃🌵🌻🌼🌸🍉🍭🎈🐟🦋🐝🌈🌟✨🎀💋💤💦● ོ་]*[ \-—_~～+]*[A-Ma-m]?)/u
@@ -1524,7 +1526,7 @@ function handleAll() {
 	}
 	showAreaOutput(vm)
 
-	const jIndex = inputJielong.indexOf('1. ')
+	const jIndex = inputJielong.search(/[1-9]\. /)
 	const matched = PRICE_REGEX.exec(inputJielong.slice(0, jIndex))
 	if (matched) {
 		PRICE_TYPE_MAP.mealCount = matched[1] || MEAL_PRICE
