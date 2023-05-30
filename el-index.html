@@ -8,8 +8,8 @@
 	<link rel="shortcut icon" type="image/x-icon" href="images/codepen.ico" />
 	<link rel="mask-icon" href="images/logo.svg" color="#111" />
 	<!--引入 element-ui 的样式，-->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui/lib/theme-chalk/index.css" />
-	<link rel="stylesheet" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/element-ui/lib/theme-chalk/index.css" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 
 <body translate="no">
@@ -91,7 +91,7 @@
 		</div>
 		<div class="jielong-checkgroup" v-if="showJielongChecked" v-cloak>
 			<div style="margin-bottom: 25px; display: flex; justify-content: space-between;">
-				<strong style="font-size: 16px">## 接龙费用</strong>
+				<strong style="font-size: 16px">## 用户应付</strong>
 				<el-button-group>
 					<el-button size="mini" icon="el-icon-arrow-left" @click="window.location.reload()">
 						<span>首页</span>
@@ -108,7 +108,7 @@
 		</div>
 		<div class="benefic-list" v-if="showBeneficList" v-cloak>
 			<div style="margin-bottom: 5px;">
-				<strong style="font-size: 16px">## 收款账单</strong>
+				<strong style="font-size: 16px">## 已付账单</strong>
 				<amount-counter ref="amountCounter" v-bind="totalAmount"></amount-counter>
 			</div>
 			<paid-table ref="currentTable" :table-data="tableData" @selection-change="handleSelectionChange"></paid-table>

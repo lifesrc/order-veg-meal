@@ -80,4 +80,5 @@
   },
   "files.insertFinalNewline": true,
   "vetur.format.options.useTabs": true,
+  "liveServer.settings.port": 5501,
 }
